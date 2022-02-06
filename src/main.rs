@@ -20,8 +20,8 @@ fn main() {
 
     // tracer::save_image(800, 600, 500);
     // tracer::save_image_mt(512, 512, 50);
-    // trace_with_minifb(400, 300, &mut fps_counter);
-    trace_with_sdl(400, 300);
+    trace_with_minifb(400, 300, &mut fps_counter);
+    // trace_with_sdl(400, 300);
 
     println!("Average fps: {}", fps_counter.average_frames_per_second());
 }
@@ -56,9 +56,26 @@ fn trace_with_sdl(width: u32, height: u32) {
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     'running: loop {
+        let mut keys: u8 = 0; // 0000ADWS
         for event in event_pump.poll_iter() {
             match event {
                 sdl2::event::Event::Quit { .. } => break 'running,
+                sdl2::event::Event::KeyDown {
+                    keycode: Some(Keycode::A),
+                    ..
+                } => keys += 1 << 3,
+                sdl2::event::Event::KeyDown {
+                    keycode: Some(Keycode::D),
+                    ..
+                } => keys += 1 << 2,
+                sdl2::event::Event::KeyDown {
+                    keycode: Some(Keycode::W),
+                    ..
+                } => keys += 1 << 1,
+                sdl2::event::Event::KeyDown {
+                    keycode: Some(Keycode::S),
+                    ..
+                } => keys += 1,
                 sdl2::event::Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
@@ -67,7 +84,7 @@ fn trace_with_sdl(width: u32, height: u32) {
             }
         }
 
-        cpu_tracer::update(&mut scene, 0);
+        cpu_tracer::update(&mut scene, keys);
 
         framebuffer
             .update(None, &scene.pixels, width as usize * CHANNEL_COUNT)
