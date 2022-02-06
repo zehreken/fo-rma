@@ -7,7 +7,7 @@ use sdl2::render::*;
 use std::time::Duration;
 mod fps_utils;
 use crate::fps_utils::fps_utils::*;
-mod cpu_tracer;
+mod cpu_path_tracer;
 use minifb::{Key, Window, WindowOptions};
 mod strict_covers;
 mod thread_test;
@@ -36,7 +36,7 @@ fn trace_with_sdl(width: u32, height: u32) {
         .build()
         .unwrap();
 
-    let mut scene = cpu_tracer::create_scene(width, height, 3);
+    let mut scene = cpu_path_tracer::create_scene(width, height, 3);
 
     let mut canvas = window.into_canvas().build().unwrap();
     canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -84,7 +84,7 @@ fn trace_with_sdl(width: u32, height: u32) {
             }
         }
 
-        cpu_tracer::update(&mut scene, keys);
+        cpu_path_tracer::update(&mut scene, keys);
 
         framebuffer
             .update(None, &scene.pixels, width as usize * CHANNEL_COUNT)
@@ -114,7 +114,7 @@ fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCounter) 
         panic!("{}", e);
     });
 
-    let mut scene = cpu_tracer::create_scene(width as u32, height as u32, 3);
+    let mut scene = cpu_path_tracer::create_scene(width as u32, height as u32, 3);
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
@@ -133,7 +133,7 @@ fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCounter) 
         if window.is_key_down(Key::S) {
             keys += 1;
         }
-        cpu_tracer::update(&mut scene, keys);
+        cpu_path_tracer::update(&mut scene, keys);
         let mut index = 0;
         for i in buffer.iter_mut() {
             let color: u32 = ((scene.pixels[index] as u32) << 16)
