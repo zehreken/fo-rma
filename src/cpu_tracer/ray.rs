@@ -1,4 +1,4 @@
-use crate::primitives::vec3::*;
+use super::primitives::vec3::*;
 use std::fmt;
 
 #[derive(Debug, Copy, Clone)]

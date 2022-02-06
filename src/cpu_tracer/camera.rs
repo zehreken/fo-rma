@@ -1,6 +1,6 @@
-use crate::primitives::vec3::*;
-use crate::ray::*;
-use crate::utility::*;
+use super::primitives::vec3::*;
+use super::ray::*;
+use super::utility::*;
 
 const PI: f32 = 3.14159265359;
 

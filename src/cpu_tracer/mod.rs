@@ -1,8 +1,13 @@
-use crate::camera::*;
-use crate::primitives::vec3::*;
-use crate::ray::*;
-use crate::sphere::*;
+mod camera;
+pub mod primitives;
+mod ray;
+pub mod sphere;
+mod utility;
+use camera::*;
+use primitives::vec3::*;
 use rand::Rng;
+use ray::*;
+use sphere::*;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;

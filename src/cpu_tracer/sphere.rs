@@ -1,6 +1,6 @@
-use crate::primitives::vec3::*;
-use crate::ray::*;
-use crate::utility::*;
+use super::primitives::vec3::*;
+use super::ray::*;
+use super::utility::*;
 use std::fmt;
 
 pub trait Hitable {

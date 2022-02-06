@@ -168,7 +168,7 @@ pub mod vec3 {
 
 #[cfg(test)]
 mod vec3_tests {
-    use crate::primitives::vec3::*;
+    use crate::cpu_tracer::primitives::vec3::*;
     // use super::*;
 
     #[test]

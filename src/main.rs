@@ -5,14 +5,9 @@ use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::rect::Rect;
 use sdl2::render::*;
 use std::time::Duration;
-mod camera;
 mod fps_utils;
-mod primitives;
-mod ray;
-mod sphere;
-mod utility;
 use crate::fps_utils::fps_utils::*;
-mod tracer;
+mod cpu_tracer;
 use minifb::{Key, Window, WindowOptions};
 mod strict_covers;
 mod thread_test;
@@ -24,9 +19,9 @@ fn main() {
     let mut fps_counter = FpsCounter::new();
 
     // tracer::save_image(800, 600, 500);
-    tracer::save_image_mt(512, 512, 50);
+    // tracer::save_image_mt(512, 512, 50);
     // trace_with_minifb(400, 300, &mut fps_counter);
-    // trace_with_sdl(200, 150);
+    trace_with_sdl(400, 300);
 
     println!("Average fps: {}", fps_counter.average_frames_per_second());
 }
@@ -41,7 +36,7 @@ fn trace_with_sdl(width: u32, height: u32) {
         .build()
         .unwrap();
 
-    let mut scene = tracer::create_scene(width, height, 3);
+    let mut scene = cpu_tracer::create_scene(width, height, 3);
 
     let mut canvas = window.into_canvas().build().unwrap();
     canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -72,7 +67,7 @@ fn trace_with_sdl(width: u32, height: u32) {
             }
         }
 
-        tracer::update(&mut scene, 0);
+        cpu_tracer::update(&mut scene, 0);
 
         framebuffer
             .update(None, &scene.pixels, width as usize * CHANNEL_COUNT)
@@ -102,7 +97,7 @@ fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCounter) 
         panic!("{}", e);
     });
 
-    let mut scene = tracer::create_scene(width as u32, height as u32, 3);
+    let mut scene = cpu_tracer::create_scene(width as u32, height as u32, 3);
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
@@ -121,7 +116,7 @@ fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCounter) 
         if window.is_key_down(Key::S) {
             keys += 1;
         }
-        tracer::update(&mut scene, keys);
+        cpu_tracer::update(&mut scene, keys);
         let mut index = 0;
         for i in buffer.iter_mut() {
             let color: u32 = ((scene.pixels[index] as u32) << 16)

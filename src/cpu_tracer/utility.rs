@@ -1,4 +1,4 @@
-use crate::primitives::vec3::*;
+use super::primitives::vec3::*;
 use rand::Rng;
 
 pub fn random_in_unit_circle() -> Vec3 {
