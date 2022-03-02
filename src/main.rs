@@ -5,12 +5,10 @@ use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::rect::Rect;
 use sdl2::render::*;
 use std::time::Duration;
-mod fps_utils;
-use crate::fps_utils::fps_utils::*;
-mod cpu_path_tracer;
+pub mod cpu_path_tracer;
+mod misc;
 use minifb::{Key, Window, WindowOptions};
-mod strict_covers;
-mod thread_test;
+use misc::fps_utils::FpsCounter;
 
 fn main() {
     // thread_test::test_thread();

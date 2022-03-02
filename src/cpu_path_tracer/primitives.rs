@@ -51,12 +51,12 @@ pub mod vec3 {
             return self.z;
         }
 
-        pub fn squared_length(self) -> f32 {
+        pub fn length_squared(self) -> f32 {
             return self.x * self.x + self.y * self.y + self.z * self.z;
         }
 
         pub fn length(self) -> f32 {
-            return self.squared_length().sqrt();
+            return self.length_squared().sqrt();
         }
 
         pub fn dot(a: Vec3, b: Vec3) -> f32 {
@@ -169,12 +169,11 @@ pub mod vec3 {
 #[cfg(test)]
 mod vec3_tests {
     use crate::cpu_path_tracer::primitives::vec3::*;
-    // use super::*;
 
     #[test]
     fn test_length() {
         let a: Vec3 = Vec3::new(2.0, -3.0, -1.2);
-        assert_eq!(a.squared_length(), 14.440001);
+        assert_eq!(a.length_squared(), 14.440001);
         assert_eq!(a.length(), 3.8);
     }
 

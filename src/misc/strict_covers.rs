@@ -1,5 +1,5 @@
-use super::cpu_path_tracer::primitives::vec3::*;
-use super::cpu_path_tracer::sphere::*;
+use super::super::cpu_path_tracer::primitives::vec3::*;
+use super::super::cpu_path_tracer::sphere::*;
 
 pub fn get_objects() -> Vec<Sphere> {
     get_cover_07()

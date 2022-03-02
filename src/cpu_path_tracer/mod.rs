@@ -28,10 +28,11 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
 
     Scene {
         camera,
-        objects: super::strict_covers::get_objects(),
+        // objects: super::strict_covers::get_objects(),
+        objects: get_objects(),
         width,
         height,
-        channel_count,
+        channel_count, // rgb
         colors: vec![Vec3::zero(); width as usize * height as usize],
         pixels: vec![0; width as usize * height as usize * channel_count],
     }
@@ -62,7 +63,7 @@ fn render(scene: &mut Scene) {
     let channel_count = scene.channel_count; // Color channel
     let (tx, rx): (Sender<(u8, Vec<u8>)>, Receiver<(u8, Vec<u8>)>) = mpsc::channel();
     let mut children = Vec::new();
-    const NTHREADS: u8 = 4;
+    const NTHREADS: u8 = 6;
     let t_height = height / NTHREADS as u32;
     let t_offset: f32 = 1.0 / NTHREADS as f32;
 

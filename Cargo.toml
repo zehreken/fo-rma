@@ -2,7 +2,7 @@
 name = "rt-rs"
 version = "0.1.0"
 authors = ["zehreken <zehreken@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,7 +10,7 @@ edition = "2018"
 image = "0.24.0"
 rand = "0.8.4"
 minifb = "0.20.0"
-puffin = "0.12.1"
+puffin = "0.13"
 
 [dependencies.sdl2]
 version = "0.35.1"
