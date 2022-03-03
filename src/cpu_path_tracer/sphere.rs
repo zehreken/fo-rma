@@ -45,6 +45,7 @@ impl Hitable for Sphere {
 
                 return true;
             }
+
             temp = (-b + discriminant.sqrt()) / a;
             if temp > t_min && temp < t_max {
                 hit_record.t = temp;

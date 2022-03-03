@@ -1,4 +1,5 @@
 mod camera;
+pub mod plane;
 pub mod primitives;
 mod ray;
 pub mod sphere;
@@ -28,7 +29,8 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
 
     Scene {
         camera,
-        // objects: super::strict_covers::get_objects(),
+        // objects: super::misc::strict_covers::get_objects(),
+        // objects: get_simple_scene(),
         objects: get_objects(),
         width,
         height,
