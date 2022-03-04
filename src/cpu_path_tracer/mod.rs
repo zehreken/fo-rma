@@ -26,6 +26,7 @@ pub struct Scene {
 
 pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
     let camera = Camera::get_camera(width, height);
+    let ray_count: usize = (width * height) as usize;
 
     Scene {
         camera,
@@ -35,8 +36,8 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
         width,
         height,
         channel_count, // rgb
-        colors: vec![Vec3::zero(); width as usize * height as usize],
-        pixels: vec![0; width as usize * height as usize * channel_count],
+        colors: vec![Vec3::zero(); ray_count],
+        pixels: vec![0; ray_count * channel_count],
     }
 }
 
@@ -124,9 +125,10 @@ pub fn save_image_mt(width: u32, height: u32, sample: u32) {
     let mut scene = create_scene(width, height, 3);
 
     let mut pixels: Vec<f32> = vec![0.0; width as usize * height as usize * 3];
+    println!("{}, {}", scene.pixels.len(), pixels.len());
     for _ in 0..sample {
         render(&mut scene);
-        for i in 0..pixels.len() {
+        for i in 0..scene.pixels.len() {
             pixels[i] += scene.pixels[i] as f32 / sample as f32;
         }
     }
@@ -271,7 +273,7 @@ fn get_objects() -> Vec<Sphere> {
         Vec3::new(0.0, -100.5, -1.0),
         100.0,
         0,
-        Vec3::new(0.3, 0.1, 0.5),
+        Vec3::new(0.1, 0.3, 0.9),
         0.0,
     ));
 
