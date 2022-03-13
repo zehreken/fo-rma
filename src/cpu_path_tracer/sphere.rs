@@ -3,10 +3,10 @@ use super::ray::*;
 use super::utility::*;
 use std::fmt;
 
-pub trait Hitable {
-    fn hit(self, ray: Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool;
+pub trait Hitable: Send {
+    fn hit(&self, ray: Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool;
     fn scatter(
-        self,
+        &self,
         ray: Ray,
         hit_record: &mut HitRecord,
         reflect_record: &mut ReflectRecord,
@@ -29,7 +29,7 @@ impl fmt::Display for Sphere {
 }
 
 impl Hitable for Sphere {
-    fn hit(self, ray: Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool {
+    fn hit(&self, ray: Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool {
         let origin_to_center: Vec3 = ray.origin() - self.center;
         let a: f32 = Vec3::dot(ray.direction(), ray.direction());
         let b: f32 = Vec3::dot(origin_to_center, ray.direction());
@@ -37,19 +37,19 @@ impl Hitable for Sphere {
         let discriminant: f32 = b * b - a * c;
 
         if discriminant > 0.0 {
-            let mut temp: f32 = (-b - discriminant.sqrt()) / a;
-            if temp > t_min && temp < t_max {
-                hit_record.t = temp;
-                hit_record.p = ray.point_at(temp);
+            let root_one: f32 = (-b - discriminant.sqrt()) / a;
+            if root_one > t_min && root_one < t_max {
+                hit_record.t = root_one;
+                hit_record.p = ray.point_at(root_one);
                 hit_record.normal = (hit_record.p - self.center) / self.radius;
 
                 return true;
             }
 
-            temp = (-b + discriminant.sqrt()) / a;
-            if temp > t_min && temp < t_max {
-                hit_record.t = temp;
-                hit_record.p = ray.point_at(temp);
+            let root_two = (-b + discriminant.sqrt()) / a;
+            if root_two > t_min && root_two < t_max {
+                hit_record.t = root_two;
+                hit_record.p = ray.point_at(root_two);
                 hit_record.normal = (hit_record.p - self.center) / self.radius;
 
                 return true;
@@ -60,7 +60,7 @@ impl Hitable for Sphere {
     }
 
     fn scatter(
-        self,
+        &self,
         ray: Ray,
         hit_record: &mut HitRecord,
         reflect_record: &mut ReflectRecord,

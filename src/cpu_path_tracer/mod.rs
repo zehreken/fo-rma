@@ -1,3 +1,4 @@
+pub mod aabb;
 mod camera;
 pub mod plane;
 pub mod primitives;
@@ -5,6 +6,7 @@ mod ray;
 pub mod sphere;
 mod utility;
 use camera::*;
+use plane::*;
 use primitives::vec3::*;
 use rand::Rng;
 use ray::*;
@@ -13,10 +15,9 @@ use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
-#[derive(Clone)]
 pub struct Scene {
     camera: Camera,
-    objects: Vec<Sphere>,
+    objects: Vec<Box<dyn Hitable + Send>>,
     width: u32,
     height: u32,
     channel_count: usize,
@@ -32,7 +33,8 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
         camera,
         // objects: super::misc::strict_covers::get_objects(),
         // objects: get_simple_scene(),
-        objects: get_objects(),
+        // objects: get_objects(),
+        objects: get_plane_scene(),
         width,
         height,
         channel_count, // rgb
@@ -60,6 +62,18 @@ pub fn update(scene: &mut Scene, keys: u8) {
     render(scene);
 }
 
+fn copy_scene(scene: &Scene) -> Scene {
+    Scene {
+        camera: scene.camera,
+        objects: get_plane_scene(),
+        width: scene.width,
+        height: scene.height,
+        channel_count: scene.channel_count,
+        colors: scene.colors.clone(),
+        pixels: scene.pixels.clone(),
+    }
+}
+
 fn render(scene: &mut Scene) {
     let width = scene.width;
     let height = scene.height;
@@ -72,7 +86,7 @@ fn render(scene: &mut Scene) {
 
     for t in 0..NTHREADS {
         let thread_x = tx.clone();
-        let mut scene_x = scene.clone();
+        let mut scene_x = copy_scene(&scene);
         let child = thread::spawn(move || {
             let mut rng = rand::thread_rng();
             let size: usize = (width * t_height as u32) as usize;
@@ -150,7 +164,7 @@ pub fn save_image(width: u32, height: u32, sample: u32) {
     let mut img_buf = image::ImageBuffer::new(width, height);
     let mut rng = rand::thread_rng();
     let camera = Camera::get_camera(width, height);
-    let objects = get_objects();
+    let objects = get_plane_scene();
 
     for (x, y, pixel) in img_buf.enumerate_pixels_mut() {
         let mut col = Vec3::zero();
@@ -173,36 +187,58 @@ pub fn save_image(width: u32, height: u32, sample: u32) {
     img_buf.save("out/basic.png").unwrap();
 }
 
-fn color(ray: Ray, objects: &[Sphere], depth: u8) -> Vec3 {
+fn color(ray: Ray, objects: &Vec<Box<dyn Hitable + Send>>, depth: u8) -> Vec3 {
     let mut hit_record: HitRecord = HitRecord::new();
     let mut has_hit = false;
     let t_min: f32 = 0.001;
     let mut closest_so_far: f32 = std::f32::MAX;
-    let mut temp_obj = Sphere::new(Vec3::zero(), 0.0, 0, Vec3::zero(), 0.0);
+    // let mut temp_obj = Sphere::new(Vec3::zero(), 0.0, 0, Vec3::zero(), 0.0);
+    // let mut temp_obj;
 
     for obj in objects {
         if obj.hit(ray, t_min, closest_so_far, &mut hit_record) {
-            has_hit = true;
+            // has_hit = true;
             closest_so_far = hit_record.t;
-            temp_obj = *obj;
-        }
-    }
+            // temp_obj = obj;
+            // return Vec3::new(1.0, 0.0, 0.0);
 
-    if has_hit {
-        let mut reflect_record: ReflectRecord =
-            ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
-        if depth < 50 && temp_obj.scatter(ray, &mut hit_record, &mut reflect_record) {
-            return reflect_record.attenuation
-                * color(reflect_record.scattered, objects, depth + 1);
+            let mut reflect_record: ReflectRecord =
+                ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
+            if depth < 50 && obj.scatter(ray, &mut hit_record, &mut reflect_record) {
+                return reflect_record.attenuation
+                    * color(reflect_record.scattered, objects, depth + 1);
+            } else {
+                return Vec3::zero();
+            }
         } else {
-            return Vec3::zero();
-        }
-    } else {
-        let unit_direction: Vec3 = ray.direction().unit_vector();
-        let t: f32 = 0.5 * (unit_direction.y() + 1.0);
+            // No hit, assign sky color
+            let unit_direction: Vec3 = ray.direction().unit_vector();
+            let t: f32 = 0.5 * (unit_direction.y() + 1.0);
 
-        return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+            // This is the color of the sky
+            return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+        }
     }
+
+    return Vec3::zero();
+
+    // if has_hit {
+    //     let mut reflect_record: ReflectRecord =
+    //         ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
+    //     if depth < 50 && temp_obj.scatter(ray, &mut hit_record, &mut reflect_record) {
+    //         return reflect_record.attenuation
+    //             * color(reflect_record.scattered, objects, depth + 1);
+    //     } else {
+    //         return Vec3::zero();
+    //     }
+    // } else {
+    //     // No hit, assign sky color
+    //     let unit_direction: Vec3 = ray.direction().unit_vector();
+    //     let t: f32 = 0.5 * (unit_direction.y() + 1.0);
+
+    //     // This is the color of the sky
+    //     return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+    // }
 }
 
 fn get_simple_scene() -> Vec<Sphere> {
@@ -228,6 +264,26 @@ fn get_simple_scene() -> Vec<Sphere> {
         Vec3::new(0.7, 0.1, 0.7),
         0.0,
     ));
+
+    objects
+}
+
+fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
+    let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
+    objects.push(Box::new(Plane::new(
+        Vec3::new(0.0, -10.0, 100.0),
+        Vec3::new(90.0, 0.0, 0.0),
+        0,
+        Vec3::new(0.5, 0.1, 0.1),
+        0.0,
+    )));
+    objects.push(Box::new(Sphere::new(
+        Vec3::new(0.0, -100.5, -1.0),
+        100.0,
+        0, // lambertian
+        Vec3::new(0.5, 0.1, 0.1),
+        0.0,
+    )));
 
     objects
 }
