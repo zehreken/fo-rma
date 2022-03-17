@@ -13,7 +13,7 @@ use ray::*;
 use sphere::*;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
+use std::{default, thread};
 
 pub struct Scene {
     camera: Camera,
@@ -192,53 +192,33 @@ fn color(ray: Ray, objects: &Vec<Box<dyn Hitable + Send>>, depth: u8) -> Vec3 {
     let mut has_hit = false;
     let t_min: f32 = 0.001;
     let mut closest_so_far: f32 = std::f32::MAX;
-    // let mut temp_obj = Sphere::new(Vec3::zero(), 0.0, 0, Vec3::zero(), 0.0);
-    // let mut temp_obj;
+    let mut temp_obj = None;
 
     for obj in objects {
         if obj.hit(ray, t_min, closest_so_far, &mut hit_record) {
-            // has_hit = true;
+            has_hit = true;
             closest_so_far = hit_record.t;
-            // temp_obj = obj;
-            // return Vec3::new(1.0, 0.0, 0.0);
-
-            let mut reflect_record: ReflectRecord =
-                ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
-            if depth < 50 && obj.scatter(ray, &mut hit_record, &mut reflect_record) {
-                return reflect_record.attenuation
-                    * color(reflect_record.scattered, objects, depth + 1);
-            } else {
-                return Vec3::zero();
-            }
-        } else {
-            // No hit, assign sky color
-            let unit_direction: Vec3 = ray.direction().unit_vector();
-            let t: f32 = 0.5 * (unit_direction.y() + 1.0);
-
-            // This is the color of the sky
-            return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+            temp_obj = Some(obj);
         }
     }
 
-    return Vec3::zero();
+    if let Some(obj) = temp_obj {
+        let mut reflect_record: ReflectRecord =
+            ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
+        if depth < 50 && obj.scatter(ray, &mut hit_record, &mut reflect_record) {
+            return reflect_record.attenuation
+                * color(reflect_record.scattered, objects, depth + 1);
+        } else {
+            return Vec3::zero();
+        }
+    } else {
+        // No hit, assign sky color
+        let unit_direction: Vec3 = ray.direction().unit_vector();
+        let t: f32 = 0.5 * (unit_direction.y() + 1.0);
 
-    // if has_hit {
-    //     let mut reflect_record: ReflectRecord =
-    //         ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
-    //     if depth < 50 && temp_obj.scatter(ray, &mut hit_record, &mut reflect_record) {
-    //         return reflect_record.attenuation
-    //             * color(reflect_record.scattered, objects, depth + 1);
-    //     } else {
-    //         return Vec3::zero();
-    //     }
-    // } else {
-    //     // No hit, assign sky color
-    //     let unit_direction: Vec3 = ray.direction().unit_vector();
-    //     let t: f32 = 0.5 * (unit_direction.y() + 1.0);
-
-    //     // This is the color of the sky
-    //     return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
-    // }
+        // This is the color of the sky
+        return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+    }
 }
 
 fn get_simple_scene() -> Vec<Sphere> {
@@ -271,7 +251,7 @@ fn get_simple_scene() -> Vec<Sphere> {
 fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
     let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
     objects.push(Box::new(Plane::new(
-        Vec3::new(0.0, -10.0, 100.0),
+        Vec3::new(0.0, -10.0, -100.0),
         Vec3::new(90.0, 0.0, 0.0),
         0,
         Vec3::new(0.5, 0.1, 0.1),
