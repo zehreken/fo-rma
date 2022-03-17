@@ -36,7 +36,11 @@ impl Hitable for Plane {
         hit_record: &mut HitRecord,
         reflect_record: &mut ReflectRecord,
     ) -> bool {
-        true
+        if self.material == 0 {
+            return self.lambertian(hit_record, reflect_record);
+        } else {
+            return self.metal(ray, hit_record, reflect_record);
+        }
     }
 }
 
@@ -59,5 +63,28 @@ impl Plane {
             color: Vec3::zero(),
             fuzz: 0.0,
         }
+    }
+
+    fn lambertian(self, hit_record: &mut HitRecord, reflect_record: &mut ReflectRecord) -> bool {
+        let target = hit_record.p + hit_record.normal + random_in_unit_sphere();
+        reflect_record.scattered = Ray::new(hit_record.p, target - hit_record.p);
+        reflect_record.attenuation = self.color;
+        return true;
+    }
+
+    fn metal(
+        self,
+        ray: Ray,
+        hit_record: &mut HitRecord,
+        reflect_record: &mut ReflectRecord,
+    ) -> bool {
+        let reflected = reflect(ray.direction().unit_vector(), hit_record.normal);
+        reflect_record.scattered = Ray::new(
+            hit_record.p,
+            reflected + self.fuzz * random_in_unit_sphere(),
+        );
+        reflect_record.attenuation = self.color;
+
+        return Vec3::dot(reflect_record.scattered.direction(), hit_record.normal) > 0.0;
     }
 }

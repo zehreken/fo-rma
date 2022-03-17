@@ -80,11 +80,11 @@ impl Hitable for Sphere {
 impl Sphere {
     pub fn new(center: Vec3, radius: f32, material: u8, color: Vec3, fuzz: f32) -> Sphere {
         Sphere {
-            center: center,
-            radius: radius,
-            material: material,
-            color: color,
-            fuzz: fuzz,
+            center,
+            radius,
+            material,
+            color,
+            fuzz,
         }
     }
 

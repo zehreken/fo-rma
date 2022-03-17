@@ -137,6 +137,7 @@ fn render(scene: &mut Scene) {
 pub fn save_image_mt(width: u32, height: u32, sample: u32) {
     let mut img_buf = image::ImageBuffer::new(width, height);
     let mut scene = create_scene(width, height, 3);
+    scene.camera.translate(Vec3::zero());
 
     let mut pixels: Vec<f32> = vec![0.0; width as usize * height as usize * 3];
     println!("{}, {}", scene.pixels.len(), pixels.len());
@@ -251,18 +252,39 @@ fn get_simple_scene() -> Vec<Sphere> {
 fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
     let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
     objects.push(Box::new(Plane::new(
-        Vec3::new(0.0, -10.0, -100.0),
-        Vec3::new(90.0, 0.0, 0.0),
+        Vec3::new(100.0, 0.0, -100.0),
+        Vec3::new(90.0, 90.0, 90.0),
         0,
-        Vec3::new(0.5, 0.1, 0.1),
-        0.0,
+        Vec3::new(0.0, 0.9, 0.9),
+        0.3,
     )));
     objects.push(Box::new(Sphere::new(
         Vec3::new(0.0, -100.5, -1.0),
         100.0,
+        2, // lambertian
+        Vec3::new(0.5, 0.1, 0.1),
+        0.1,
+    )));
+    objects.push(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -1.0),
+        0.5,
         0, // lambertian
         Vec3::new(0.5, 0.1, 0.1),
         0.0,
+    )));
+    objects.push(Box::new(Sphere::new(
+        Vec3::new(1.0, 0.0, -1.0),
+        0.5,
+        1, // metal
+        Vec3::new(0.9, 0.9, 0.9),
+        0.2,
+    )));
+    objects.push(Box::new(Sphere::new(
+        Vec3::new(-1.0, -0.0, -1.0),
+        0.5,
+        2, // dielectric
+        Vec3::new(1.0, 1.0, 1.0),
+        0.2,
     )));
 
     objects
