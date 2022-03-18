@@ -88,12 +88,7 @@ impl Sphere {
         }
     }
 
-    fn lambertian(
-        self,
-        // ray: Ray,
-        hit_record: &mut HitRecord,
-        reflect_record: &mut ReflectRecord,
-    ) -> bool {
+    fn lambertian(self, hit_record: &mut HitRecord, reflect_record: &mut ReflectRecord) -> bool {
         let target = hit_record.p + hit_record.normal + random_in_unit_sphere();
         reflect_record.scattered = Ray::new(hit_record.p, target - hit_record.p);
         reflect_record.attenuation = self.color;

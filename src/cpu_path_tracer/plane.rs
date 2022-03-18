@@ -7,7 +7,7 @@ use std::fmt;
 #[derive(Debug, Copy, Clone)]
 pub struct Plane {
     position: Vec3,
-    orientation: Vec3,
+    normal: Vec3,
     material: u8,
     color: Vec3,
     fuzz: f32,
@@ -21,10 +21,12 @@ impl fmt::Display for Plane {
 
 impl Hitable for Plane {
     fn hit(&self, ray: Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool {
-        let denom = Vec3::dot(self.orientation, ray.direction());
-        if denom > 0.001 {
+        let denom = Vec3::dot(self.normal, ray.direction());
+        if denom > t_min && denom < t_max {
             let plane_to_ray = self.position - ray.origin();
-            hit_record.t = Vec3::dot(plane_to_ray, self.orientation) / denom;
+            hit_record.t = Vec3::dot(plane_to_ray, self.normal) / denom;
+            hit_record.p = ray.point_at(hit_record.t);
+            hit_record.normal = self.normal;
             return true;
         }
         false
@@ -45,10 +47,10 @@ impl Hitable for Plane {
 }
 
 impl Plane {
-    pub fn new(position: Vec3, orientation: Vec3, material: u8, color: Vec3, fuzz: f32) -> Plane {
+    pub fn new(position: Vec3, normal: Vec3, material: u8, color: Vec3, fuzz: f32) -> Plane {
         Plane {
             position,
-            orientation,
+            normal,
             material,
             color,
             fuzz,
@@ -58,7 +60,7 @@ impl Plane {
     pub fn default() -> Plane {
         Plane {
             position: Vec3::zero(),
-            orientation: Vec3::zero(),
+            normal: Vec3::zero(),
             material: 0,
             color: Vec3::zero(),
             fuzz: 0.0,

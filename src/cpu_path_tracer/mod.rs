@@ -13,16 +13,16 @@ use ray::*;
 use sphere::*;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use std::{default, thread};
+use std::thread;
 
 pub struct Scene {
     camera: Camera,
     objects: Vec<Box<dyn Hitable + Send>>,
     width: u32,
     height: u32,
-    channel_count: usize,
-    colors: Vec<Vec3>,
-    pub pixels: Vec<u8>,
+    channel_count: usize, // remove, this does not belong to the scene
+    colors: Vec<Vec3>,    // remove, this does not belong to the scene
+    pub pixels: Vec<u8>,  // remove, this does not belong to the scene
 }
 
 pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
@@ -136,8 +136,6 @@ fn render(scene: &mut Scene) {
 
 pub fn save_image_mt(scene: &mut Scene, sample: u32) {
     let mut img_buf = image::ImageBuffer::new(scene.width, scene.height);
-    // let mut scene = create_scene(width, height, 3);
-    // scene.camera.translate(Vec3::zero());
 
     let mut pixels: Vec<f32> = vec![0.0; scene.width as usize * scene.height as usize * 3];
     println!("{}, {}", scene.pixels.len(), pixels.len());
@@ -190,14 +188,12 @@ pub fn save_image(width: u32, height: u32, sample: u32) {
 
 fn color(ray: Ray, objects: &Vec<Box<dyn Hitable + Send>>, depth: u8) -> Vec3 {
     let mut hit_record: HitRecord = HitRecord::new();
-    let mut has_hit = false;
     let t_min: f32 = 0.001;
     let mut closest_so_far: f32 = std::f32::MAX;
     let mut temp_obj = None;
 
     for obj in objects {
         if obj.hit(ray, t_min, closest_so_far, &mut hit_record) {
-            has_hit = true;
             closest_so_far = hit_record.t;
             temp_obj = Some(obj);
         }
@@ -252,40 +248,40 @@ fn get_simple_scene() -> Vec<Sphere> {
 fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
     let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
     objects.push(Box::new(Plane::new(
-        Vec3::new(100.0, 0.0, -100.0),
-        Vec3::new(90.0, 90.0, 90.0),
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(1.0, 0.0, 0.0),
         0,
-        Vec3::new(0.0, 0.9, 0.9),
-        0.3,
+        Vec3::new(0.0, 1.0, 0.0),
+        0.,
     )));
-    objects.push(Box::new(Sphere::new(
-        Vec3::new(0.0, -100.5, -1.0),
-        100.0,
-        2, // lambertian
-        Vec3::new(0.5, 0.1, 0.1),
-        0.1,
-    )));
-    objects.push(Box::new(Sphere::new(
-        Vec3::new(0.0, 0.0, -1.0),
-        0.5,
-        0, // lambertian
-        Vec3::new(0.5, 0.1, 0.1),
-        0.0,
-    )));
-    objects.push(Box::new(Sphere::new(
-        Vec3::new(1.0, 0.0, -1.0),
-        0.5,
-        1, // metal
-        Vec3::new(0.9, 0.9, 0.9),
-        0.2,
-    )));
-    objects.push(Box::new(Sphere::new(
-        Vec3::new(-1.0, -0.0, -1.0),
-        0.5,
-        2, // dielectric
-        Vec3::new(1.0, 1.0, 1.0),
-        0.2,
-    )));
+    // objects.push(Box::new(Sphere::new(
+    //     Vec3::new(0.0, -100.5, -1.0),
+    //     100.0,
+    //     1,
+    //     Vec3::new(1.0, 0.0, 0.0),
+    //     0.6,
+    // )));
+    // objects.push(Box::new(Sphere::new(
+    //     Vec3::new(0.0, 0.0, -1.0),
+    //     0.5,
+    //     1,
+    //     Vec3::new(0.1, 0.1, 0.7),
+    //     0.0,
+    // )));
+    // objects.push(Box::new(Sphere::new(
+    //     Vec3::new(1.0, 0.0, -1.0),
+    //     0.5,
+    //     0,
+    //     Vec3::new(0.9, 0.9, 0.9),
+    //     0.2,
+    // )));
+    // objects.push(Box::new(Sphere::new(
+    //     Vec3::new(-1.0, -0.0, -1.0),
+    //     0.5,
+    //     2,
+    //     Vec3::new(1.0, 1.0, 1.0),
+    //     0.2,
+    // )));
 
     objects
 }
