@@ -14,6 +14,8 @@ use sphere::*;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+pub mod hitable;
+use hitable::*;
 
 pub struct Scene {
     camera: Camera,

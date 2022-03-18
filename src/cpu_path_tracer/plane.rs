@@ -1,6 +1,6 @@
+use super::hitable::*;
 use super::primitives::vec3::*;
 use super::ray::*;
-use super::sphere::Hitable;
 use super::utility::*;
 use std::fmt;
 

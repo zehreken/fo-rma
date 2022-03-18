@@ -1,17 +1,8 @@
+use super::hitable::*;
 use super::primitives::vec3::*;
 use super::ray::*;
 use super::utility::*;
 use std::fmt;
-
-pub trait Hitable: Send {
-    fn hit(&self, ray: Ray, t_min: f32, t_max: f32, hit_record: &mut HitRecord) -> bool;
-    fn scatter(
-        &self,
-        ray: Ray,
-        hit_record: &mut HitRecord,
-        reflect_record: &mut ReflectRecord,
-    ) -> bool;
-}
 
 #[derive(Debug, Copy, Clone)]
 pub struct Sphere {
