@@ -5,7 +5,7 @@ pub fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCount
     let mut buffer: Vec<u32> = vec![0; width * height];
 
     let mut window = Window::new(
-        "rt-rs - ESC to exit",
+        "fōrma - ESC to exit",
         width,
         height,
         WindowOptions::default(),
@@ -17,7 +17,7 @@ pub fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCount
     let mut scene = super::cpu_path_tracer::create_scene(width as u32, height as u32, 3);
 
     // Limit to max ~60 fps update rate
-    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    window.limit_update_rate(Some(std::time::Duration::from_micros(50_000)));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         let mut keys: u8 = 0; // 0000ADWS
@@ -33,7 +33,10 @@ pub fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCount
         if window.is_key_down(Key::S) {
             keys += 1;
         }
-        super::cpu_path_tracer::update(&mut scene, keys);
+        if window.is_key_pressed(Key::R, minifb::KeyRepeat::No) {
+            super::cpu_path_tracer::save_image_mt(&mut scene, 200);
+        }
+        super::cpu_path_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
         let mut index = 0;
         for i in buffer.iter_mut() {
             let color: u32 = ((scene.pixels[index] as u32) << 16)

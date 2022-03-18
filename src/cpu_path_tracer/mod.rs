@@ -43,20 +43,20 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
     }
 }
 
-pub fn update(scene: &mut Scene, keys: u8) {
+pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     // 0000ADWS
     let mut velocity = Vec3::zero();
     if keys & 0b1000 == 0b1000 {
-        velocity = velocity + Vec3::new(-0.02, 0.0, 0.0);
+        velocity = velocity + Vec3::new(-0.02, 0.0, 0.0) * delta_time;
     }
     if keys & 0b100 == 0b100 {
-        velocity = velocity + Vec3::new(0.02, 0.0, 0.0);
+        velocity = velocity + Vec3::new(0.02, 0.0, 0.0) * delta_time;
     }
     if keys & 0b10 == 0b10 {
-        velocity = velocity + Vec3::new(0.0, 0.0, -0.02);
+        velocity = velocity + Vec3::new(0.0, 0.0, -0.02) * delta_time;
     }
     if keys & 0b1 == 0b1 {
-        velocity = velocity + Vec3::new(0.0, 0.0, 0.02);
+        velocity = velocity + Vec3::new(0.0, 0.0, 0.02) * delta_time;
     }
     scene.camera.translate(velocity);
     render(scene);
@@ -134,15 +134,15 @@ fn render(scene: &mut Scene) {
     scene.pixels = sum;
 }
 
-pub fn save_image_mt(width: u32, height: u32, sample: u32) {
-    let mut img_buf = image::ImageBuffer::new(width, height);
-    let mut scene = create_scene(width, height, 3);
-    scene.camera.translate(Vec3::zero());
+pub fn save_image_mt(scene: &mut Scene, sample: u32) {
+    let mut img_buf = image::ImageBuffer::new(scene.width, scene.height);
+    // let mut scene = create_scene(width, height, 3);
+    // scene.camera.translate(Vec3::zero());
 
-    let mut pixels: Vec<f32> = vec![0.0; width as usize * height as usize * 3];
+    let mut pixels: Vec<f32> = vec![0.0; scene.width as usize * scene.height as usize * 3];
     println!("{}, {}", scene.pixels.len(), pixels.len());
     for _ in 0..sample {
-        render(&mut scene);
+        render(scene);
         for i in 0..scene.pixels.len() {
             pixels[i] += scene.pixels[i] as f32 / sample as f32;
         }

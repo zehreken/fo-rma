@@ -62,7 +62,7 @@ pub fn trace_with_sdl(width: u32, height: u32) {
             }
         }
 
-        super::cpu_path_tracer::update(&mut scene, keys);
+        super::cpu_path_tracer::update(&mut scene, keys, 1.0);
 
         framebuffer
             .update(None, &scene.pixels, width as usize * CHANNEL_COUNT)
