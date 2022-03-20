@@ -42,7 +42,7 @@ pub fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCount
             keys += 1 << 5;
         }
         if window.is_key_pressed(Key::R, minifb::KeyRepeat::No) {
-            super::cpu_path_tracer::save_image_mt(&mut scene, 200);
+            super::cpu_path_tracer::save_image_mt(&mut scene, 50);
         }
         super::cpu_path_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
         let mut index = 0;

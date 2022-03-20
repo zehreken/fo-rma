@@ -258,26 +258,37 @@ fn get_simple_scene() -> Vec<Sphere> {
 fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
     let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
     objects.push(Box::new(Plane::new(
-        Vec3::new(0.0, 0.0, 0.0),
-        Vec3::new(1.0, 0.0, 0.0),
-        0,
-        Vec3::new(0.0, 1.0, 0.0),
+        Vec3::new(-1.0, 0.0, 0.0),
+        Vec3::new(-1.0, 0.0, 0.0),
+        Vec3::one() * 2.0,
+        1,
+        Vec3::new(0.8, 0.8, 0.8),
         0.,
     )));
+    for i in 0..3 {
+        objects.push(Box::new(Plane::new(
+            Vec3::new(1.0, 0.0, -2.0 + i as f32 * 2.0),
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::one(),
+            1,
+            Vec3::new(0.009, 0.2 + i as f32 * 0.1, 0.9),
+            0.0,
+        )));
+    }
     // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(0.0, -100.5, -1.0),
-    //     100.0,
+    //     Vec3::new(0.0, -1000.5, -1.0),
+    //     1000.0,
     //     1,
-    //     Vec3::new(1.0, 0.0, 0.0),
-    //     0.6,
+    //     Vec3::new(0.4, 0.5, 0.5),
+    //     0.1,
     // )));
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(0.0, 0.0, -1.0),
-    //     0.5,
-    //     1,
-    //     Vec3::new(0.1, 0.1, 0.7),
-    //     0.0,
-    // )));
+    objects.push(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        0.5,
+        0,
+        Vec3::new(0.3, 0.3, 0.98),
+        0.0,
+    )));
     // objects.push(Box::new(Sphere::new(
     //     Vec3::new(1.0, 0.0, -1.0),
     //     0.5,
