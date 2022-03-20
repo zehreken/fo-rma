@@ -62,6 +62,12 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     if keys & 0b1 == 0b1 {
         velocity = velocity + Vec3::new(0.0, 0.0, 0.02) * delta_time;
     }
+    if keys & 0b10_000 == 0b10_000 {
+        velocity = velocity + Vec3::new(0.0, 0.02, 0.0) * delta_time;
+    }
+    if keys & 0b100_000 == 0b100_000 {
+        velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
+    }
     scene.camera.translate(velocity);
     render(scene);
 }

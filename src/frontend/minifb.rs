@@ -33,6 +33,14 @@ pub fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCount
         if window.is_key_down(Key::S) {
             keys += 1;
         }
+        if window.is_key_down(Key::Q) {
+            // Up
+            keys += 1 << 4;
+        }
+        if window.is_key_down(Key::E) {
+            // Down
+            keys += 1 << 5;
+        }
         if window.is_key_pressed(Key::R, minifb::KeyRepeat::No) {
             super::cpu_path_tracer::save_image_mt(&mut scene, 200);
         }
