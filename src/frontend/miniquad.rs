@@ -1,13 +1,29 @@
+use miniquad::Texture;
 use {egui_miniquad as egui_mq, miniquad as mq};
 
 struct Stage {
     egui_mq: egui_mq::EguiMq,
+    texture: Texture,
 }
 
 impl Stage {
     fn new(ctx: &mut mq::Context) -> Self {
+        const width: usize = 600;
+        const height: usize = 600;
+        let mut scene = super::cpu_path_tracer::create_scene(width as u32, height as u32, 3);
+        super::cpu_path_tracer::update(&mut scene, 0, 0.0);
+        let mut buffer: [u8; width * height] = [0; width * height];
+        let mut index = 0;
+        for i in buffer.iter_mut() {
+            let color: u8 = ((scene.pixels[index] as u8) << 16)
+                + ((scene.pixels[index + 1] as u8) << 8)
+                + (scene.pixels[index + 2] as u8);
+            *i = color;
+            index += 3;
+        }
         Self {
             egui_mq: egui_mq::EguiMq::new(ctx),
+            texture: Texture::from_rgba8(ctx, width as u16, height as u16, &buffer),
         }
     }
 }
