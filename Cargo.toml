@@ -11,6 +11,12 @@ image = "0.24.0"
 rand = "0.8.4"
 minifb = "0.20.0"
 puffin = "0.13"
+miniquad = {version = "0.3.0-alpha.43"}
+egui-miniquad = "0.9.0"
+egui = "0.17"
+# https://github.com/not-fl3/miniquad/issues/172
+[target.'cfg(target_os = "macos")'.dependencies]
+copypasta = "0.7"
 
 [dependencies.sdl2]
 version = "0.35.1"

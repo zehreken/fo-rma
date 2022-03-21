@@ -11,7 +11,8 @@ fn main() {
 
     // cpu_path_tracer::save_image(512, 512, 50);
     // cpu_path_tracer::save_image_mt(&mut cpu_path_tracer::create_scene(1920, 1080, 3), 5);
-    frontend::minifb::trace_with_minifb(600, 600, &mut fps_counter);
+    // frontend::minifb::trace_with_minifb(600, 600, &mut fps_counter);
+    let stage = frontend::miniquad::run();
     // frontend::sdl::trace_with_sdl(400, 300);
 
     println!("Average fps: {}", fps_counter.average_frames_per_second());
