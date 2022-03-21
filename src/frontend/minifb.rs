@@ -1,7 +1,7 @@
 use super::misc::fps_utils::FpsCounter;
 use minifb::{Key, Window, WindowOptions};
 
-pub fn trace_with_minifb(width: usize, height: usize, fps_counter: &mut FpsCounter) {
+pub fn run(width: usize, height: usize, fps_counter: &mut FpsCounter) {
     let mut buffer: Vec<u32> = vec![0; width * height];
 
     let mut window = Window::new(

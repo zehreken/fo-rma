@@ -1110,7 +1110,6 @@ dependencies = [
  "miniquad",
  "puffin",
  "rand",
- "sdl2",
 ]
 
 [[package]]
