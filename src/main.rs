@@ -1,6 +1,7 @@
 pub mod cpu_path_tracer;
 mod frontend;
 mod misc;
+use macroquad::prelude::Conf;
 use misc::fps_utils::FpsCounter;
 
 fn main_() {
@@ -17,9 +18,20 @@ fn main_() {
     println!("Average fps: {}", fps_counter.average_frames_per_second());
 }
 
-#[macroquad::main("egui with macroquad")]
+#[macroquad::main(get_config)]
 async fn main() {
-    let future = frontend::macroquad::run();
+    let fps_counter = FpsCounter::new();
+    let future = frontend::macroquad::run(fps_counter);
 
     future.await
+}
+
+pub fn get_config() -> Conf {
+    Conf {
+        window_title: "fōrma".to_owned(),
+        window_width: 600,
+        window_height: 600,
+        fullscreen: false,
+        ..Default::default()
+    }
 }
