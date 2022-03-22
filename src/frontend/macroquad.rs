@@ -41,6 +41,14 @@ pub async fn run(mut fps_counter: FpsCounter) {
 
         // Draw things before egui
         let mut keys: u8 = 0; // 00EQADWS
+        if is_key_down(KeyCode::E) {
+            // Down
+            keys += 1 << 5;
+        }
+        if is_key_down(KeyCode::Q) {
+            // Up
+            keys += 1 << 4;
+        }
         if is_key_down(KeyCode::A) {
             keys += 1 << 3;
         }
@@ -52,14 +60,6 @@ pub async fn run(mut fps_counter: FpsCounter) {
         }
         if is_key_down(KeyCode::S) {
             keys += 1;
-        }
-        if is_key_down(KeyCode::Q) {
-            // Up
-            keys += 1 << 4;
-        }
-        if is_key_down(KeyCode::E) {
-            // Down
-            keys += 1 << 5;
         }
         if is_key_pressed(KeyCode::R) {
             super::cpu_path_tracer::save_image_mt(&mut scene, 50);

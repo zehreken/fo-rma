@@ -4,15 +4,13 @@ pub mod plane;
 pub mod primitives;
 mod ray;
 pub mod rectangle;
+mod scenes;
 pub mod sphere;
 mod utility;
 use camera::*;
-use plane::*;
 use primitives::vec3::*;
 use rand::Rng;
 use ray::*;
-use rectangle::*;
-use sphere::*;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
@@ -38,7 +36,7 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
         // objects: super::misc::strict_covers::get_objects(),
         // objects: get_simple_scene(),
         // objects: get_objects(),
-        objects: get_plane_scene(),
+        objects: scenes::get_plane_scene(),
         width,
         height,
         channel_count, // rgb
@@ -75,7 +73,7 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
 fn copy_scene(scene: &Scene) -> Scene {
     Scene {
         camera: scene.camera,
-        objects: get_plane_scene(),
+        objects: scenes::get_plane_scene(),
         width: scene.width,
         height: scene.height,
         channel_count: scene.channel_count,
@@ -173,7 +171,7 @@ pub fn save_image(width: u32, height: u32, sample: u32) {
     let mut img_buf = image::ImageBuffer::new(width, height);
     let mut rng = rand::thread_rng();
     let camera = Camera::get_camera(width, height);
-    let objects = get_plane_scene();
+    let objects = scenes::get_plane_scene();
 
     for (x, y, pixel) in img_buf.enumerate_pixels_mut() {
         let mut col = Vec3::zero();
@@ -226,131 +224,4 @@ fn color(ray: Ray, objects: &Vec<Box<dyn Hitable + Send>>, depth: u8) -> Vec3 {
         // This is the color of the sky
         return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
     }
-}
-
-fn get_simple_scene() -> Vec<Sphere> {
-    let mut objects: Vec<Sphere> = Vec::new();
-    objects.push(Sphere::new(
-        Vec3::new(-0.5, 0.0, 0.0),
-        0.5,
-        0,
-        Vec3::new(0.5, 0.5, 0.5),
-        0.0,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(0.5, 0.0, 0.0),
-        0.5,
-        0,
-        Vec3::new(0.7, 0.7, 0.7),
-        0.0,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(0.0, -100.5, 0.0),
-        100.0,
-        0,
-        Vec3::new(0.7, 0.1, 0.7),
-        0.0,
-    ));
-
-    objects
-}
-
-fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
-    let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
-    objects.push(Box::new(Plane::new(
-        Vec3::new(-1.0, 0.0, 0.0),
-        Vec3::new(-1.0, 0.0, 0.0),
-        Vec3::one() * 2.0,
-        1,
-        Vec3::new(0.8, 0.8, 0.8),
-        0.,
-    )));
-    for i in 0..3 {
-        objects.push(Box::new(Plane::new(
-            Vec3::new(1.0, 0.0, -2.0 + i as f32 * 2.0),
-            Vec3::new(1.0, 0.0, 0.0),
-            Vec3::one(),
-            1,
-            Vec3::new(0.009, 0.2 + i as f32 * 0.1, 0.9),
-            0.0,
-        )));
-    }
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(0.0, -1000.5, -1.0),
-    //     1000.0,
-    //     1,
-    //     Vec3::new(0.4, 0.5, 0.5),
-    //     0.1,
-    // )));
-    objects.push(Box::new(Sphere::new(
-        Vec3::new(0.0, 0.0, 0.0),
-        0.5,
-        0,
-        Vec3::new(0.3, 0.3, 0.98),
-        0.0,
-    )));
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(1.0, 0.0, -1.0),
-    //     0.5,
-    //     0,
-    //     Vec3::new(0.9, 0.9, 0.9),
-    //     0.2,
-    // )));
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(-1.0, -0.0, -1.0),
-    //     0.5,
-    //     2,
-    //     Vec3::new(1.0, 1.0, 1.0),
-    //     0.2,
-    // )));
-
-    objects
-}
-
-fn get_objects() -> Vec<Sphere> {
-    let mut objects: Vec<Sphere> = Vec::new();
-    objects.push(Sphere::new(
-        Vec3::new(0.0, 0.0, -1.0),
-        0.5,
-        0, // lambertian
-        Vec3::new(0.5, 0.1, 0.1),
-        0.0,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(1.0, 0.0, -1.0),
-        0.5,
-        1, // metal
-        Vec3::new(0.9, 0.9, 0.9),
-        0.2,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(1.0, 0.0, -3.0),
-        0.5,
-        1, // metal
-        Vec3::new(1.0, 1.0, 1.0),
-        1.0,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(-1.0, -0.0, -1.0),
-        0.5,
-        2, // dielectric
-        Vec3::new(0.1, 0.5, 0.1).sqrt().sqrt().sqrt(),
-        0.2,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(0.0, 0.0, 1.0),
-        0.5,
-        2,
-        Vec3::new(0.5, 0.5, 0.3).sqrt().sqrt().sqrt(),
-        0.2,
-    ));
-    objects.push(Sphere::new(
-        Vec3::new(0.0, -100.5, -1.0),
-        100.0,
-        0,
-        Vec3::new(0.1, 0.3, 0.9),
-        0.0,
-    ));
-
-    objects
 }
