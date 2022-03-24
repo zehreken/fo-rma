@@ -27,8 +27,8 @@ pub fn get_simple_scene() -> Vec<Sphere> {
     objects
 }
 
-pub fn get_plane_scene() -> Vec<Box<dyn Hitable + Send>> {
-    let mut objects: Vec<Box<dyn Hitable + Send>> = vec![];
+pub fn get_plane_scene() -> Vec<Box<dyn Hitable>> {
+    let mut objects: Vec<Box<dyn Hitable>> = vec![];
     objects.push(Box::new(Plane::new(
         Vec3::new(-1.0, 0.0, 0.0),
         Vec3::new(-1.0, 0.0, 0.0),

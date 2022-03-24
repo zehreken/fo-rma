@@ -19,7 +19,7 @@ use hitable::*;
 
 pub struct Scene {
     camera: Camera,
-    objects: Vec<Box<dyn Hitable + Send>>,
+    objects: Vec<Box<dyn Hitable>>,
     width: u32,
     height: u32,
     channel_count: usize, // remove, this does not belong to the scene
@@ -194,7 +194,7 @@ pub fn save_image(width: u32, height: u32, sample: u32) {
     img_buf.save("out/basic.png").unwrap();
 }
 
-fn color(ray: Ray, objects: &Vec<Box<dyn Hitable + Send>>, depth: u8) -> Vec3 {
+fn color(ray: Ray, objects: &Vec<Box<dyn Hitable>>, depth: u8) -> Vec3 {
     let mut hit_record: HitRecord = HitRecord::new();
     let t_min: f32 = 0.001;
     let mut closest_so_far: f32 = std::f32::MAX;
