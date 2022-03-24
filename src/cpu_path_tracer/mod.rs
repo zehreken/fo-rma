@@ -67,7 +67,7 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
         velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
     }
     scene.camera.translate(velocity);
-    render(scene);
+    scene.pixels = render(scene);
 }
 
 fn copy_scene(scene: &Scene) -> Scene {
@@ -82,7 +82,7 @@ fn copy_scene(scene: &Scene) -> Scene {
     }
 }
 
-fn render(scene: &mut Scene) {
+fn render(scene: &Scene) -> Vec<u8> {
     let width = scene.width;
     let height = scene.height;
     let channel_count = scene.channel_count; // Color channel
@@ -139,7 +139,7 @@ fn render(scene: &mut Scene) {
         sum.append(&mut id.1);
     }
 
-    scene.pixels = sum;
+    sum
 }
 
 pub fn save_image_mt(scene: &mut Scene, sample: u32) {
