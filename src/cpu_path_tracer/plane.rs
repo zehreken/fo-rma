@@ -12,6 +12,7 @@ pub struct Plane {
     material: u8,
     color: Vec3,
     fuzz: f32,
+    rot_x: f32,
 }
 
 impl fmt::Display for Plane {
@@ -55,6 +56,11 @@ impl Hitable for Plane {
             return self.metal(ray, hit_record, reflect_record);
         }
     }
+
+    fn rotate(&mut self) {
+        self.rot_x += 0.01;
+        self.color = Vec3::new(self.color.r(), self.color.g() + self.rot_x, self.color.b());
+    }
 }
 
 impl Plane {
@@ -73,6 +79,7 @@ impl Plane {
             material,
             color,
             fuzz,
+            rot_x: 0.0,
         }
     }
 
@@ -84,6 +91,7 @@ impl Plane {
             material: 0,
             color: Vec3::zero(),
             fuzz: 0.0,
+            rot_x: 0.0,
         }
     }
 

@@ -8,4 +8,5 @@ pub trait Hitable: Send {
         hit_record: &mut HitRecord,
         reflect_record: &mut ReflectRecord,
     ) -> bool;
+    fn rotate(&mut self) {}
 }

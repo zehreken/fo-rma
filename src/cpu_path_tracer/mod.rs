@@ -67,6 +67,7 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
         velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
     }
     scene.camera.translate(velocity);
+    scene.objects[0].rotate();
     // scene.pixels = render_mt(scene);
     scene.pixels = render(scene);
 }
