@@ -46,8 +46,14 @@ pub fn create_scene(width: u32, height: u32) -> Scene {
 }
 
 pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
-    // 0000ADWS
+    // 00EQADWS
     let mut velocity = Vec3::zero();
+    if keys & 0b100_000 == 0b100_000 {
+        velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
+    }
+    if keys & 0b10_000 == 0b10_000 {
+        velocity = velocity + Vec3::new(0.0, 0.02, 0.0) * delta_time;
+    }
     if keys & 0b1000 == 0b1000 {
         velocity = velocity + Vec3::new(-0.02, 0.0, 0.0) * delta_time;
     }
@@ -59,12 +65,6 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     }
     if keys & 0b1 == 0b1 {
         velocity = velocity + Vec3::new(0.0, 0.0, 0.02) * delta_time;
-    }
-    if keys & 0b10_000 == 0b10_000 {
-        velocity = velocity + Vec3::new(0.0, 0.02, 0.0) * delta_time;
-    }
-    if keys & 0b100_000 == 0b100_000 {
-        velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
     }
     scene.camera.translate(velocity);
     scene.objects[0].rotate();

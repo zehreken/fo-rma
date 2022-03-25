@@ -64,6 +64,9 @@ pub async fn run(mut fps_counter: FpsCounter) {
         if is_key_pressed(KeyCode::R) {
             super::cpu_path_tracer::save_image_mt(&mut scene, 50);
         }
+        if is_key_pressed(KeyCode::Escape) {
+            return;
+        }
 
         super::cpu_path_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
         let mut pixel_index: u32 = 0;
@@ -89,7 +92,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
         // Draw things after egui
 
         fps_counter.tick();
-        std::thread::sleep(std::time::Duration::from_millis(50));
+        std::thread::sleep(std::time::Duration::from_millis(100));
         next_frame().await;
     }
 }
