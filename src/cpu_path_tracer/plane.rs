@@ -12,7 +12,6 @@ pub struct Plane {
     material: u8,
     color: Vec3,
     fuzz: f32,
-    rot_x: f32,
 }
 
 impl fmt::Display for Plane {
@@ -57,9 +56,8 @@ impl Hitable for Plane {
         }
     }
 
-    fn rotate(&mut self) {
-        self.rot_x += 0.01;
-        self.color = Vec3::new(self.color.r(), self.color.g() + self.rot_x, self.color.b());
+    fn rotate(&mut self, v: f32) {
+        self.orientation = Vec3::new(self.orientation.x(), v, self.orientation.z());
     }
 }
 
@@ -79,7 +77,6 @@ impl Plane {
             material,
             color,
             fuzz,
-            rot_x: 0.0,
         }
     }
 
@@ -91,7 +88,6 @@ impl Plane {
             material: 0,
             color: Vec3::zero(),
             fuzz: 0.0,
-            rot_x: 0.0,
         }
     }
 

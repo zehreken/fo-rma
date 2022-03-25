@@ -43,7 +43,7 @@ pub fn get_plane_scene() -> Vec<Box<dyn Hitable>> {
             Vec3::new(1.0, 0.0, 0.0),
             Vec3::one(),
             1,
-            Vec3::new(0.009, 0.2 + i as f32 * 0.1, 0.9),
+            Vec3::new(1.0 - i as f32 * 0.2, 0.2 + i as f32 * 0.2, 0.9),
             0.0,
         )));
     }

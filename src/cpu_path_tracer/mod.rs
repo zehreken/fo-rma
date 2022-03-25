@@ -21,7 +21,7 @@ const CHANNEL_COUNT: usize = 3;
 
 pub struct Scene {
     camera: Camera,
-    objects: Vec<Box<dyn Hitable>>,
+    pub objects: Vec<Box<dyn Hitable>>,
     width: u32,
     height: u32,
     colors: Vec<Vec3>,   // remove, this does not belong to the scene
@@ -67,7 +67,6 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
         velocity = velocity + Vec3::new(0.0, 0.0, 0.02) * delta_time;
     }
     scene.camera.translate(velocity);
-    scene.objects[0].rotate();
     // scene.pixels = render_mt(scene);
     scene.pixels = render(scene);
 }

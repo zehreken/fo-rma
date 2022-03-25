@@ -10,14 +10,15 @@ pub async fn run(mut fps_counter: FpsCounter) {
     let mut image = Image::gen_image_color(WIDTH as u16, HEIGHT as u16, WHITE);
     let texture: Texture2D = Texture2D::from_image(&image);
 
+    let mut a = 0.0;
     loop {
         clear_background(WHITE);
 
         // Process keys, mouse etc.
-
         egui_macroquad::ui(|egui_ctx| {
             egui::Window::new("fōrma").show(egui_ctx, |ui| {
                 ui.label("Test");
+                ui.add(egui::Slider::new(&mut a, -1.0..=1.0).text("rotation_y"));
             });
         });
 
@@ -50,6 +51,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
             return;
         }
 
+        scene.objects[0].rotate(a);
         super::cpu_path_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
         let mut pixel_index: u32 = 0;
         for i in (0..scene.pixels.len()).step_by(3) {
@@ -74,7 +76,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
         // Draw things after egui
 
         fps_counter.tick();
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(10));
         next_frame().await;
     }
 }
