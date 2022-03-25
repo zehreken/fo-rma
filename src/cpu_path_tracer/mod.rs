@@ -17,17 +17,18 @@ use std::thread;
 pub mod hitable;
 use hitable::*;
 
+const CHANNEL_COUNT: usize = 3;
+
 pub struct Scene {
     camera: Camera,
     objects: Vec<Box<dyn Hitable>>,
     width: u32,
     height: u32,
-    channel_count: usize, // remove, this does not belong to the scene
-    colors: Vec<Vec3>,    // remove, this does not belong to the scene
-    pub pixels: Vec<u8>,  // remove, this does not belong to the scene
+    colors: Vec<Vec3>,   // remove, this does not belong to the scene
+    pub pixels: Vec<u8>, // remove, this does not belong to the scene
 }
 
-pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
+pub fn create_scene(width: u32, height: u32) -> Scene {
     let camera = Camera::get_camera(width, height);
     let ray_count: usize = (width * height) as usize;
 
@@ -39,9 +40,8 @@ pub fn create_scene(width: u32, height: u32, channel_count: usize) -> Scene {
         objects: scenes::get_plane_scene(),
         width,
         height,
-        channel_count, // rgb
         colors: vec![Vec3::zero(); ray_count],
-        pixels: vec![0; ray_count * channel_count],
+        pixels: vec![0; ray_count * CHANNEL_COUNT],
     }
 }
 
@@ -76,7 +76,6 @@ fn copy_scene(scene: &Scene) -> Scene {
         objects: scenes::get_plane_scene(),
         width: scene.width,
         height: scene.height,
-        channel_count: scene.channel_count,
         colors: scene.colors.clone(),
         pixels: scene.pixels.clone(),
     }
@@ -85,7 +84,6 @@ fn copy_scene(scene: &Scene) -> Scene {
 fn render(scene: &Scene) -> Vec<u8> {
     let width = scene.width;
     let height = scene.height;
-    let channel_count = scene.channel_count; // Color channel
     let (tx, rx): (Sender<(u8, Vec<u8>)>, Receiver<(u8, Vec<u8>)>) = mpsc::channel();
     let mut children = Vec::new();
     const NTHREADS: u8 = 6;
@@ -98,11 +96,11 @@ fn render(scene: &Scene) -> Vec<u8> {
         let child = thread::spawn(move || {
             let mut rng = rand::thread_rng();
             let size: usize = (width * t_height as u32) as usize;
-            let mut pixels: Vec<u8> = vec![0; size * channel_count];
+            let mut pixels: Vec<u8> = vec![0; size * CHANNEL_COUNT];
             for y in 0..t_height {
                 for x in 0..width {
                     let color_index = (x + y * width as u32) as usize;
-                    let index: usize = ((x + y * width as u32) * channel_count as u32) as usize;
+                    let index: usize = ((x + y * width as u32) * CHANNEL_COUNT as u32) as usize;
                     let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
                     let mut v: f32 = ((t_height - y) as f32 + rng.gen::<f32>()) / height as f32; // invert y
                     v += t as f32 * t_offset;
@@ -142,24 +140,23 @@ fn render(scene: &Scene) -> Vec<u8> {
     sum
 }
 
-pub fn save_image_mt(scene: &mut Scene, sample: u32) {
+pub fn save_image_mt(scene: &Scene, sample: u32) {
     let mut img_buf = image::ImageBuffer::new(scene.width, scene.height);
 
-    let mut pixels: Vec<f32> = vec![0.0; scene.width as usize * scene.height as usize * 3];
-    println!("{}, {}", scene.pixels.len(), pixels.len());
+    let mut pixels_acc: Vec<f32> = vec![0.0; scene.width as usize * scene.height as usize * 3];
     for _ in 0..sample {
-        render(scene);
-        for i in 0..scene.pixels.len() {
-            pixels[i] += scene.pixels[i] as f32 / sample as f32;
+        let pixels = render(scene);
+        for i in 0..pixels.len() {
+            pixels_acc[i] += pixels[i] as f32 / sample as f32;
         }
     }
 
     let mut index = 0;
     for (_, _, pixel) in img_buf.enumerate_pixels_mut() {
         *pixel = image::Rgb([
-            pixels[index] as u8,
-            pixels[index + 1] as u8,
-            pixels[index + 2] as u8,
+            pixels_acc[index] as u8,
+            pixels_acc[index + 1] as u8,
+            pixels_acc[index + 2] as u8,
         ]);
         index += 3;
     }

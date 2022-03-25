@@ -6,7 +6,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
     const WIDTH: usize = 600;
     const HEIGHT: usize = 600;
     const CHANNELS: usize = 3;
-    let mut scene = super::cpu_path_tracer::create_scene(WIDTH as u32, HEIGHT as u32, 3);
+    let mut scene = super::cpu_path_tracer::create_scene(WIDTH as u32, HEIGHT as u32);
 
     let mut image = Image::gen_image_color(WIDTH as u16, HEIGHT as u16, WHITE);
 
