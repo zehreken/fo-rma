@@ -67,6 +67,7 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
         velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
     }
     scene.camera.translate(velocity);
+    // scene.pixels = render_mt(scene);
     scene.pixels = render(scene);
 }
 
@@ -81,7 +82,34 @@ fn copy_scene(scene: &Scene) -> Scene {
     }
 }
 
-fn render(scene: &Scene) -> Vec<u8> {
+fn render(scene: &mut Scene) -> Vec<u8> {
+    let width = scene.width;
+    let height = scene.height;
+    let mut rng = rand::thread_rng();
+    let resolution: usize = (width * height) as usize;
+    let mut pixels: Vec<u8> = vec![0; resolution * CHANNEL_COUNT];
+    for y in 0..height {
+        for x in 0..width {
+            let color_index = (x + y * width as u32) as usize;
+            let index: usize = ((x + y * width as u32) * CHANNEL_COUNT as u32) as usize;
+            let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
+            let v: f32 = ((height - y) as f32 + rng.gen::<f32>()) / height as f32;
+            let ray = scene.camera.get_ray(u, v);
+            scene.colors[color_index] = color(ray, &scene.objects, 0);
+
+            let r = scene.colors[color_index].r().sqrt();
+            let g = scene.colors[color_index].g().sqrt();
+            let b = scene.colors[color_index].b().sqrt();
+            pixels[index] = (r * 255.0) as u8;
+            pixels[index + 1] = (g * 255.0) as u8;
+            pixels[index + 2] = (b * 255.0) as u8;
+        }
+    }
+
+    pixels
+}
+
+fn render_mt(scene: &Scene) -> Vec<u8> {
     let width = scene.width;
     let height = scene.height;
     let (tx, rx): (Sender<(u8, Vec<u8>)>, Receiver<(u8, Vec<u8>)>) = mpsc::channel();
@@ -145,7 +173,7 @@ pub fn save_image_mt(scene: &Scene, sample: u32) {
 
     let mut pixels_acc: Vec<f32> = vec![0.0; scene.width as usize * scene.height as usize * 3];
     for _ in 0..sample {
-        let pixels = render(scene);
+        let pixels = render_mt(scene);
         for i in 0..pixels.len() {
             pixels_acc[i] += pixels[i] as f32 / sample as f32;
         }
