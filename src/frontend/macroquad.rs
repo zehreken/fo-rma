@@ -5,27 +5,9 @@ use crate::misc::fps_utils::FpsCounter;
 pub async fn run(mut fps_counter: FpsCounter) {
     const WIDTH: usize = 600;
     const HEIGHT: usize = 600;
-    const CHANNELS: usize = 3;
     let mut scene = super::cpu_path_tracer::create_scene(WIDTH as u32, HEIGHT as u32);
 
     let mut image = Image::gen_image_color(WIDTH as u16, HEIGHT as u16, WHITE);
-
-    let mut pixel_index: u32 = 0;
-    for i in (0..scene.pixels.len()).step_by(3) {
-        let color = Color::new(
-            scene.pixels[i] as f32 / 255.0,
-            scene.pixels[i + 1] as f32 / 255.0,
-            scene.pixels[i + 2] as f32 / 255.0,
-            1.0,
-        );
-        image.set_pixel(
-            pixel_index % WIDTH as u32,
-            pixel_index / WIDTH as u32,
-            color,
-        );
-        pixel_index += 1;
-    }
-
     let texture: Texture2D = Texture2D::from_image(&image);
 
     loop {
@@ -62,7 +44,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
             keys += 1;
         }
         if is_key_pressed(KeyCode::R) {
-            super::cpu_path_tracer::save_image_mt(&mut scene, 50);
+            super::cpu_path_tracer::save_image(&mut scene, 20);
         }
         if is_key_pressed(KeyCode::Escape) {
             return;

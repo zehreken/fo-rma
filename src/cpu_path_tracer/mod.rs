@@ -72,6 +72,7 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     scene.pixels = render(scene);
 }
 
+#[deprecated]
 fn copy_scene(scene: &Scene) -> Scene {
     Scene {
         camera: scene.camera,
@@ -193,11 +194,13 @@ pub fn save_image_mt(scene: &Scene, sample: u32) {
     img_buf.save("out/basic_mt.png").unwrap();
 }
 
-pub fn save_image(width: u32, height: u32, sample: u32) {
+pub fn save_image(scene: &Scene, sample: u32) {
+    let width = scene.width;
+    let height = scene.height;
     let mut img_buf = image::ImageBuffer::new(width, height);
     let mut rng = rand::thread_rng();
-    let camera = Camera::get_camera(width, height);
-    let objects = scenes::get_plane_scene();
+    let camera = &scene.camera;
+    let objects = &scene.objects;
 
     for (x, y, pixel) in img_buf.enumerate_pixels_mut() {
         let mut col = Vec3::zero();
