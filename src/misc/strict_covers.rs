@@ -1,6 +1,6 @@
-use super::super::cpu_path_tracer::hitable::Hitable;
-use super::super::cpu_path_tracer::primitives::vec3::*;
-use super::super::cpu_path_tracer::sphere::*;
+use crate::cpu_path_tracer::primitives::vec3::*;
+use crate::shapes::hitable::Hitable;
+use crate::shapes::sphere::Sphere;
 
 pub fn get_objects() -> Vec<Box<dyn Hitable>> {
     get_cover_07()

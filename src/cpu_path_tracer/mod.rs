@@ -1,12 +1,9 @@
-pub mod aabb;
 mod camera;
-pub mod plane;
 pub mod primitives;
-mod ray;
-pub mod rectangle;
+pub mod ray;
 mod scenes;
-pub mod sphere;
-mod utility;
+pub mod utility;
+use super::shapes::hitable::Hitable;
 use camera::*;
 use primitives::vec3::*;
 use rand::Rng;
@@ -14,8 +11,6 @@ use ray::*;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-pub mod hitable;
-use hitable::*;
 
 const CHANNEL_COUNT: usize = 3;
 

@@ -1,7 +1,7 @@
 use super::hitable::*;
-use super::primitives::vec3::*;
-use super::ray::*;
-use super::utility::*;
+use crate::cpu_path_tracer::primitives::vec3::*;
+use crate::cpu_path_tracer::ray::*;
+use crate::cpu_path_tracer::utility::*;
 use std::fmt;
 
 #[derive(Debug, Copy, Clone)]

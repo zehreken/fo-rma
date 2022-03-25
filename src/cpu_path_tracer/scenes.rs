@@ -1,4 +1,7 @@
-use super::{hitable::Hitable, plane::Plane, primitives::vec3::Vec3, sphere::Sphere};
+use super::primitives::vec3::Vec3;
+use crate::shapes::hitable::Hitable;
+use crate::shapes::plane::Plane;
+use crate::shapes::sphere::Sphere;
 
 pub fn get_simple_scene() -> Vec<Sphere> {
     let mut objects: Vec<Sphere> = Vec::new();

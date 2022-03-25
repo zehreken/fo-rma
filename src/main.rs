@@ -1,6 +1,7 @@
 pub mod cpu_path_tracer;
 mod frontend;
 mod misc;
+pub mod shapes;
 use macroquad::prelude::Conf;
 use misc::fps_utils::FpsCounter;
 

@@ -76,7 +76,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
         // Draw things after egui
 
         fps_counter.tick();
-        std::thread::sleep(std::time::Duration::from_millis(10));
+        std::thread::sleep(std::time::Duration::from_millis(50));
         next_frame().await;
     }
 }
