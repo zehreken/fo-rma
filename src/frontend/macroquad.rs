@@ -1,6 +1,5 @@
-use macroquad::prelude::*;
-
 use crate::misc::fps_utils::FpsCounter;
+use macroquad::prelude::*;
 
 pub async fn run(mut fps_counter: FpsCounter) {
     const WIDTH: usize = 600;
@@ -10,7 +9,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
     let mut image = Image::gen_image_color(WIDTH as u16, HEIGHT as u16, WHITE);
     let texture: Texture2D = Texture2D::from_image(&image);
 
-    let mut a = 0.0;
+    let mut orientation = crate::cpu_path_tracer::primitives::vec3::Vec3::new(-1.0, 0.0, 0.0);
     loop {
         clear_background(WHITE);
 
@@ -18,7 +17,9 @@ pub async fn run(mut fps_counter: FpsCounter) {
         egui_macroquad::ui(|egui_ctx| {
             egui::Window::new("fōrma").show(egui_ctx, |ui| {
                 ui.label("Test");
-                ui.add(egui::Slider::new(&mut a, -1.0..=1.0).text("rotation_y"));
+                ui.add(egui::Slider::new(&mut orientation.x, -1.0..=1.0).text("rotation_x"));
+                ui.add(egui::Slider::new(&mut orientation.y, -1.0..=1.0).text("rotation_y"));
+                ui.add(egui::Slider::new(&mut orientation.z, -1.0..=1.0).text("rotation_z"));
             });
         });
 
@@ -51,7 +52,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
             return;
         }
 
-        scene.objects[0].rotate(a);
+        scene.objects[0].rotate(orientation);
         super::cpu_path_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
         let mut pixel_index: u32 = 0;
         for i in (0..scene.pixels.len()).step_by(3) {

@@ -1,3 +1,4 @@
+use crate::cpu_path_tracer::primitives::vec3::Vec3;
 use crate::cpu_path_tracer::ray::*;
 
 pub trait Hitable: Send {
@@ -8,5 +9,5 @@ pub trait Hitable: Send {
         hit_record: &mut HitRecord,
         reflect_record: &mut ReflectRecord,
     ) -> bool;
-    fn rotate(&mut self, v: f32) {}
+    fn rotate(&mut self, v: Vec3) {}
 }

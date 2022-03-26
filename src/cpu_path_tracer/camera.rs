@@ -79,7 +79,7 @@ impl Camera {
 
     pub fn get_ray(self, s: f32, t: f32) -> Ray {
         let rd = self.lens_radius * random_in_unit_circle();
-        let offset = rd.x() * self.u + rd.y() * self.v;
+        let offset = rd.x * self.u + rd.y * self.v;
 
         return Ray::new(
             self.origin + offset,

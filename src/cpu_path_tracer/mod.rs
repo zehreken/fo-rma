@@ -242,7 +242,7 @@ fn color(ray: Ray, objects: &Vec<Box<dyn Hitable>>, depth: u8) -> Vec3 {
     } else {
         // No hit, assign sky color
         let unit_direction: Vec3 = ray.direction().unit_vector();
-        let t: f32 = 0.5 * (unit_direction.y() + 1.0);
+        let t: f32 = 0.5 * (unit_direction.y + 1.0);
 
         // This is the color of the sky
         return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);

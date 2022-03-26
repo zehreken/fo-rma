@@ -27,12 +27,12 @@ impl Hitable for Plane {
             let plane_to_ray = self.position - ray.origin();
             hit_record.t = Vec3::dot(plane_to_ray, self.orientation) / denom;
             hit_record.p = ray.point_at(hit_record.t);
-            if hit_record.p.x() > self.position.x() - self.size.x()
-                && hit_record.p.x() < self.position.x() + self.size.x()
-                && hit_record.p.y() > self.position.y() - self.size.y()
-                && hit_record.p.y() < self.position.y() + self.size.y()
-                && hit_record.p.z() > self.position.z() - self.size.z()
-                && hit_record.p.z() < self.position.z() + self.size.z()
+            if hit_record.p.x > self.position.x - self.size.x
+                && hit_record.p.x < self.position.x + self.size.x
+                && hit_record.p.y > self.position.y - self.size.y
+                && hit_record.p.y < self.position.y + self.size.y
+                && hit_record.p.z > self.position.z - self.size.z
+                && hit_record.p.z < self.position.z + self.size.z
             {
                 hit_record.normal = self.orientation * -1.;
                 return true;
@@ -56,8 +56,8 @@ impl Hitable for Plane {
         }
     }
 
-    fn rotate(&mut self, v: f32) {
-        self.orientation = Vec3::new(self.orientation.x(), v, self.orientation.z());
+    fn rotate(&mut self, v: Vec3) {
+        self.orientation = v;
     }
 }
 

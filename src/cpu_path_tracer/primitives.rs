@@ -3,9 +3,9 @@ pub mod vec3 {
 
     #[derive(Debug, Copy, Clone)]
     pub struct Vec3 {
-        x: f32,
-        y: f32,
-        z: f32,
+        pub x: f32,
+        pub y: f32,
+        pub z: f32,
     }
 
     impl fmt::Display for Vec3 {
@@ -32,38 +32,26 @@ pub mod vec3 {
         }
 
         pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
-            Vec3 { x: x, y: y, z: z }
+            Vec3 { x, y, z }
         }
 
-        pub fn x(self) -> f32 {
+        pub fn r(&self) -> f32 {
             return self.x;
         }
 
-        pub fn y(self) -> f32 {
+        pub fn g(&self) -> f32 {
             return self.y;
         }
 
-        pub fn z(self) -> f32 {
+        pub fn b(&self) -> f32 {
             return self.z;
         }
 
-        pub fn r(self) -> f32 {
-            return self.x;
-        }
-
-        pub fn g(self) -> f32 {
-            return self.y;
-        }
-
-        pub fn b(self) -> f32 {
-            return self.z;
-        }
-
-        pub fn length_squared(self) -> f32 {
+        pub fn length_squared(&self) -> f32 {
             return self.x * self.x + self.y * self.y + self.z * self.z;
         }
 
-        pub fn length(self) -> f32 {
+        pub fn length(&self) -> f32 {
             return self.length_squared().sqrt();
         }
 
@@ -79,11 +67,11 @@ pub mod vec3 {
             );
         }
 
-        pub fn unit_vector(self) -> Vec3 {
-            return self / self.length();
+        pub fn unit_vector(&self) -> Vec3 {
+            return *self / self.length();
         }
 
-        pub fn sqrt(self) -> Vec3 {
+        pub fn sqrt(&self) -> Vec3 {
             return Vec3::new(self.x.sqrt(), self.y.sqrt(), self.z.sqrt());
         }
     }
@@ -142,9 +130,9 @@ pub mod vec3 {
 
         fn mul(self, other: Vec3) -> Vec3 {
             Vec3 {
-                x: other.x() * self,
-                y: other.y() * self,
-                z: other.z() * self,
+                x: other.x * self,
+                y: other.y * self,
+                z: other.z * self,
             }
         }
     }
@@ -166,9 +154,9 @@ pub mod vec3 {
 
         fn div(self, other: Vec3) -> Vec3 {
             Vec3 {
-                x: other.x() / self,
-                y: other.y() / self,
-                z: other.z() / self,
+                x: other.x / self,
+                y: other.y / self,
+                z: other.z / self,
             }
         }
     }
@@ -199,19 +187,19 @@ mod vec3_tests {
     fn test_cross() {
         let a: Vec3 = Vec3::new(1.0, 2.0, 3.0);
         let b: Vec3 = Vec3::new(-3.0, -2.0, 1.0);
-        assert_eq!(Vec3::cross(a, a).x(), 0.0);
-        assert_eq!(Vec3::cross(b, b).y(), 0.0);
-        assert_eq!(Vec3::cross(a, b).x(), 8.0);
-        assert_eq!(Vec3::cross(b, a).z(), -4.0);
+        assert_eq!(Vec3::cross(a, a).x, 0.0);
+        assert_eq!(Vec3::cross(b, b).y, 0.0);
+        assert_eq!(Vec3::cross(a, b).x, 8.0);
+        assert_eq!(Vec3::cross(b, a).z, -4.0);
     }
 
     #[test]
     fn test_operations() {
         let a: Vec3 = Vec3::new(1.0, 2.0, 3.0);
         let b: Vec3 = Vec3::new(-3.0, -2.0, 1.0);
-        assert_eq!((a + b).x(), -2.0);
-        assert_eq!((a - b).y(), 4.0);
-        assert_eq!((a * 3.0).x(), 3.0);
-        assert_eq!((a / 2.0).y(), 1.0);
+        assert_eq!((a + b).x, -2.0);
+        assert_eq!((a - b).y, 4.0);
+        assert_eq!((a * 3.0).x, 3.0);
+        assert_eq!((a / 2.0).y, 1.0);
     }
 }
