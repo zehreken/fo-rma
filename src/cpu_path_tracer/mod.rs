@@ -25,7 +25,7 @@ pub struct Scene {
 
 pub fn create_scene(width: u32, height: u32) -> Scene {
     let camera = Camera::get_camera(width, height);
-    let ray_count: usize = (width * height) as usize;
+    let resolution: usize = (width * height) as usize;
 
     Scene {
         camera,
@@ -35,8 +35,8 @@ pub fn create_scene(width: u32, height: u32) -> Scene {
         objects: scenes::get_plane_scene(),
         width,
         height,
-        colors: vec![Vec3::zero(); ray_count],
-        pixels: vec![0; ray_count * CHANNEL_COUNT],
+        colors: vec![Vec3::zero(); resolution],
+        pixels: vec![0; resolution * CHANNEL_COUNT],
     }
 }
 
@@ -93,7 +93,7 @@ fn render(scene: &mut Scene) -> Vec<u8> {
             let ray = scene.camera.get_ray(u, v);
             scene.colors[color_index] = color(ray, &scene.objects, 0);
 
-            let r = scene.colors[color_index].r().sqrt();
+            let r = scene.colors[color_index].r().sqrt(); // sqrt, gamma correction
             let g = scene.colors[color_index].g().sqrt();
             let b = scene.colors[color_index].b().sqrt();
             pixels[index] = (r * 255.0) as u8;

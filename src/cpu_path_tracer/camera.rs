@@ -43,7 +43,7 @@ impl Camera {
     }
 
     pub fn get_camera(width: u32, height: u32) -> Camera {
-        let look_from: Vec3 = Vec3::new(1.0, 0.5, 1.0);
+        let look_from: Vec3 = Vec3::new(0.0, 0.5, 1.0);
         let look_at: Vec3 = Vec3::new(0.0, 0.0, 0.0);
         let v_up: Vec3 = Vec3::new(0.0, 1.0, 0.0);
         let v_fov: f32 = 60.0;

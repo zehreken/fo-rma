@@ -35,49 +35,44 @@ pub fn get_plane_scene() -> Vec<Box<dyn Hitable>> {
     objects.push(Box::new(Plane::new(
         Vec3::new(-1.0, 0.0, 0.0),
         Vec3::new(-1.0, 0.0, 0.0),
-        Vec3::one() * 2.0,
+        Vec3::one() * 1.0,
         1,
-        Vec3::new(0.8, 0.8, 0.8),
+        Vec3::new(0.9, 0.1, 0.1),
         0.,
     )));
-    for i in 0..3 {
-        objects.push(Box::new(Plane::new(
-            Vec3::new(1.0, 0.0, -2.0 + i as f32 * 2.0),
-            Vec3::new(1.0, 0.0, 0.0),
-            Vec3::one(),
-            1,
-            Vec3::new(1.0 - i as f32 * 0.2, 0.2 + i as f32 * 0.2, 0.9),
-            0.0,
-        )));
-    }
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(0.0, -1000.5, -1.0),
-    //     1000.0,
-    //     1,
-    //     Vec3::new(0.4, 0.5, 0.5),
-    //     0.1,
-    // )));
-    objects.push(Box::new(Sphere::new(
-        Vec3::new(0.0, 0.0, 0.0),
-        0.5,
+    objects.push(Box::new(Plane::new(
+        Vec3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 0.0, -1.0),
+        Vec3::one() * 1.0,
         1,
-        Vec3::new(0.3, 0.3, 0.98),
-        0.1,
+        Vec3::new(0.1, 0.9, 0.1),
+        0.,
     )));
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(1.0, 0.0, -1.0),
-    //     0.5,
-    //     0,
-    //     Vec3::new(0.9, 0.9, 0.9),
-    //     0.2,
+    // objects.push(Box::new(Plane::new(
+    //     Vec3::new(1.0, 0.0, 0.0),
+    //     Vec3::new(1.0, 0.0, 0.0),
+    //     Vec3::one() * 1.0,
+    //     1,
+    //     Vec3::new(0.1, 0.1, 0.9),
+    //     0.,
     // )));
     // objects.push(Box::new(Sphere::new(
-    //     Vec3::new(-1.0, -0.0, -1.0),
-    //     0.5,
-    //     2,
-    //     Vec3::new(1.0, 1.0, 1.0),
-    //     0.2,
+    //     Vec3::zero(),
+    //     0.4,
+    //     1,
+    //     Vec3::new(0.83, 0.69, 0.21),
+    //     0.3,
     // )));
+    // for i in 0..3 {
+    //     objects.push(Box::new(Plane::new(
+    //         Vec3::new(1.0, 0.0, -2.0 + i as f32 * 2.0),
+    //         Vec3::new(1.0, 0.0, 0.0),
+    //         Vec3::one(),
+    //         1,
+    //         Vec3::new(1.0 - i as f32 * 0.2, 0.2 + i as f32 * 0.2, 0.9),
+    //         0.0,
+    //     )));
+    // }
 
     objects
 }

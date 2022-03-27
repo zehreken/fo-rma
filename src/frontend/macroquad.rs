@@ -1,17 +1,17 @@
 use crate::misc::fps_utils::FpsCounter;
-use macroquad::prelude::*;
+use macroquad::{prelude::*, window};
 
-pub async fn run(mut fps_counter: FpsCounter) {
-    const WIDTH: usize = 600;
-    const HEIGHT: usize = 600;
-    let mut scene = super::cpu_path_tracer::create_scene(WIDTH as u32, HEIGHT as u32);
+pub async fn run(fps_counter: &mut FpsCounter) {
+    let width = window::screen_width() as u32;
+    let height = window::screen_height() as u32;
+    let mut scene = super::cpu_path_tracer::create_scene(width, height);
 
-    let mut image = Image::gen_image_color(WIDTH as u16, HEIGHT as u16, WHITE);
+    let mut image = Image::gen_image_color(width as u16, height as u16, WHITE);
     let texture: Texture2D = Texture2D::from_image(&image);
 
     let mut orientation = crate::cpu_path_tracer::primitives::vec3::Vec3::new(-1.0, 0.0, 0.0);
     loop {
-        clear_background(WHITE);
+        clear_background(BLACK);
 
         // Process keys, mouse etc.
         egui_macroquad::ui(|egui_ctx| {
@@ -46,7 +46,7 @@ pub async fn run(mut fps_counter: FpsCounter) {
             keys += 1;
         }
         if is_key_pressed(KeyCode::R) {
-            super::cpu_path_tracer::save_image(&mut scene, 20);
+            super::cpu_path_tracer::save_image(&mut scene, 50);
         }
         if is_key_pressed(KeyCode::Escape) {
             return;
@@ -63,8 +63,8 @@ pub async fn run(mut fps_counter: FpsCounter) {
                 1.0,
             );
             image.set_pixel(
-                pixel_index % WIDTH as u32,
-                pixel_index / WIDTH as u32,
+                pixel_index % width as u32,
+                pixel_index / width as u32,
                 color,
             );
             pixel_index += 1;
