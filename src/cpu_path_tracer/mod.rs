@@ -42,26 +42,27 @@ pub fn create_scene(width: u32, height: u32) -> Scene {
 
 pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     // 00EQADWS
-    let mut velocity = Vec3::zero();
+    let mut delta = Vec3::zero();
     if keys & 0b100_000 == 0b100_000 {
-        velocity = velocity + Vec3::new(0.0, -0.02, 0.0) * delta_time;
+        delta = delta + Vec3::new(0.0, -0.02, 0.0) * delta_time;
     }
     if keys & 0b10_000 == 0b10_000 {
-        velocity = velocity + Vec3::new(0.0, 0.02, 0.0) * delta_time;
+        delta = delta + Vec3::new(0.0, 0.02, 0.0) * delta_time;
     }
     if keys & 0b1000 == 0b1000 {
-        velocity = velocity + Vec3::new(-0.02, 0.0, 0.0) * delta_time;
+        delta = delta + Vec3::new(-0.02, 0.0, 0.0) * delta_time;
     }
     if keys & 0b100 == 0b100 {
-        velocity = velocity + Vec3::new(0.02, 0.0, 0.0) * delta_time;
+        delta = delta + Vec3::new(0.02, 0.0, 0.0) * delta_time;
     }
     if keys & 0b10 == 0b10 {
-        velocity = velocity + Vec3::new(0.0, 0.0, -0.02) * delta_time;
+        delta = delta + Vec3::new(0.0, 0.0, -0.02) * delta_time;
     }
     if keys & 0b1 == 0b1 {
-        velocity = velocity + Vec3::new(0.0, 0.0, 0.02) * delta_time;
+        delta = delta + Vec3::new(0.0, 0.0, 0.02) * delta_time;
     }
-    scene.camera.translate(velocity);
+    scene.camera.translate(delta);
+    // scene.camera.orbit(delta);
     // scene.pixels = render_mt(scene);
     scene.pixels = render(scene);
 }
