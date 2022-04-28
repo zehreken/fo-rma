@@ -6,4 +6,4 @@ Noun
 4. model, pattern, stamp, mold
 5. (figurative) manner, kind, sort
 
-[showcase](showcase.png)
+![showcase](showcase.png)
