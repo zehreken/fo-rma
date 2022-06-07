@@ -48,21 +48,21 @@ pub fn get_plane_scene() -> Vec<Box<dyn Hitable>> {
         Vec3::new(0.1, 0.9, 0.1),
         0.,
     )));
-    // objects.push(Box::new(Plane::new(
-    //     Vec3::new(1.0, 0.0, 0.0),
-    //     Vec3::new(1.0, 0.0, 0.0),
-    //     Vec3::one() * 1.0,
-    //     1,
-    //     Vec3::new(0.1, 0.1, 0.9),
-    //     0.,
-    // )));
-    // objects.push(Box::new(Sphere::new(
-    //     Vec3::zero(),
-    //     0.4,
-    //     1,
-    //     Vec3::new(0.83, 0.69, 0.21),
-    //     0.3,
-    // )));
+    objects.push(Box::new(Plane::new(
+        Vec3::new(1.0, 0.0, 0.0),
+        Vec3::new(1.0, 0.0, 0.0),
+        Vec3::one() * 1.0,
+        1,
+        Vec3::new(0.1, 0.1, 0.9),
+        0.,
+    )));
+    objects.push(Box::new(Sphere::new(
+        Vec3::zero(),
+        0.4,
+        1,
+        Vec3::new(0.83, 0.69, 0.21),
+        0.3,
+    )));
     // for i in 0..3 {
     //     objects.push(Box::new(Plane::new(
     //         Vec3::new(1.0, 0.0, -2.0 + i as f32 * 2.0),

@@ -19,7 +19,7 @@ pub fn get_config() -> Conf {
     Conf {
         window_title: "fōrma".to_owned(),
         window_width: 400,
-        window_height: 300,
+        window_height: 400,
         fullscreen: false,
         ..Default::default()
     }
