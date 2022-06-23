@@ -18,4 +18,4 @@ egui-macroquad = "0.11.0"
 egui = { version = "0.18.1", features = ["bytemuck"] }
 # https://github.com/not-fl3/miniquad/issues/172
 [target.'cfg(target_os = "macos")'.dependencies]
-copypasta = "0.7"
+copypasta = "0.8"
