@@ -9,13 +9,13 @@ edition = "2021"
 [dependencies]
 image = "0.24.0"
 rand = "0.8.4"
-minifb = "0.20.0"
+minifb = "0.23.0"
 puffin = "0.13"
-miniquad = {version = "0.3.0-alpha.43"}
+miniquad = {version = "0.3.0-alpha.46"}
 macroquad = { version = "0.3.6", default-features = false }
-egui-miniquad = "0.9.0"
-egui-macroquad = "0.9.0"
-egui = "0.17.0"
+egui-miniquad = "0.11.0"
+egui-macroquad = "0.11.0"
+egui = { version = "0.18.1", features = ["bytemuck"] }
 # https://github.com/not-fl3/miniquad/issues/172
 [target.'cfg(target_os = "macos")'.dependencies]
-copypasta = "0.7"
+copypasta = "0.8"
