@@ -37,7 +37,7 @@ impl mq::EventHandler for Stage {
         ctx.end_render_pass();
 
         // Run the UI code:
-        self.egui_mq.run(ctx, |egui_ctx| {
+        self.egui_mq.run(ctx, |_mq_ctx, egui_ctx| {
             egui::Window::new("egui ❤ miniquad").show(egui_ctx, |ui| {
                 egui::widgets::global_dark_light_mode_buttons(ui);
                 ui.checkbox(&mut false, "Show egui demo windows");
@@ -61,11 +61,11 @@ impl mq::EventHandler for Stage {
     }
 
     fn mouse_motion_event(&mut self, ctx: &mut mq::Context, x: f32, y: f32) {
-        self.egui_mq.mouse_motion_event(ctx, x, y);
+        self.egui_mq.mouse_motion_event(x, y);
     }
 
     fn mouse_wheel_event(&mut self, ctx: &mut mq::Context, dx: f32, dy: f32) {
-        self.egui_mq.mouse_wheel_event(ctx, dx, dy);
+        self.egui_mq.mouse_wheel_event(dx, dy);
     }
 
     fn mouse_button_down_event(
@@ -118,7 +118,6 @@ pub fn run() {
         high_dpi: true,
         ..Default::default()
     };
-    mq::start(conf, |mut ctx| {
-        mq::UserData::owning(Stage::new(&mut ctx), ctx)
-    });
+
+    mq::start(conf, |mut ctx| Box::new(Stage::new(&mut ctx)));
 }
