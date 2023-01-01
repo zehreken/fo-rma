@@ -16,6 +16,8 @@ pub struct Camera {
     w: Vec3,
     lens_radius: f32,
     focus_dist: f32,
+    radius: f32,
+    rotation: f32,
 }
 
 impl Camera {
@@ -41,6 +43,8 @@ impl Camera {
             w,
             lens_radius,
             focus_dist: 2.0,
+            radius: 5.0,
+            rotation: 0.0,
         }
     }
 
@@ -115,17 +119,16 @@ impl Camera {
     }
 
     pub fn orbit(&mut self, delta: Vec3) {
-        let look_at = Vec3::zero();
-        let v_up = Vec3::new(0.0, 1.0, 0.0);
-        let v_fov = 60.0;
+        self.rotation += delta.x;
+        self.radius += delta.z;
+        self.position.x = self.radius * self.rotation.cos();
+        self.position.y += delta.y;
+        self.position.z = self.radius * self.rotation.sin();
+        let look_at: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+        let v_up: Vec3 = Vec3::new(0.0, 1.0, 0.0);
+        let v_fov: f32 = 60.0;
         let aperture: f32 = 0.1;
         let focus_dist: f32 = (self.position - look_at).length();
-
-        self.position.y += delta.y;
-        if self.focus_dist >= 0.3 {
-            self.focus_dist += delta.z;
-        }
-        self.focus_dist = 0.3;
 
         self.lens_radius = aperture / 2.0;
         let theta: f32 = v_fov * PI / 180.0;

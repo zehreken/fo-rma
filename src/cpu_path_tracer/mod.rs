@@ -61,8 +61,8 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     if keys & 0b1 == 0b1 {
         delta = delta + Vec3::new(0.0, 0.0, 0.02) * delta_time;
     }
-    scene.camera.translate(delta);
-    // scene.camera.orbit(delta);
+    // scene.camera.translate(delta);
+    scene.camera.orbit(delta);
     // scene.pixels = render_mt(scene);
     scene.pixels = render(scene);
 }
