@@ -10,7 +10,7 @@ edition = "2021"
 image = "0.24.0"
 rand = "0.8.4"
 minifb = "0.23.0"
-puffin = "0.13"
+puffin = "0.14"
 miniquad = {version = "=0.3.13"}
 macroquad = { version = "0.3.6", default-features = false }
 egui-miniquad = "0.12.0"

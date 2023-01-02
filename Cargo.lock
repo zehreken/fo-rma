@@ -1022,11 +1022,12 @@ dependencies = [
 
 [[package]]
 name = "puffin"
-version = "0.13.3"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b40725b2702b9c660938b8d9c56978091252374cc50d73a83b59695b8d32ec03"
+checksum = "6d633fe876f6d56ff298ae16841fce0071ae998caf4b39b4321d55a161ad6a3c"
 dependencies = [
  "byteorder",
+ "instant",
  "once_cell",
 ]
 
