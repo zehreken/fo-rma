@@ -1,4 +1,4 @@
-use crate::cpu_path_tracer::primitives::vec3::*;
+use crate::cpu_ray_tracer::primitives::vec3::*;
 use crate::shapes::hitable::Hitable;
 use crate::shapes::sphere::Sphere;
 

@@ -1,4 +1,4 @@
-pub mod cpu_path_tracer;
+pub mod cpu_ray_tracer;
 mod frontend;
 mod misc;
 pub mod shapes;

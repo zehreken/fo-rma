@@ -14,7 +14,7 @@ pub fn run(width: usize, height: usize, fps_counter: &mut FpsCounter) {
         panic!("{}", e);
     });
 
-    let mut scene = super::cpu_path_tracer::create_scene(width as u32, height as u32);
+    let mut scene = super::cpu_ray_tracer::create_scene(width as u32, height as u32);
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(50_000)));
@@ -42,9 +42,9 @@ pub fn run(width: usize, height: usize, fps_counter: &mut FpsCounter) {
             keys += 1 << 5;
         }
         if window.is_key_pressed(Key::R, minifb::KeyRepeat::No) {
-            super::cpu_path_tracer::save_image_mt(&mut scene, 50);
+            super::cpu_ray_tracer::save_image_mt(&mut scene, 50);
         }
-        super::cpu_path_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
+        super::cpu_ray_tracer::update(&mut scene, keys, fps_counter.get_delta_time_as_secs_f32());
         let mut index = 0;
         for i in buffer.iter_mut() {
             let color: u32 = ((scene.pixels[index] as u32) << 16)

@@ -10,8 +10,8 @@ impl Stage {
     fn new(ctx: &mut mq::Context) -> Self {
         const WIDTH: usize = 600;
         const HEIGHT: usize = 600;
-        let mut scene = super::cpu_path_tracer::create_scene(WIDTH as u32, HEIGHT as u32);
-        super::cpu_path_tracer::update(&mut scene, 0, 0.0);
+        let mut scene = super::cpu_ray_tracer::create_scene(WIDTH as u32, HEIGHT as u32);
+        super::cpu_ray_tracer::update(&mut scene, 0, 0.0);
         let mut buffer: [u8; WIDTH * HEIGHT] = [0; WIDTH * HEIGHT];
         let mut index = 0;
         for i in buffer.iter_mut() {
