@@ -40,22 +40,22 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
     // 00EQADWS
     let mut delta = Vec3::zero();
     if keys & 0b100_000 == 0b100_000 {
-        delta = delta + Vec3::new(0.0, -0.02, 0.0) * delta_time;
+        delta = delta + Vec3::new(0.0, -1.0, 0.0) * delta_time;
     }
     if keys & 0b10_000 == 0b10_000 {
-        delta = delta + Vec3::new(0.0, 0.02, 0.0) * delta_time;
+        delta = delta + Vec3::new(0.0, 1.0, 0.0) * delta_time;
     }
     if keys & 0b1000 == 0b1000 {
-        delta = delta + Vec3::new(-0.02, 0.0, 0.0) * delta_time;
+        delta = delta + Vec3::new(-1.0, 0.0, 0.0) * delta_time;
     }
     if keys & 0b100 == 0b100 {
-        delta = delta + Vec3::new(0.02, 0.0, 0.0) * delta_time;
+        delta = delta + Vec3::new(1.0, 0.0, 0.0) * delta_time;
     }
     if keys & 0b10 == 0b10 {
-        delta = delta + Vec3::new(0.0, 0.0, -0.02) * delta_time;
+        delta = delta + Vec3::new(0.0, 0.0, -1.0) * delta_time;
     }
     if keys & 0b1 == 0b1 {
-        delta = delta + Vec3::new(0.0, 0.0, 0.02) * delta_time;
+        delta = delta + Vec3::new(0.0, 0.0, 1.0) * delta_time;
     }
     // scene.camera.translate(delta);
     scene.camera.orbit(delta);

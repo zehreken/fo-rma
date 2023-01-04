@@ -1,5 +1,6 @@
 use std::time::{Duration, Instant};
 pub struct FpsCounter {
+    start: Instant,
     now: Instant,
     frames: i32,
 }
@@ -7,6 +8,7 @@ pub struct FpsCounter {
 impl FpsCounter {
     pub fn new() -> FpsCounter {
         FpsCounter {
+            start: Instant::now(),
             now: Instant::now(),
             frames: 0,
         }
@@ -17,11 +19,15 @@ impl FpsCounter {
     }
 
     pub fn average_frames_per_second(&self) -> f32 {
-        let duration: Duration = Instant::now() - self.now;
+        let duration: Duration = Instant::now() - self.start;
         self.frames as f32 / duration.as_secs() as f32
     }
 
-    pub fn get_delta_time_as_secs_f32(&self) -> f32 {
-        (Instant::now() - self.now).as_secs_f32()
+    pub fn get_delta_time(&mut self) -> f32 {
+        let now = Instant::now();
+        let delta_time = now.duration_since(self.now);
+        self.now = now;
+
+        delta_time.as_secs_f32()
     }
 }

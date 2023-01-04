@@ -44,11 +44,7 @@ pub fn run(width: usize, height: usize, fps_counter: &mut FpsCounter) {
         if window.is_key_pressed(Key::R, minifb::KeyRepeat::No) {
             super::cpu_ray_tracer::tracer::save_image_mt(&mut scene, 50);
         }
-        super::cpu_ray_tracer::tracer::update(
-            &mut scene,
-            keys,
-            fps_counter.get_delta_time_as_secs_f32(),
-        );
+        super::cpu_ray_tracer::tracer::update(&mut scene, keys, fps_counter.get_delta_time());
         let mut index = 0;
         for i in buffer.iter_mut() {
             let color: u32 = ((scene.pixels[index] as u32) << 16)
