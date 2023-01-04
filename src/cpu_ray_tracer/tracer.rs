@@ -25,9 +25,9 @@ pub fn create_scene(width: u32, height: u32) -> Scene {
 
     Scene {
         camera,
-        // objects: super::misc::strict_covers::get_objects(),
-        // objects: get_simple_scene(),
-        // objects: get_objects(),
+        // objects: super::super::misc::strict_covers::get_objects(),
+        // objects: scenes::get_simple_scene(),
+        // objects: scenes::get_objects(),
         objects: scenes::get_plane_scene(),
         width,
         height,
