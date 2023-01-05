@@ -9,6 +9,7 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 
 const CHANNEL_COUNT: usize = 3;
+const MAX_DEPTH: u8 = 50;
 
 pub struct Scene {
     camera: Camera,
@@ -230,7 +231,7 @@ fn color(ray: Ray, objects: &Vec<Box<dyn Hitable>>, depth: u8) -> Vec3 {
     if let Some(obj) = temp_obj {
         let mut reflect_record: ReflectRecord =
             ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
-        if depth < 50 && obj.scatter(ray, &mut hit_record, &mut reflect_record) {
+        if depth < MAX_DEPTH && obj.scatter(ray, &mut hit_record, &mut reflect_record) {
             return reflect_record.attenuation
                 * color(reflect_record.scattered, objects, depth + 1);
         } else {
