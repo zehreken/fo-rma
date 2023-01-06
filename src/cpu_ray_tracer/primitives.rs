@@ -130,9 +130,9 @@ pub mod vec3 {
 
         fn mul(self, other: Vec3) -> Vec3 {
             Vec3 {
-                x: other.x * self,
-                y: other.y * self,
-                z: other.z * self,
+                x: self * other.x,
+                y: self * other.y,
+                z: self * other.z,
             }
         }
     }
@@ -149,15 +149,9 @@ pub mod vec3 {
         }
     }
 
-    impl ops::Div<Vec3> for f32 {
-        type Output = Vec3;
-
-        fn div(self, other: Vec3) -> Vec3 {
-            Vec3 {
-                x: other.x / self,
-                y: other.y / self,
-                z: other.z / self,
-            }
+    impl PartialEq for Vec3 {
+        fn eq(&self, other: &Self) -> bool {
+            self.x == other.x && self.y == other.y && self.z == other.z
         }
     }
 }
@@ -180,7 +174,8 @@ mod vec3_tests {
         assert_eq!(Vec3::dot(a, a), 3.0);
         assert_eq!(Vec3::dot(b, b), 13.04);
         assert_eq!(Vec3::dot(a, b), -1.2);
-        assert_eq!(Vec3::dot(b, a), Vec3::dot(b, a));
+        assert_eq!(Vec3::dot(b, a), -1.2);
+        assert_eq!(Vec3::dot(a, b), Vec3::dot(b, a)); // dot product is commutative
     }
 
     #[test]
@@ -194,12 +189,67 @@ mod vec3_tests {
     }
 
     #[test]
-    fn test_operations() {
+    fn test_addition() {
         let a: Vec3 = Vec3::new(1.0, 2.0, 3.0);
         let b: Vec3 = Vec3::new(-3.0, -2.0, 1.0);
-        assert_eq!((a + b).x, -2.0);
-        assert_eq!((a - b).y, 4.0);
-        assert_eq!((a * 3.0).x, 3.0);
-        assert_eq!((a / 2.0).y, 1.0);
+        assert_eq!(
+            (a + b),
+            Vec3 {
+                x: -2.0,
+                y: 0.0,
+                z: 4.0
+            }
+        );
+        assert_eq!((a + b), (b + a));
+    }
+
+    #[test]
+    fn test_subtraction() {
+        let a: Vec3 = Vec3::new(1.0, 2.0, 3.0);
+        let b: Vec3 = Vec3::new(-3.0, -2.0, 1.0);
+        assert_eq!(
+            (a - b),
+            Vec3 {
+                x: 4.0,
+                y: 4.0,
+                z: 2.0
+            }
+        );
+        assert_eq!((a - b), -1.0 * (b - a));
+    }
+
+    #[test]
+    fn test_multiplication() {
+        let a: Vec3 = Vec3::new(1.0, 2.0, 3.0);
+        let b: Vec3 = Vec3::new(-3.0, -2.0, 1.0);
+        assert_eq!(
+            (a * 3.0),
+            Vec3 {
+                x: 3.0,
+                y: 6.0,
+                z: 9.0
+            }
+        );
+        assert_eq!(
+            (a * b),
+            Vec3 {
+                x: -3.0,
+                y: -4.0,
+                z: 3.0
+            }
+        );
+    }
+
+    #[test]
+    fn test_division() {
+        let a: Vec3 = Vec3::new(1.0, 2.0, 3.0);
+        assert_eq!(
+            (a / 2.0),
+            Vec3 {
+                x: 0.5,
+                y: 1.0,
+                z: 1.5
+            }
+        );
     }
 }

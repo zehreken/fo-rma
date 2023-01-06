@@ -51,8 +51,11 @@ impl Hitable for Plane {
     ) -> bool {
         if self.material == 0 {
             return self.lambertian(hit_record, reflect_record);
-        } else {
+        } else if self.material == 1 {
             return self.metal(ray, hit_record, reflect_record);
+        // } else if self.material == 2 {
+        } else {
+            return self.lambertian(hit_record, reflect_record);
         }
     }
 
