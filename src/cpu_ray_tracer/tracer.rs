@@ -27,9 +27,9 @@ pub fn create_scene(width: u32, height: u32) -> Scene {
     Scene {
         camera,
         // objects: super::super::misc::strict_covers::get_objects(),
-        // objects: scenes::get_simple_scene(),
+        objects: scenes::get_simple_scene(),
         // objects: scenes::get_objects(),
-        objects: scenes::get_plane_scene(),
+        // objects: scenes::get_plane_scene(),
         width,
         height,
         colors: vec![Vec3::zero(); resolution],
@@ -47,10 +47,10 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
         delta = delta + Vec3::new(0.0, 1.0, 0.0) * delta_time;
     }
     if keys & 0b1000 == 0b1000 {
-        delta = delta + Vec3::new(-1.0, 0.0, 0.0) * delta_time;
+        delta = delta + Vec3::new(1.0, 0.0, 0.0) * delta_time;
     }
     if keys & 0b100 == 0b100 {
-        delta = delta + Vec3::new(1.0, 0.0, 0.0) * delta_time;
+        delta = delta + Vec3::new(-1.0, 0.0, 0.0) * delta_time;
     }
     if keys & 0b10 == 0b10 {
         delta = delta + Vec3::new(0.0, 0.0, -1.0) * delta_time;

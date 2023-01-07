@@ -62,6 +62,8 @@ impl Hitable for Sphere {
             return self.metal(ray, hit_record, reflect_record);
         } else if self.material == 2 {
             return self.dielectric(ray, hit_record, reflect_record);
+        } else if self.material == 3 {
+            return self.light(hit_record, reflect_record);
         } else {
             return self.lambertian(hit_record, reflect_record); // default is lambertian
         }
@@ -139,6 +141,13 @@ impl Sphere {
             reflect_record.scattered = Ray::new(hit_record.p, refracted);
         }
 
+        return true;
+    }
+
+    fn light(self, hit_record: &mut HitRecord, reflect_record: &mut ReflectRecord) -> bool {
+        let target = hit_record.p + hit_record.normal + random_in_unit_sphere();
+        reflect_record.scattered = Ray::new(hit_record.p, target - hit_record.p);
+        reflect_record.attenuation = Vec3::one();
         return true;
     }
 }
