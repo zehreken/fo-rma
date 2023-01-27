@@ -2,6 +2,7 @@ use super::super::shapes::hitable::Hitable;
 use super::camera::*;
 use super::primitives::vec3::*;
 use super::ray::*;
+use super::scene::Scene;
 use super::scenes;
 use rand::Rng;
 use std::sync::mpsc;
@@ -10,15 +11,6 @@ use std::thread;
 
 const CHANNEL_COUNT: usize = 3;
 const MAX_DEPTH: u8 = 50;
-
-pub struct Scene {
-    camera: Camera,
-    pub objects: Vec<Box<dyn Hitable>>,
-    width: u32,
-    height: u32,
-    colors: Vec<Vec3>,   // remove, this does not belong to the scene
-    pub pixels: Vec<u8>, // remove, this does not belong to the scene
-}
 
 pub fn create_scene(width: u32, height: u32) -> Scene {
     let camera = Camera::get_camera(width, height);
