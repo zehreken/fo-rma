@@ -1,5 +1,4 @@
 use super::super::shapes::hitable::Hitable;
-use super::camera::*;
 use super::primitives::vec3::*;
 use super::ray::*;
 use super::scene::Scene;
@@ -12,16 +11,19 @@ use std::thread;
 const CHANNEL_COUNT: usize = 3;
 const MAX_DEPTH: u8 = 50;
 
-pub fn create_scene(width: u32, height: u32) -> Scene {
-    let camera = Camera::get_camera(width, height);
+pub struct TraceModel {
+    pub scene: Scene,
+    pub width: u32,
+    pub height: u32,
+    pub colors: Vec<Vec3>,
+    pub pixels: Vec<u8>,
+}
+
+pub fn create_model(width: u32, height: u32) -> TraceModel {
     let resolution: usize = (width * height) as usize;
 
-    Scene {
-        camera,
-        // objects: super::super::misc::strict_covers::get_objects(),
-        objects: scenes::get_simple_scene(),
-        // objects: scenes::get_objects(),
-        // objects: scenes::get_plane_scene(),
+    TraceModel {
+        scene: Scene::new(width, height),
         width,
         height,
         colors: vec![Vec3::zero(); resolution],
@@ -29,7 +31,7 @@ pub fn create_scene(width: u32, height: u32) -> Scene {
     }
 }
 
-pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
+pub fn update(model: &mut TraceModel, keys: u8, delta_time: f32) {
     // 00EQADWS
     let mut delta = Vec3::zero();
     if keys & 0b100_000 == 0b100_000 {
@@ -51,26 +53,25 @@ pub fn update(scene: &mut Scene, keys: u8, delta_time: f32) {
         delta = delta + Vec3::new(0.0, 0.0, 1.0) * delta_time;
     }
     // scene.camera.translate(delta);
-    scene.camera.orbit(delta);
+    model.scene.camera.orbit(delta);
     // scene.pixels = render_mt(scene);
-    scene.pixels = render(scene);
+    model.pixels = render(model);
 }
 
-#[deprecated]
-fn copy_scene(scene: &Scene) -> Scene {
-    Scene {
-        camera: scene.camera,
-        objects: scenes::get_plane_scene(),
-        width: scene.width,
-        height: scene.height,
-        colors: scene.colors.clone(),
-        pixels: scene.pixels.clone(),
-    }
-}
+// #[deprecated]
+// fn copy_scene(model: &TraceModel) -> TraceModel {
+//     TraceModel {
+//         scene: model.scene,
+//         width: model.width,
+//         height: model.height,
+//         colors: model.colors.clone(),
+//         pixels: model.pixels.clone(),
+//     }
+// }
 
-fn render(scene: &mut Scene) -> Vec<u8> {
-    let width = scene.width;
-    let height = scene.height;
+fn render(model: &mut TraceModel) -> Vec<u8> {
+    let width = model.width;
+    let height = model.height;
     let mut rng = rand::thread_rng();
     let resolution: usize = (width * height) as usize;
     let mut pixels: Vec<u8> = vec![0; resolution * CHANNEL_COUNT];
@@ -80,12 +81,12 @@ fn render(scene: &mut Scene) -> Vec<u8> {
             let index: usize = ((x + y * width as u32) * CHANNEL_COUNT as u32) as usize;
             let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
             let v: f32 = ((height - y) as f32 + rng.gen::<f32>()) / height as f32;
-            let ray = scene.camera.get_ray(u, v);
-            scene.colors[color_index] = color(ray, &scene.objects, 0);
+            let ray = model.scene.camera.get_ray(u, v);
+            model.colors[color_index] = color(ray, &model.scene.objects, 0);
 
-            let r = scene.colors[color_index].r().sqrt(); // sqrt, gamma correction
-            let g = scene.colors[color_index].g().sqrt();
-            let b = scene.colors[color_index].b().sqrt();
+            let r = model.colors[color_index].r().sqrt(); // sqrt, gamma correction
+            let g = model.colors[color_index].g().sqrt();
+            let b = model.colors[color_index].b().sqrt();
             pixels[index] = (r * 255.0) as u8;
             pixels[index + 1] = (g * 255.0) as u8;
             pixels[index + 2] = (b * 255.0) as u8;
@@ -95,22 +96,24 @@ fn render(scene: &mut Scene) -> Vec<u8> {
     pixels
 }
 
-fn render_mt(scene: &Scene) -> Vec<u8> {
-    let width = scene.width;
-    let height = scene.height;
+fn render_mt(model: &TraceModel) -> Vec<u8> {
+    let width = model.width;
+    let height = model.height;
     let (tx, rx): (Sender<(u8, Vec<u8>)>, Receiver<(u8, Vec<u8>)>) = mpsc::channel();
     let mut children = Vec::new();
     const NTHREADS: u8 = 6;
     let t_height = height / NTHREADS as u32;
     let t_offset: f32 = 1.0 / NTHREADS as f32;
+    let scene = &model.scene;
+    let camera = model.scene.camera.clone();
 
     for t in 0..NTHREADS {
         let thread_x = tx.clone();
-        let mut scene_x = copy_scene(&scene);
         let child = thread::spawn(move || {
             let mut rng = rand::thread_rng();
             let size: usize = (width * t_height as u32) as usize;
             let mut pixels: Vec<u8> = vec![0; size * CHANNEL_COUNT];
+            let mut color_x = vec![Vec3::zero(); size];
             for y in 0..t_height {
                 for x in 0..width {
                     let color_index = (x + y * width as u32) as usize;
@@ -118,12 +121,12 @@ fn render_mt(scene: &Scene) -> Vec<u8> {
                     let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
                     let mut v: f32 = ((t_height - y) as f32 + rng.gen::<f32>()) / height as f32; // invert y
                     v += t as f32 * t_offset;
-                    let ray = scene_x.camera.get_ray(u, v);
-                    scene_x.colors[color_index] = color(ray, &scene_x.objects, 0);
+                    let ray = camera.get_ray(u, v);
+                    color_x[color_index] = color(ray, &scenes::get_simple_scene(), 0);
 
-                    let r = scene_x.colors[color_index].r().sqrt();
-                    let g = scene_x.colors[color_index].g().sqrt();
-                    let b = scene_x.colors[color_index].b().sqrt();
+                    let r = color_x[color_index].r().sqrt();
+                    let g = color_x[color_index].g().sqrt();
+                    let b = color_x[color_index].b().sqrt();
                     pixels[index] = (r * 255.0) as u8;
                     pixels[index + 1] = (g * 255.0) as u8;
                     pixels[index + 2] = (b * 255.0) as u8;
@@ -154,12 +157,12 @@ fn render_mt(scene: &Scene) -> Vec<u8> {
     sum
 }
 
-pub fn save_image_mt(scene: &Scene, sample: u32) {
-    let mut img_buf = image::ImageBuffer::new(scene.width, scene.height);
+pub fn save_image_mt(model: &TraceModel, sample: u32) {
+    let mut img_buf = image::ImageBuffer::new(model.width, model.height);
 
-    let mut pixels_acc: Vec<f32> = vec![0.0; scene.width as usize * scene.height as usize * 3];
+    let mut pixels_acc: Vec<f32> = vec![0.0; model.width as usize * model.height as usize * 3];
     for _ in 0..sample {
-        let pixels = render_mt(scene);
+        let pixels = render_mt(model);
         for i in 0..pixels.len() {
             pixels_acc[i] += pixels[i] as f32 / sample as f32;
         }
@@ -178,13 +181,13 @@ pub fn save_image_mt(scene: &Scene, sample: u32) {
     img_buf.save("out/basic_mt.png").unwrap();
 }
 
-pub fn save_image(scene: &Scene, sample: u32) {
-    let width = scene.width;
-    let height = scene.height;
+pub fn save_image(model: &TraceModel, sample: u32) {
+    let width = model.width;
+    let height = model.height;
     let mut img_buf = image::ImageBuffer::new(width, height);
     let mut rng = rand::thread_rng();
-    let camera = &scene.camera;
-    let objects = &scene.objects;
+    let camera = &model.scene.camera;
+    let objects = &model.scene.objects;
 
     for (x, y, pixel) in img_buf.enumerate_pixels_mut() {
         let mut col = Vec3::zero();

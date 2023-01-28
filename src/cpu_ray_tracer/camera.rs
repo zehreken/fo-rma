@@ -21,34 +21,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(
-        position: Vec3,
-        lower_left_corner: Vec3,
-        aspect: f32,
-        horizontal: Vec3,
-        vertical: Vec3,
-        u: Vec3,
-        v: Vec3,
-        w: Vec3,
-        lens_radius: f32,
-    ) -> Camera {
-        Camera {
-            position,
-            lower_left_corner,
-            aspect,
-            horizontal,
-            vertical,
-            u,
-            v,
-            w,
-            lens_radius,
-            focus_dist: 2.0,
-            radius: 5.0,
-            rotation: 0.0,
-        }
-    }
-
-    pub fn get_camera(width: u32, height: u32) -> Camera {
+    pub fn new(width: u32, height: u32) -> Camera {
         let look_from: Vec3 = Vec3::new(0.0, 0.0, 1.0);
         let look_at: Vec3 = Vec3::new(0.0, 0.0, 0.0);
         let v_up: Vec3 = Vec3::new(0.0, 1.0, 0.0);
@@ -70,7 +43,7 @@ impl Camera {
         let horizontal = 2.0 * half_width * focus_dist * u;
         let vertical = 2.0 * half_height * focus_dist * v;
 
-        return Camera::new(
+        Camera {
             position,
             lower_left_corner,
             aspect,
@@ -80,7 +53,10 @@ impl Camera {
             u,
             w,
             lens_radius,
-        );
+            focus_dist: 2.0,
+            radius: 5.0,
+            rotation: 0.0,
+        }
     }
 
     pub fn get_ray(self, s: f32, t: f32) -> Ray {

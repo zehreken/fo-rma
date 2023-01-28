@@ -14,7 +14,7 @@ pub fn run(width: usize, height: usize, fps_counter: &mut FpsCounter) {
         panic!("{}", e);
     });
 
-    let mut scene = super::cpu_ray_tracer::tracer::create_scene(width as u32, height as u32);
+    let mut scene = super::cpu_ray_tracer::tracer::create_model(width as u32, height as u32);
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(50_000)));

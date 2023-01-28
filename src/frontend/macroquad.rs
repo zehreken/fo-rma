@@ -4,7 +4,7 @@ use macroquad::{prelude::*, window};
 pub async fn run(fps_counter: &mut FpsCounter) {
     let width = window::screen_width() as u32;
     let height = window::screen_height() as u32;
-    let mut scene = super::cpu_ray_tracer::tracer::create_scene(width, height);
+    let mut model = super::cpu_ray_tracer::tracer::create_model(width, height);
 
     let mut image = Image::gen_image_color(width as u16, height as u16, WHITE);
     let texture: Texture2D = Texture2D::from_image(&image);
@@ -46,20 +46,20 @@ pub async fn run(fps_counter: &mut FpsCounter) {
             keys += 1;
         }
         if is_key_pressed(KeyCode::R) {
-            super::cpu_ray_tracer::tracer::save_image(&mut scene, 50);
+            super::cpu_ray_tracer::tracer::save_image(&mut model, 50);
         }
         if is_key_pressed(KeyCode::Escape) {
             return;
         }
 
-        scene.objects[0].rotate(orientation);
-        super::cpu_ray_tracer::tracer::update(&mut scene, keys, fps_counter.get_delta_time());
+        model.scene.objects[0].rotate(orientation);
+        super::cpu_ray_tracer::tracer::update(&mut model, keys, fps_counter.get_delta_time());
         let mut pixel_index: u32 = 0;
-        for i in (0..scene.pixels.len()).step_by(3) {
+        for i in (0..model.pixels.len()).step_by(3) {
             let color = Color::new(
-                scene.pixels[i] as f32 / 255.0,
-                scene.pixels[i + 1] as f32 / 255.0,
-                scene.pixels[i + 2] as f32 / 255.0,
+                model.pixels[i] as f32 / 255.0,
+                model.pixels[i + 1] as f32 / 255.0,
+                model.pixels[i + 2] as f32 / 255.0,
                 1.0,
             );
             image.set_pixel(
