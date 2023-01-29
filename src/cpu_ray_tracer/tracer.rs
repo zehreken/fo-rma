@@ -15,7 +15,6 @@ pub struct TraceModel {
     pub scene: Scene,
     pub width: u32,
     pub height: u32,
-    pub colors: Vec<Vec3>,
     pub pixels: Vec<u8>,
 }
 
@@ -26,7 +25,6 @@ pub fn create_model(width: u32, height: u32) -> TraceModel {
         scene: Scene::new(width, height),
         width,
         height,
-        colors: vec![Vec3::zero(); resolution],
         pixels: vec![0; resolution * CHANNEL_COUNT],
     }
 }
@@ -54,20 +52,9 @@ pub fn update(model: &mut TraceModel, keys: u8, delta_time: f32) {
     }
     // scene.camera.translate(delta);
     model.scene.camera.orbit(delta);
-    // scene.pixels = render_mt(scene);
+    // model.pixels = render_mt(model);
     model.pixels = render(model);
 }
-
-// #[deprecated]
-// fn copy_scene(model: &TraceModel) -> TraceModel {
-//     TraceModel {
-//         scene: model.scene,
-//         width: model.width,
-//         height: model.height,
-//         colors: model.colors.clone(),
-//         pixels: model.pixels.clone(),
-//     }
-// }
 
 fn render(model: &mut TraceModel) -> Vec<u8> {
     let width = model.width;
@@ -77,16 +64,15 @@ fn render(model: &mut TraceModel) -> Vec<u8> {
     let mut pixels: Vec<u8> = vec![0; resolution * CHANNEL_COUNT];
     for y in 0..height {
         for x in 0..width {
-            let color_index = (x + y * width as u32) as usize;
             let index: usize = ((x + y * width as u32) * CHANNEL_COUNT as u32) as usize;
             let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
             let v: f32 = ((height - y) as f32 + rng.gen::<f32>()) / height as f32;
             let ray = model.scene.camera.get_ray(u, v);
-            model.colors[color_index] = color(ray, &model.scene.objects, 0);
+            let color = get_color(ray, &model.scene.objects, 0);
 
-            let r = model.colors[color_index].r().sqrt(); // sqrt, gamma correction
-            let g = model.colors[color_index].g().sqrt();
-            let b = model.colors[color_index].b().sqrt();
+            let r = color.r().sqrt(); // sqrt, gamma correction
+            let g = color.g().sqrt();
+            let b = color.b().sqrt();
             pixels[index] = (r * 255.0) as u8;
             pixels[index + 1] = (g * 255.0) as u8;
             pixels[index + 2] = (b * 255.0) as u8;
@@ -113,7 +99,7 @@ fn render_mt(model: &TraceModel) -> Vec<u8> {
             let mut rng = rand::thread_rng();
             let size: usize = (width * t_height as u32) as usize;
             let mut pixels: Vec<u8> = vec![0; size * CHANNEL_COUNT];
-            let mut color_x = vec![Vec3::zero(); size];
+            let mut colors_x = vec![Vec3::zero(); size];
             for y in 0..t_height {
                 for x in 0..width {
                     let color_index = (x + y * width as u32) as usize;
@@ -122,11 +108,11 @@ fn render_mt(model: &TraceModel) -> Vec<u8> {
                     let mut v: f32 = ((t_height - y) as f32 + rng.gen::<f32>()) / height as f32; // invert y
                     v += t as f32 * t_offset;
                     let ray = camera.get_ray(u, v);
-                    color_x[color_index] = color(ray, &scenes::get_simple_scene(), 0);
+                    colors_x[color_index] = get_color(ray, &scenes::get_simple_scene(), 0);
 
-                    let r = color_x[color_index].r().sqrt();
-                    let g = color_x[color_index].g().sqrt();
-                    let b = color_x[color_index].b().sqrt();
+                    let r = colors_x[color_index].r().sqrt();
+                    let g = colors_x[color_index].g().sqrt();
+                    let b = colors_x[color_index].b().sqrt();
                     pixels[index] = (r * 255.0) as u8;
                     pixels[index + 1] = (g * 255.0) as u8;
                     pixels[index + 2] = (b * 255.0) as u8;
@@ -195,7 +181,7 @@ pub fn save_image(model: &TraceModel, sample: u32) {
             let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
             let v: f32 = ((height - y) as f32 + rng.gen::<f32>()) / height as f32; // invert y
             let ray = camera.get_ray(u, v);
-            col = col + color(ray, &objects, 0);
+            col = col + get_color(ray, &objects, 0);
         }
 
         col = col / sample as f32;
@@ -210,7 +196,7 @@ pub fn save_image(model: &TraceModel, sample: u32) {
     img_buf.save("out/basic.png").unwrap();
 }
 
-fn color(ray: Ray, objects: &Vec<Box<dyn Hitable>>, depth: u8) -> Vec3 {
+fn get_color(ray: Ray, objects: &Vec<Box<dyn Hitable>>, depth: u8) -> Vec3 {
     let mut hit_record: HitRecord = HitRecord::new();
     let t_min: f32 = 0.001;
     let mut closest_so_far: f32 = std::f32::MAX;
@@ -228,7 +214,7 @@ fn color(ray: Ray, objects: &Vec<Box<dyn Hitable>>, depth: u8) -> Vec3 {
             ReflectRecord::new(Ray::new(Vec3::zero(), Vec3::zero()), Vec3::zero());
         if depth < MAX_DEPTH && obj.scatter(ray, &mut hit_record, &mut reflect_record) {
             return reflect_record.attenuation
-                * color(reflect_record.scattered, objects, depth + 1);
+                * get_color(reflect_record.scattered, objects, depth + 1);
         } else {
             return Vec3::zero();
         }
