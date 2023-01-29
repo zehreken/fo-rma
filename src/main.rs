@@ -18,7 +18,7 @@ async fn main() {
 pub fn get_config() -> Conf {
     Conf {
         window_title: "fōrma".to_owned(),
-        window_width: 400,
+        window_width: 400 + frontend::macroquad::SIDE_PANEL_WIDTH as i32,
         window_height: 400,
         fullscreen: false,
         ..Default::default()

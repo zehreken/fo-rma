@@ -85,40 +85,38 @@ fn render(model: &mut TraceModel) -> Vec<u8> {
 fn render_mt(model: &TraceModel) -> Vec<u8> {
     let width = model.width;
     let height = model.height;
-    let (tx, rx): (Sender<(u8, Vec<u8>)>, Receiver<(u8, Vec<u8>)>) = mpsc::channel();
+    let (sender, receiver): (Sender<(u8, Vec<u8>)>, Receiver<(u8, Vec<u8>)>) = mpsc::channel();
     let mut children = Vec::new();
-    const NTHREADS: u8 = 6;
+    const NTHREADS: u8 = 4;
     let t_height = height / NTHREADS as u32;
     let t_offset: f32 = 1.0 / NTHREADS as f32;
     let scene = &model.scene;
     let camera = model.scene.camera.clone();
 
     for t in 0..NTHREADS {
-        let thread_x = tx.clone();
+        let t_sender = sender.clone();
         let child = thread::spawn(move || {
             let mut rng = rand::thread_rng();
-            let size: usize = (width * t_height as u32) as usize;
-            let mut pixels: Vec<u8> = vec![0; size * CHANNEL_COUNT];
-            let mut colors_x = vec![Vec3::zero(); size];
+            let t_resolution: usize = (width * t_height as u32) as usize;
+            let mut pixels: Vec<u8> = vec![0; t_resolution * CHANNEL_COUNT];
             for y in 0..t_height {
                 for x in 0..width {
-                    let color_index = (x + y * width as u32) as usize;
                     let index: usize = ((x + y * width as u32) * CHANNEL_COUNT as u32) as usize;
                     let u: f32 = (x as f32 + rng.gen::<f32>()) / width as f32;
                     let mut v: f32 = ((t_height - y) as f32 + rng.gen::<f32>()) / height as f32; // invert y
                     v += t as f32 * t_offset;
                     let ray = camera.get_ray(u, v);
-                    colors_x[color_index] = get_color(ray, &scenes::get_simple_scene(), 0);
+                    let color = get_color(ray, &scenes::get_simple_scene(), 0);
 
-                    let r = colors_x[color_index].r().sqrt();
-                    let g = colors_x[color_index].g().sqrt();
-                    let b = colors_x[color_index].b().sqrt();
+                    let r = color.r().sqrt();
+                    let g = color.g().sqrt();
+                    let b = color.b().sqrt();
                     pixels[index] = (r * 255.0) as u8;
                     pixels[index + 1] = (g * 255.0) as u8;
                     pixels[index + 2] = (b * 255.0) as u8;
                 }
             }
-            thread_x.send((t, pixels)).unwrap();
+            t_sender.send((t, pixels)).unwrap();
         });
 
         children.push(child);
@@ -126,7 +124,7 @@ fn render_mt(model: &TraceModel) -> Vec<u8> {
 
     let mut ids = Vec::with_capacity(NTHREADS as usize);
     for _ in 0..NTHREADS {
-        ids.push(rx.recv().unwrap());
+        ids.push(receiver.recv().unwrap());
     }
 
     for child in children {

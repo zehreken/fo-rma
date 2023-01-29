@@ -1,8 +1,9 @@
 use crate::misc::fps_utils::FpsCounter;
 use macroquad::{prelude::*, window};
+pub const SIDE_PANEL_WIDTH: f32 = 200.0;
 
 pub async fn run(fps_counter: &mut FpsCounter) {
-    let width = window::screen_width() as u32;
+    let width = window::screen_width() as u32 - SIDE_PANEL_WIDTH as u32;
     let height = window::screen_height() as u32;
     let mut model = super::cpu_ray_tracer::tracer::create_model(width, height);
 
@@ -15,12 +16,16 @@ pub async fn run(fps_counter: &mut FpsCounter) {
 
         // Process keys, mouse etc.
         egui_macroquad::ui(|egui_ctx| {
-            egui::Window::new("fōrma").show(egui_ctx, |ui| {
-                ui.label("Test");
-                ui.add(egui::Slider::new(&mut orientation.x, -1.0..=1.0).text("rotation_x"));
-                ui.add(egui::Slider::new(&mut orientation.y, -1.0..=1.0).text("rotation_y"));
-                ui.add(egui::Slider::new(&mut orientation.z, -1.0..=1.0).text("rotation_z"));
-            });
+            egui::SidePanel::new(egui::panel::Side::Right, "fōrma")
+                .min_width(SIDE_PANEL_WIDTH)
+                .max_width(SIDE_PANEL_WIDTH)
+                .resizable(false)
+                .show(egui_ctx, |ui| {
+                    ui.label("Rotation");
+                    ui.add(egui::Slider::new(&mut orientation.x, -1.0..=1.0).text("x"));
+                    ui.add(egui::Slider::new(&mut orientation.y, -1.0..=1.0).text("y"));
+                    ui.add(egui::Slider::new(&mut orientation.z, -1.0..=1.0).text("z"));
+                });
         });
 
         // Draw things before egui
