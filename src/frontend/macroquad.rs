@@ -1,8 +1,7 @@
-use crate::misc::fps_utils::FpsCounter;
 use macroquad::{prelude::*, window};
 pub const SIDE_PANEL_WIDTH: f32 = 200.0;
 
-pub async fn run(fps_counter: &mut FpsCounter) {
+pub async fn run() {
     let width = window::screen_width() as u32 - SIDE_PANEL_WIDTH as u32;
     let height = window::screen_height() as u32;
     let mut model = super::cpu_ray_tracer::tracer::create_model(width, height);
@@ -21,7 +20,7 @@ pub async fn run(fps_counter: &mut FpsCounter) {
                 .max_width(SIDE_PANEL_WIDTH)
                 .resizable(false)
                 .show(egui_ctx, |ui| {
-                    ui.label(format!("fps: {}", fps_counter.average_frames_per_second()));
+                    ui.label(format!("fps: {}", macroquad::time::get_fps()));
                     ui.label("Rotation");
                     ui.add(egui::Slider::new(&mut orientation.x, -1.0..=1.0).text("x"));
                     ui.add(egui::Slider::new(&mut orientation.y, -1.0..=1.0).text("y"));
@@ -59,7 +58,7 @@ pub async fn run(fps_counter: &mut FpsCounter) {
         }
 
         model.scene.objects[0].rotate(orientation);
-        super::cpu_ray_tracer::tracer::update(&mut model, keys, fps_counter.get_delta_time());
+        super::cpu_ray_tracer::tracer::update(&mut model, keys, macroquad::time::get_frame_time());
         let mut pixel_index: u32 = 0;
         for i in (0..model.pixels.len()).step_by(3) {
             let color = Color::new(
@@ -82,8 +81,7 @@ pub async fn run(fps_counter: &mut FpsCounter) {
 
         // Draw things after egui
 
-        fps_counter.tick();
-        std::thread::sleep(std::time::Duration::from_millis(50));
+        // std::thread::sleep(std::time::Duration::from_millis(50));
         next_frame().await;
     }
 }
