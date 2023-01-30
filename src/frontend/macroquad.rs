@@ -21,6 +21,7 @@ pub async fn run(fps_counter: &mut FpsCounter) {
                 .max_width(SIDE_PANEL_WIDTH)
                 .resizable(false)
                 .show(egui_ctx, |ui| {
+                    ui.label(format!("fps: {}", fps_counter.average_frames_per_second()));
                     ui.label("Rotation");
                     ui.add(egui::Slider::new(&mut orientation.x, -1.0..=1.0).text("x"));
                     ui.add(egui::Slider::new(&mut orientation.y, -1.0..=1.0).text("y"));
