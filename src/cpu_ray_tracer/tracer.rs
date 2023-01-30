@@ -83,7 +83,7 @@ fn render(model: &mut TraceModel) -> Vec<u8> {
 fn render_mt(model: &TraceModel) -> Vec<u8> {
     let width = model.width;
     let height = model.height;
-    const NTHREADS: u8 = 8;
+    const NTHREADS: u8 = 4;
     let t_height = height / NTHREADS as u32;
     let t_offset: f32 = 1.0 / NTHREADS as f32;
     let scene = &model.scene;

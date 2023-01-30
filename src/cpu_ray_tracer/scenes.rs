@@ -9,14 +9,14 @@ pub fn get_simple_scene() -> Vec<Box<dyn Hitable>> {
         Vec3::new(-0.5, 0.0, 0.0),
         0.5,
         0,
-        Vec3::new(0.5, 0.5, 0.5),
+        Vec3::new(0.0, 0.66, 0.13),
         0.0,
     )));
     objects.push(Box::new(Sphere::new(
         Vec3::new(0.5, 0.0, 0.0),
         0.5,
         0,
-        Vec3::new(0.7, 0.7, 0.7),
+        Vec3::new(0.7, 0.43, 0.0),
         0.0,
     )));
     objects.push(Box::new(Sphere::new(
