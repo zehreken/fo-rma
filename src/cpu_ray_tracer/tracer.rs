@@ -83,13 +83,13 @@ fn render(model: &mut TraceModel) -> Vec<u8> {
 fn render_mt(model: &TraceModel) -> Vec<u8> {
     let width = model.width;
     let height = model.height;
-    let mut results = Vec::new();
     const NTHREADS: u8 = 8;
     let t_height = height / NTHREADS as u32;
     let t_offset: f32 = 1.0 / NTHREADS as f32;
     let scene = &model.scene;
     let camera = model.scene.camera.clone();
     let t_resolution: usize = (width * t_height as u32) as usize;
+    let mut results = Vec::with_capacity(NTHREADS as usize);
 
     for t_id in 0..NTHREADS {
         let result = thread::spawn(move || {
