@@ -20,11 +20,11 @@ pub fn get_simple_scene() -> Vec<Box<dyn Hitable>> {
         0.0,
     )));
     objects.push(Box::new(Sphere::new(
-        Vec3::new(0.0, -100.5, 0.0),
-        100.0,
-        0,
-        Vec3::new(0.7, 0.1, 0.7),
-        0.0,
+        Vec3::new(0.0, -1000.5, 0.0),
+        1000.0,
+        1,
+        Vec3::new(0.3, 0.3, 0.3),
+        0.2,
     )));
 
     objects
