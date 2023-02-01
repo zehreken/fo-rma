@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rt-rs'",
+            "name": "Debug executable 'fo-rma'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rt-rs",
-                    "--package=rt-rs"
+                    "--bin=fo-rma",
+                    "--package=fo-rma"
                 ],
                 "filter": {
-                    "name": "rt-rs",
+                    "name": "fo-rma",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rt-rs'",
+            "name": "Debug unit tests in executable 'fo-rma'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rt-rs",
-                    "--package=rt-rs"
+                    "--bin=fo-rma",
+                    "--package=fo-rma"
                 ],
                 "filter": {
-                    "name": "rt-rs",
+                    "name": "fo-rma",
                     "kind": "bin"
                 }
             },
