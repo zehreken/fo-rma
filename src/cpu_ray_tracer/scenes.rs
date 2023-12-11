@@ -5,6 +5,14 @@ use crate::shapes::sphere::Sphere;
 
 pub fn get_simple_scene() -> Vec<Box<dyn Hitable>> {
     let mut objects: Vec<Box<dyn Hitable>> = Vec::new();
+    objects.push(Box::new(Plane::new(
+        Vec3::new(-1.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::one() * 10.0,
+        1,
+        Vec3::new(1.0, 1.0, 1.0),
+        0.,
+    )));
     objects.push(Box::new(Sphere::new(
         Vec3::new(-0.5, 0.0, 0.0),
         0.5,

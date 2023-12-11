@@ -50,8 +50,8 @@ pub fn update(model: &mut TraceModel, keys: u8, delta_time: f32) {
     }
     // scene.camera.translate(delta);
     model.scene.camera.orbit(delta);
-    model.pixels = render_mt(model);
-    // model.pixels = render(model);
+    // model.pixels = render_mt(model);
+    model.pixels = render(model);
 }
 
 fn render(model: &mut TraceModel) -> Vec<u8> {
