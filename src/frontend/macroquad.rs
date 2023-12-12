@@ -9,6 +9,7 @@ pub async fn run() {
     let mut image = Image::gen_image_color(width as u16, height as u16, WHITE);
     let texture: Texture2D = Texture2D::from_image(&image);
 
+    let mut translation = crate::cpu_ray_tracer::primitives::vec3::Vec3::new(-1.0, 0.0, 0.0);
     let mut orientation = crate::cpu_ray_tracer::primitives::vec3::Vec3::new(-1.0, 0.0, 0.0);
     loop {
         clear_background(BLACK);
@@ -25,6 +26,11 @@ pub async fn run() {
                     ui.add(egui::Slider::new(&mut orientation.x, -1.0..=1.0).text("x"));
                     ui.add(egui::Slider::new(&mut orientation.y, -1.0..=1.0).text("y"));
                     ui.add(egui::Slider::new(&mut orientation.z, -1.0..=1.0).text("z"));
+
+                    ui.label("Translation");
+                    ui.add(egui::Slider::new(&mut translation.x, -5.0..=5.0).text("x"));
+                    ui.add(egui::Slider::new(&mut translation.y, -5.0..=5.0).text("y"));
+                    ui.add(egui::Slider::new(&mut translation.z, -5.0..=5.0).text("z"));
                 });
         });
 
@@ -57,6 +63,7 @@ pub async fn run() {
             return;
         }
 
+        model.scene.objects[0].translate(translation);
         model.scene.objects[0].rotate(orientation);
         super::cpu_ray_tracer::tracer::update(&mut model, keys, macroquad::time::get_frame_time());
         let mut pixel_index: u32 = 0;

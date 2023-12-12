@@ -9,5 +9,6 @@ pub trait Hitable: Send {
         hit_record: &mut HitRecord,
         reflect_record: &mut ReflectRecord,
     ) -> bool;
+    fn translate(&mut self, v: Vec3) {}
     fn rotate(&mut self, v: Vec3) {}
 }

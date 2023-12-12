@@ -59,6 +59,10 @@ impl Hitable for Plane {
         }
     }
 
+    fn translate(&mut self, v: Vec3) {
+        self.position = v;
+    }
+
     fn rotate(&mut self, v: Vec3) {
         self.orientation = v;
     }
