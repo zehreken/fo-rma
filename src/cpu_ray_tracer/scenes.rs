@@ -8,10 +8,10 @@ pub fn get_simple_scene() -> Vec<Box<dyn Hitable>> {
     objects.push(Box::new(Plane::new(
         Vec3::new(-1.0, 0.0, 0.0),
         Vec3::new(0.0, 0.0, 0.0),
-        Vec3::one() * 10.0,
+        Vec3::one() * 5.0,
         1,
         Vec3::new(1.0, 0.3, 0.3),
-        0.,
+        0.05,
     )));
     objects.push(Box::new(Sphere::new(
         Vec3::new(-0.5, 0.0, 0.0),
@@ -30,9 +30,9 @@ pub fn get_simple_scene() -> Vec<Box<dyn Hitable>> {
     objects.push(Box::new(Sphere::new(
         Vec3::new(0.0, -1000.5, 0.0),
         1000.0,
-        1,
+        0,
         Vec3::new(0.3, 0.3, 0.3),
-        0.2,
+        1.0,
     )));
 
     objects
