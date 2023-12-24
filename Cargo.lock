@@ -669,6 +669,7 @@ dependencies = [
 name = "fo-rma"
 version = "0.1.0"
 dependencies = [
+ "bytemuck",
  "cfg-if",
  "copypasta 0.10.0",
  "egui",
