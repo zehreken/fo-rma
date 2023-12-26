@@ -19,14 +19,26 @@ struct Ray {
     direction: vec3<f32>,
 };
 
-fn sky_color(d: vec3<f32>) -> vec3<f32> {
-    let sun_light: DirectionalLight = DirectionalLight(normalize(vec3(1., .5, .5)), vec3(1e3));
-    let transition = pow(smoothstep(0.02, 0.5, d.y), 0.4);
+fn get_color(ray_direction: vec3<f32>) -> vec3<f32> {
+    let a = 0.5 * (ray_direction.y + 1.0);
+    let color0 = (1.0 - a) * vec3(1.0, 1.0, 1.0);
+    let color1 = a * vec3(0.5, 0.7, 1.0);
+    return color0 + color1;
+}
 
-    let sky: vec3<f32> = 2e2*mix(vec3(0.52, 0.77, 1.0), vec3(0.12, 0.43, 1.0), transition);
-    let sun: vec3<f32> = sun_light.c * pow(abs(dot(d, sun_light.d)), 5000.);
+fn get_sky_color(ray_direction: vec3<f32>) -> vec3<f32> {
+    let sun_light: DirectionalLight = DirectionalLight(normalize(vec3(1.0, 0.5, 0.5)), vec3(1e3));
+    let transition: f32 = pow(smoothstep(0.02, 0.5, ray_direction.y), 0.4);
+
+    let sky: vec3<f32> = 2e0*mix(vec3(0.52, 0.77, 1.0), vec3(0.12, 0.43, 1.0), transition);
+    let sun: vec3<f32> = sun_light.color * pow(abs(dot(ray_direction, sun_light.direction)), 5000.);
     return sky + sun;
 }
+/*
+vec3 unit_direction = unit_vector(r.direction());
+auto a = 0.5*(unit_direction.y() + 1.0);
+return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
+*/
 
 @vertex
 fn vs_main(
@@ -41,23 +53,23 @@ fn vs_main(
 // Fragment shader
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let resolution: vec2<f32> = vec2(600.0, 400.0);
-    let uv = 2.0 * in.clip_position.xy / resolution  - 1.0;
-    let o1: f32 = 0.25;
-    let o2: f32 = 0.75;
-    var msaa: array<vec2<f32>, 4> = array<vec2<f32>, 4>();
-    msaa[0] = vec2(o1, o2);
-    msaa[1] = vec2(o2, -o1);
-    msaa[2] = vec2(-o1, -o2);
-    msaa[3] = vec2(-o2, o1);
+    let resolution: vec2<f32> = vec2(1600.0, 1200.0);
+    let aspect_ratio = 4.0 / 3.0;
+    let uv = 2.0 * in.clip_position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
+
+    let origin = vec3(0., 1.0, 4.);
+    let direction = normalize(vec3(aspect_ratio * uv.x, uv.y, -1.5));
     
-    var color: vec3<f32> = vec3(0.0);
-    for (var i = 0; i < 4; i++) {
-        let p0 = vec3(0.0, 1.0, 4.0);
-        let offset = vec3(msaa[i] / resolution.y, 0.0);
-        let d = normalize(vec3(resolution.x / resolution.y * uv.x, uv.y, -1.5) + offset);
-    }
-    return vec4<f32>(0.0);
+    let ray: Ray = Ray(origin, direction);
+    let color = get_sky_color(ray.direction) / 4.0;
+
+    // if (uv.y < -0.9) {
+    //     return vec4<f32>(0.0);
+    // } else {
+    //     return vec4<f32>(1.0);
+    // }
+        
+    return vec4<f32>(color, 1.0);
 }
 
 // void mainImage( out vec4 fragColor, in vec2 fragCoord )
