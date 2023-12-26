@@ -74,6 +74,30 @@ fn intersect_sphere(s: Sphere, r: Ray) -> Hit {
     return Hit(t, (r.origin + t * r.direction - s.center) / s.radius, s.material);
 }
 
+// 'a: ptr<function, Hit>' is equal to 'out Hit a' in glsl
+// (*a) to evaluate first *a.t does not work
+fn compare(a: ptr<function, Hit>, b: Hit) -> bool {
+    if (b.material.f0 >= 0. && b.t < (*a).t)
+    {
+        *a = b;
+        return true;
+    }
+    return false;
+}
+
+// Can't get a reference to let variable, 'let hit' does not compile
+fn intersect_scene(ray: Ray) -> Hit {
+    let no_hit: Hit = Hit(1e10, vec3(0.), Material(vec3(-1.), -1.));
+
+    let s: Sphere = Sphere(1., vec3(1., 1., 0.), Material(vec3(0.5), 0.04));
+    let p: Plane = Plane(0., vec3(0., 1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
+
+    var hit = no_hit;
+    compare(&hit, intersect_plane(p, ray));
+    compare(&hit, intersect_sphere(s, ray));
+    return hit;
+}
+
 fn get_color(ray_direction: vec3<f32>) -> vec3<f32> {
     let a = 0.5 * (ray_direction.y + 1.0);
     let color0 = (1.0 - a) * vec3(1.0, 1.0, 1.0);
@@ -89,16 +113,9 @@ fn get_sky_color(ray_direction: vec3<f32>) -> vec3<f32> {
     let sun: vec3<f32> = sun_light.color * pow(abs(dot(ray_direction, sun_light.direction)), 5000.);
     return sky + sun;
 }
-/*
-vec3 unit_direction = unit_vector(r.direction());
-auto a = 0.5*(unit_direction.y() + 1.0);
-return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
-*/
 
 @vertex
-fn vs_main(
-    model: VertexInput,
-) -> VertexOutput {
+fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
     out.clip_position = vec4<f32>(model.position, 1.0);
     out.color = model.color;
@@ -116,39 +133,51 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let direction = normalize(vec3(aspect_ratio * uv.x, uv.y, -1.5));
     
     let ray: Ray = Ray(origin, direction);
-    let color = get_sky_color(ray.direction) / 4.0;
+    var color: vec3<f32> = vec3(0.0);
+    for (var i = 0; i < 3; i++)
+    {
+        let hit = intersect_scene(ray);
+        if (hit.material.f0 >= 0.) {
 
-    // if (uv.y < -0.9) {
-    //     return vec4<f32>(0.0);
-    // } else {
-    //     return vec4<f32>(1.0);
-    // }
-        
+        } else {
+            color += get_sky_color(ray.direction);
+            break;
+        }
+    }
+    
     return vec4<f32>(color, 1.0);
 }
+/*
+vec3 accum = vec3(0.);
+    vec3 attenuation = vec3(1.);
 
-// void mainImage( out vec4 fragColor, in vec2 fragCoord )
-// {
-// 	vec2 uv = 2. * fragCoord.xy / iResolution.xy - 1.;
+    for (int i = 0; i <= MAX_BOUNCES; ++i)
+    {
+        Hit hit = intersectScene(r);
 
-//     float o1 = 0.25;
-//     float o2 = 0.75;
-//     vec2 msaa[4];
-//     msaa[0] = vec2( o1,  o2);
-//     msaa[1] = vec2( o2, -o1);
-//     msaa[2] = vec2(-o1, -o2);
-//     msaa[3] = vec2(-o2,  o1);
+        if (hit.m.f0 >= 0.)
+        {
+            float f = fresnel(hit.n, -r.d, hit.m.f0);
 
-//     vec3 color = vec3(0.);
-//     for (int i = 0; i < 4; ++i)
-//     {
-//         vec3 p0 = vec3(0., 1.1, 4.);
-//         vec3 p = p0;
-//         vec3 offset = vec3(msaa[i] / iResolution.y, 0.);
-//         vec3 d = normalize(vec3(iResolution.x/iResolution.y * uv.x, uv.y, -1.5) + offset);
-//         Ray r = Ray(p, d);
-//         color += radiance(r) / 4.;
-//     }
+            vec3 hitPos = r.o + hit.t * r.d;
 
-// 	fragColor = vec4(Uncharted2ToneMapping(color),1.0);
-// }
+            // Diffuse
+            vec3 incoming = vec3(0.);
+            incoming += accountForDirectionalLight(hitPos, hit.n, sunLight);
+
+            accum += (1. - f) * attenuation * hit.m.c * incoming;
+
+            // Specular: next bounce
+            attenuation *= f;
+            vec3 d = reflect(r.d, hit.n);
+            r = Ray(r.o + hit.t * r.d + epsilon * d, d);
+        }
+        else
+        {
+            accum += attenuation * skyColor(r.d);
+            break;
+        }
+    }
+    return accum;
+}
+*/
