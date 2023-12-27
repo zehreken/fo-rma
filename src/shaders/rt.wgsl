@@ -90,7 +90,7 @@ fn intersect_scene(ray: Ray) -> Hit {
     let no_hit: Hit = Hit(1e10, vec3(0.), Material(vec3(-1.), -1.));
 
     let s: Sphere = Sphere(1., vec3(1., 1., 0.), Material(vec3(0.5), 0.04));
-    let p: Plane = Plane(0., vec3(0., -1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
+    let p: Plane = Plane(0., vec3(0., 1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
 
     var hit = no_hit;
     compare(&hit, intersect_plane(p, ray));
@@ -109,9 +109,43 @@ fn get_sky_color(ray_direction: vec3<f32>) -> vec3<f32> {
     let sun_light: DirectionalLight = DirectionalLight(normalize(vec3(1.0, 0.5, 0.5)), vec3(1e3));
     let transition: f32 = pow(smoothstep(0.02, 0.5, ray_direction.y), 0.4);
 
-    let sky: vec3<f32> = 2e0*mix(vec3(0.12, 0.43, 1.0), vec3(0.52, 0.77, 1.0), transition);
+    let sky: vec3<f32> = 2e0*mix(vec3(0.52, 0.77, 1.0), vec3(0.12, 0.43, 1.0), transition);
     let sun: vec3<f32> = sun_light.color * pow(abs(dot(ray_direction, sun_light.direction)), 5000.);
     return sky + sun;
+}
+
+fn radiance(ray: Ray) -> vec3<f32> {
+    var accum = vec3(0.);
+    var attenuation = vec3(1.);
+
+    for (var i = 0; i < 2; i++)
+    {
+        // Hit hit = intersectScene(r);
+        let hit = intersect_scene(ray);
+
+        if (hit.material.f0 >= 0.) {
+        //     float f = fresnel(hit.n, -r.d, hit.m.f0);
+
+        //     vec3 hitPos = r.o + hit.t * r.d;
+            let hit_pos = ray.origin + hit.t * ray.direction;
+
+        // Diffuse
+        //     vec3 incoming = vec3(0.);
+        //     incoming += accountForDirectionalLight(hitPos, hit.n, sunLight);
+            accum += hit.material.color;
+
+        //     accum += (1. - f) * attenuation * hit.m.c * incoming;
+
+        //     // Specular: next bounce
+        //     attenuation *= f;
+        //     vec3 d = reflect(r.d, hit.n);
+            // r = Ray(ray.origin + hit.t * ray.direction + epsilon * d, d);
+        } else {
+            accum += get_sky_color(ray.direction);
+            break;
+        }
+    }
+    return accum;
 }
 
 @vertex
@@ -127,57 +161,25 @@ fn vs_main(model: VertexInput) -> VertexOutput {
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let resolution: vec2<f32> = vec2(1600.0, 1200.0);
     let aspect_ratio = 4.0 / 3.0;
-    let uv = 2.0 * in.clip_position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
+    var uv = 2.0 * in.clip_position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
+    uv.y = -uv.y;
 
     let origin = vec3(0., 1.0, 4.);
     let direction = normalize(vec3(aspect_ratio * uv.x, uv.y, -1.5));
     
     let ray: Ray = Ray(origin, direction);
     var color: vec3<f32> = vec3(0.0);
-    for (var i = 0; i < 3; i++)
-    {
-        let hit = intersect_scene(ray);
-        if (hit.material.f0 >= 0.) {
+    color = radiance(ray);
+    // for (var i = 0; i < 3; i++)
+    // {
+    //     let hit = intersect_scene(ray);
+    //     if (hit.material.f0 >= 0.) {
 
-        } else {
-            color += get_sky_color(ray.direction);
-            break;
-        }
-    }
+    //     } else {
+    //         color += get_sky_color(ray.direction);
+    //         break;
+    //     }
+    // }
     
     return vec4<f32>(color, 1.0);
 }
-/*
-vec3 accum = vec3(0.);
-    vec3 attenuation = vec3(1.);
-
-    for (int i = 0; i <= MAX_BOUNCES; ++i)
-    {
-        Hit hit = intersectScene(r);
-
-        if (hit.m.f0 >= 0.)
-        {
-            float f = fresnel(hit.n, -r.d, hit.m.f0);
-
-            vec3 hitPos = r.o + hit.t * r.d;
-
-            // Diffuse
-            vec3 incoming = vec3(0.);
-            incoming += accountForDirectionalLight(hitPos, hit.n, sunLight);
-
-            accum += (1. - f) * attenuation * hit.m.c * incoming;
-
-            // Specular: next bounce
-            attenuation *= f;
-            vec3 d = reflect(r.d, hit.n);
-            r = Ray(r.o + hit.t * r.d + epsilon * d, d);
-        }
-        else
-        {
-            accum += attenuation * skyColor(r.d);
-            break;
-        }
-    }
-    return accum;
-}
-*/
