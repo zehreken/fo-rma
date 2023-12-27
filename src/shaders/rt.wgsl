@@ -90,7 +90,7 @@ fn intersect_scene(ray: Ray) -> Hit {
     let no_hit: Hit = Hit(1e10, vec3(0.), Material(vec3(-1.), -1.));
 
     let s: Sphere = Sphere(1., vec3(1., 1., 0.), Material(vec3(0.5), 0.04));
-    let p: Plane = Plane(0., vec3(0., 1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
+    let p: Plane = Plane(0., vec3(0., -1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
 
     var hit = no_hit;
     compare(&hit, intersect_plane(p, ray));
