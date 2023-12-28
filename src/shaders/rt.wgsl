@@ -9,6 +9,9 @@ struct VertexOutput {
     @location(0) color: vec3<f32>,
 };
 
+const EPSILON = 4e-4;
+const SAMPLES = 20;
+
 struct Material {
     color: vec3<f32>, // diffuse color
     f0: f32, // specular color (monochrome)
@@ -114,11 +117,12 @@ fn get_sky_color(ray_direction: vec3<f32>) -> vec3<f32> {
     return sky + sun;
 }
 
-fn radiance(ray: Ray) -> vec3<f32> {
+fn radiance(r: Ray) -> vec3<f32> {
+    var ray = r;
     var accum = vec3(0.);
     var attenuation = vec3(1.);
 
-    for (var i = 0; i < 2; i++)
+    for (var i = 0; i < SAMPLES; i++)
     {
         // Hit hit = intersectScene(r);
         let hit = intersect_scene(ray);
@@ -139,12 +143,14 @@ fn radiance(ray: Ray) -> vec3<f32> {
         //     // Specular: next bounce
         //     attenuation *= f;
         //     vec3 d = reflect(r.d, hit.n);
-            // r = Ray(ray.origin + hit.t * ray.direction + epsilon * d, d);
+            let d = reflect(ray.direction, hit.normal);
+            ray = Ray(ray.origin + hit.t * ray.direction + EPSILON * d, d);
         } else {
             accum += get_sky_color(ray.direction);
             break;
         }
     }
+    accum = accum / f32(SAMPLES);
     return accum;
 }
 
