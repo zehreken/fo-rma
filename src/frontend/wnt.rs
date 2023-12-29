@@ -1,5 +1,7 @@
+use egui::FontDefinitions;
+use egui_wgpu_backend::{RenderPass, ScreenDescriptor};
+use egui_winit_platform::{Platform, PlatformDescriptor};
 use std::iter;
-
 use wgpu::util::DeviceExt;
 use winit::{
     event::*,
@@ -71,6 +73,8 @@ struct State {
     index_buffer: wgpu::Buffer,
     num_indices: u32,
     window: Window,
+    platform: Platform,
+    egui_rpass: RenderPass,
 }
 
 impl State {
@@ -206,6 +210,16 @@ impl State {
         });
         let num_indices = INDICES.len() as u32;
 
+        let platform = Platform::new(PlatformDescriptor {
+            physical_width: size.width as u32,
+            physical_height: size.height as u32,
+            scale_factor: window.scale_factor(),
+            font_definitions: FontDefinitions::default(),
+            style: Default::default(),
+        });
+
+        let mut egui_rpass = RenderPass::new(&device, surface_format, 1);
+
         Self {
             surface,
             device,
@@ -217,6 +231,8 @@ impl State {
             index_buffer,
             num_indices,
             window,
+            platform,
+            egui_rpass,
         }
     }
 
@@ -284,6 +300,112 @@ impl State {
 
         Ok(())
     }
+
+    fn render_ui(&mut self) -> Result<(), wgpu::SurfaceError> {
+        //============
+        let output = self.surface.get_current_texture()?;
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Render Encoder"),
+            });
+
+        {
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 0.1,
+                            g: 0.2,
+                            b: 0.3,
+                            a: 1.0,
+                        }),
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                occlusion_query_set: None,
+                timestamp_writes: None,
+            });
+
+            render_pass.set_pipeline(&self.render_pipeline);
+            render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+            render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
+        }
+
+        self.queue.submit(iter::once(encoder.finish()));
+        // output.present();
+        //============
+
+        // let output = match self.surface.get_current_texture() {
+        //     Ok(frame) => frame,
+        //     Err(_) => panic!(),
+        // };
+        // let view = output
+        //     .texture
+        //     .create_view(&wgpu::TextureViewDescriptor::default());
+        self.platform.begin_frame();
+
+        // iu =====
+        egui::Window::new("egui ❤ winit").show(&self.platform.context(), |ui| {
+            egui::widgets::global_dark_light_mode_buttons(ui);
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                if ui.button("Quit").clicked() {
+                    std::process::exit(0);
+                }
+            }
+        });
+        // ========
+
+        let full_output = self.platform.end_frame(Some(&self.window));
+        let paint_jobs = self.platform.context().tessellate(full_output.shapes);
+
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("encoder"),
+            });
+        let screen_descriptor = ScreenDescriptor {
+            physical_width: self.config.width,
+            physical_height: self.config.height,
+            scale_factor: self.window.scale_factor() as f32,
+        };
+        let tdelta: egui::TexturesDelta = full_output.textures_delta;
+        self.egui_rpass
+            .add_textures(&self.device, &self.queue, &tdelta)
+            .expect("add texture ok");
+        self.egui_rpass
+            .update_buffers(&self.device, &self.queue, &paint_jobs, &screen_descriptor);
+
+        self.egui_rpass
+            .execute(
+                &mut encoder,
+                &view,
+                &paint_jobs,
+                &screen_descriptor,
+                None,
+                // Some(wgpu::Color::BLACK),
+            )
+            .unwrap();
+        // Submit the commands.
+        self.queue.submit(iter::once(encoder.finish()));
+        output.present();
+
+        self.egui_rpass
+            .remove_textures(tdelta)
+            .expect("remove texture ok");
+
+        Ok(())
+    }
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
@@ -323,6 +445,7 @@ pub async fn run() {
     let mut state = State::new(window).await;
 
     event_loop.run(move |event, _, control_flow| {
+        state.platform.handle_event(&event);
         match event {
             Event::WindowEvent {
                 ref event,
@@ -353,16 +476,20 @@ pub async fn run() {
             }
             Event::RedrawRequested(window_id) if window_id == state.window().id() => {
                 state.update();
-                match state.render() {
+                // match state.render() {
+                //     Ok(_) => {}
+                //     // Reconfigure the surface if it's lost or outdated
+                //     Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                //         state.resize(state.size)
+                //     }
+                //     // The system is out of memory, we should probably quit
+                //     Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                //     // We're ignoring timeouts
+                //     Err(wgpu::SurfaceError::Timeout) => log::warn!("Surface timeout"),
+                // }
+                match state.render_ui() {
                     Ok(_) => {}
-                    // Reconfigure the surface if it's lost or outdated
-                    Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
-                        state.resize(state.size)
-                    }
-                    // The system is out of memory, we should probably quit
-                    Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
-                    // We're ignoring timeouts
-                    Err(wgpu::SurfaceError::Timeout) => log::warn!("Surface timeout"),
+                    Err(_) => log::error!("error drawing ui"),
                 }
             }
             Event::MainEventsCleared => {
