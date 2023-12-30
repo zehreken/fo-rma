@@ -21,8 +21,12 @@
 //     }
 // }
 
-mod frontend;
+// mod frontend;
+mod back;
+mod gui;
+mod summarized;
 
 fn main() {
-    pollster::block_on(frontend::wnt::run());
+    // pollster::block_on(frontend::wnt::run());
+    pollster::block_on(summarized::start());
 }
