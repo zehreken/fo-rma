@@ -1,19 +1,23 @@
-use crate::{back::Back, gui::AppUi};
-use wgpu::{CommandEncoder, Device, Queue, Surface, SurfaceConfiguration, TextureFormat};
+use std::collections::VecDeque;
+
+use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
-    event::*,
-    event_loop::{ControlFlow, EventLoop},
+    event::{Event, WindowEvent},
+    event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
+
+use crate::{graphic, gui};
 
 pub struct App {
     window: Window,
     surface: Surface,
-    config: SurfaceConfiguration,
-    pub device: Device,
-    pub queue: Queue,
-    surface_format: TextureFormat,
+    device: Device,
+    queue: Queue,
+    _size: PhysicalSize<u32>,
+    surface_config: SurfaceConfiguration,
+    texture_format: TextureFormat,
 }
 
 impl App {
@@ -23,64 +27,71 @@ impl App {
             ..Default::default()
         });
 
-        // App owns the window so this should be safe
+        // Since app owns the window, this is safe
+        // App's lifetime is longer than surface
         let surface = unsafe { instance.create_surface(&window) }.unwrap();
 
-        // This is async but you can also use pollster::block_on without await
+        // Async is fine but you can also use pollster::block_on without await
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::default(), // Can be HighPerformance
+                power_preference: wgpu::PowerPreference::default(),
                 compatible_surface: Some(&surface),
                 force_fallback_adapter: false,
             })
             .await
             .unwrap();
 
-        let (device, queue) = pollster::block_on(adapter.request_device(
-            &wgpu::DeviceDescriptor {
-                features: wgpu::Features::default(),
-                limits: wgpu::Limits::default(),
-                label: None,
-            },
-            None,
-        ))
-        .unwrap();
+        // Same with this one, pollster::block_on(adapter_request(...)).unwrap(); is another way
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    features: wgpu::Features::default(),
+                    limits: wgpu::Limits::default(),
+                    label: None,
+                },
+                None,
+            )
+            .await
+            .unwrap();
 
         let size = window.inner_size();
         let surface_caps = surface.get_capabilities(&adapter);
-        let surface_format = surface_caps
+        let texture_format = surface_caps
             .formats
             .iter()
             .copied()
             .find(|f| f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
+
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface_format,
-            width: size.width as u32,
-            height: size.height as u32,
+            format: texture_format,
+            width: size.width,
+            height: size.height,
             present_mode: surface_caps.present_modes[0],
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
         };
         surface.configure(&device, &surface_config);
-        App {
+
+        Self {
             window,
             surface,
-            config: surface_config,
             device,
             queue,
-            surface_format,
+            _size: size,
+            surface_config,
+            texture_format,
         }
     }
 
-    fn window(&self) -> &Window {
-        &self.window
+    pub fn device(&self) -> &Device {
+        &self.device
     }
 
-    fn render(&self) {}
-
-    fn render_ui(&self) {}
+    pub fn queue(&self) -> &Queue {
+        &self.queue
+    }
 }
 
 pub async fn start() {
@@ -93,25 +104,36 @@ pub async fn start() {
         .with_decorations(true)
         .with_resizable(false)
         .with_transparent(false)
-        .with_title("fo-rma")
+        .with_title("winit-wgpu-egui")
         .with_inner_size(size)
         .build(&event_loop)
         .unwrap();
 
     let app = App::new(window).await;
-    let back = Back::new(&app.device, &app.config);
-    let mut app_ui = AppUi::new(&event_loop, 1600, 1200, 2., &app.device, app.surface_format);
+    // create graphic
+    let graphic = graphic::Graphic::new(&app.device, &app.surface_config);
+    // create gui
+    let mut gui = gui::Gui::new(&event_loop, &app.device, app.texture_format);
+
+    let init = [0.0; 60];
+    let mut rolling_frame_times = VecDeque::from(init);
+    let mut earlier = std::time::Instant::now();
 
     event_loop.run(move |event, _elwt, control_flow| match event {
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,
-        } if window_id == app.window().id() => control_flow.set_exit(),
+        } if window_id == app.window.id() => control_flow.set_exit(),
         Event::WindowEvent { event, .. } => {
-            app_ui.handle_event(&event);
+            gui.handle_event(&event);
         }
-        Event::MainEventsCleared => app.window().request_redraw(),
+        Event::MainEventsCleared => app.window.request_redraw(),
         Event::RedrawRequested(_) => {
+            let frame_time = std::time::Instant::now().duration_since(earlier);
+            earlier = std::time::Instant::now();
+            rolling_frame_times.pop_front();
+            rolling_frame_times.push_back(frame_time.as_secs_f32());
+            let fps = calculate_fps(&rolling_frame_times);
             let output_frame = match app.surface.get_current_texture() {
                 Ok(frame) => frame,
                 Err(wgpu::SurfaceError::Outdated) => {
@@ -133,12 +155,18 @@ pub async fn start() {
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("encoder"),
                 });
-            back.render(&output_view, &app.device, &app.queue);
-            app_ui.prepare(&app.window);
-            app_ui.render(&mut encoder, &output_view, &app);
+            graphic.render(&mut encoder, &output_view);
+            gui.render(&mut encoder, &app.window, &output_view, &app, fps);
             app.queue.submit(Some(encoder.finish()));
             output_frame.present();
         }
         _ => {}
     });
+}
+
+pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
+    let sum: f32 = times.iter().sum();
+
+    let average_time = sum / times.len() as f32;
+    return 1.0 / average_time;
 }
