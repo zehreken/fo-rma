@@ -6,7 +6,7 @@ pub struct Graphic {
 
 impl Graphic {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("basic shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("shaders/triangle.wgsl").into()),
         });
@@ -22,13 +22,13 @@ impl Graphic {
             label: Some("render pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
-                module: &shader,
+                module: &shader_module,
                 entry_point: "vs_main",
                 buffers: &[],
             },
             fragment: Some(wgpu::FragmentState {
                 // 3.
-                module: &shader,
+                module: &shader_module,
                 entry_point: "fs_main",
                 targets: &[Some(wgpu::ColorTargetState {
                     // 4.
