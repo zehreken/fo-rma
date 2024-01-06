@@ -8,11 +8,11 @@ impl Graphic {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         let vertex_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("vertex shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/triangle.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/six_vertex.wgsl").into()),
         });
         let fragment_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("fragment shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/triangle.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/color.wgsl").into()),
         });
 
         let render_pipeline_layout =
@@ -84,6 +84,6 @@ impl Graphic {
             depth_stencil_attachment: None,
         });
         render_pass.set_pipeline(&self.render_pipeline); // 2.
-        render_pass.draw(0..3, 0..1); // 3.
+        render_pass.draw(0..6, 0..1); // 3.
     }
 }
