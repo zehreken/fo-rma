@@ -12,7 +12,7 @@ impl Graphic {
         });
         let fragment_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("fragment shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/color.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/rt.wgsl").into()),
         });
 
         let render_pipeline_layout =
