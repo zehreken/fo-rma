@@ -112,32 +112,43 @@ fn get_sky_color(ray_direction: vec3<f32>) -> vec3<f32> {
     return sky + sun;
 }
 
+fn pow5(x: f32) -> f32 {
+    return x * x * x * x * x;
+}
+
+fn fresnel(h: vec3<f32>, v: vec3<f32>, f0: f32) -> f32 {
+    return pow5(1.0 - clamp(dot(h, v), 0.0, 1.0)) * (1.0 - f0) + f0;
+}
+
+fn account_for_directional_light(p: vec3<f32> , n: vec3<f32>, l: DirectionalLight) -> vec3<f32> {
+    if (intersect_scene(Ray(p + EPSILON * l.direction, l.direction)).material.f0 < 0.0) {
+        return clamp(dot(n, l.direction), 0.0, 1.0) * l.color;
+    }
+    return vec3(0.0);
+}
+
 fn radiance(r: Ray) -> vec3<f32> {
     var ray = r;
     var accum = vec3(0.);
     var attenuation = vec3(1.);
+    let sun_light = DirectionalLight(normalize(vec3(1.0, 0.5, 0.0)), vec3(1e3));
 
     for (var i = 0; i < SAMPLES; i++)
     {
-        // Hit hit = intersectScene(r);
         let hit = intersect_scene(ray);
 
         if (hit.material.f0 >= 0.) {
-        //     float f = fresnel(hit.n, -r.d, hit.m.f0);
+            let f = fresnel(hit.normal, -r.direction, hit.material.f0);
 
-        //     vec3 hitPos = r.o + hit.t * r.d;
             let hit_pos = ray.origin + hit.t * ray.direction;
 
-        // Diffuse
-        //     vec3 incoming = vec3(0.);
-        //     incoming += accountForDirectionalLight(hitPos, hit.n, sunLight);
+            var incoming = vec3(0.0);
+            incoming += account_for_directional_light(hit_pos, hit.normal, sun_light);
             accum += hit.material.color;
 
-        //     accum += (1. - f) * attenuation * hit.m.c * incoming;
+            accum += (1.0 - f) * attenuation * hit.material.color * incoming;
 
-        //     // Specular: next bounce
-        //     attenuation *= f;
-        //     vec3 d = reflect(r.d, hit.n);
+            attenuation *= f;
             let d = reflect(ray.direction, hit.normal);
             ray = Ray(ray.origin + hit.t * ray.direction + EPSILON * d, d);
         } else {
@@ -163,16 +174,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let ray: Ray = Ray(origin, direction);
     var color: vec3<f32> = vec3(0.0);
     color = radiance(ray);
-    // for (var i = 0; i < 3; i++)
-    // {
-    //     let hit = intersect_scene(ray);
-    //     if (hit.material.f0 >= 0.) {
-
-    //     } else {
-    //         color += get_sky_color(ray.direction);
-    //         break;
-    //     }
-    // }
     
     return vec4<f32>(color, 1.0);
 }
