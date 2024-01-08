@@ -87,12 +87,16 @@ fn compare(a: ptr<function, Hit>, b: Hit) -> bool {
 fn intersect_scene(ray: Ray) -> Hit {
     let no_hit: Hit = Hit(1e10, vec3(0.), Material(vec3(-1.), -1.));
 
-    let s: Sphere = Sphere(1., vec3(1., 1., 0.), Material(vec3(0.5), 0.04));
+    let s1: Sphere = Sphere(1., vec3(-2., 1., 0.), Material(vec3(1.0, 0.0, 0.0), 0.04));
+    let s2: Sphere = Sphere(1., vec3(0., 1., 0.), Material(vec3(0.0, 1.0, 0.0), 0.04));
+    let s3: Sphere = Sphere(1., vec3(2., 1., 0.), Material(vec3(0.0, 0.0, 1.0), 0.04));
     let p: Plane = Plane(0., vec3(0., 1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
 
     var hit = no_hit;
     compare(&hit, intersect_plane(p, ray));
-    compare(&hit, intersect_sphere(s, ray));
+    compare(&hit, intersect_sphere(s1, ray));
+    compare(&hit, intersect_sphere(s2, ray));
+    compare(&hit, intersect_sphere(s3, ray));
     return hit;
 }
 
