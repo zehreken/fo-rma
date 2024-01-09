@@ -5,7 +5,7 @@ struct VertexOutput {
 }
 
 const EPSILON = 4e-4;
-const SAMPLES = 20;
+const SAMPLES = 1000;
 
 struct Material {
     color: vec3<f32>, // diffuse color
@@ -88,8 +88,8 @@ fn intersect_scene(ray: Ray) -> Hit {
     let no_hit: Hit = Hit(1e10, vec3(0.), Material(vec3(-1.), -1.));
 
     let s1: Sphere = Sphere(1., vec3(-2., 1., 0.), Material(vec3(1.0, 0.0, 0.0), 0.04));
-    let s2: Sphere = Sphere(1., vec3(0., 1., 0.), Material(vec3(0.0, 1.0, 0.0), 0.04));
-    let s3: Sphere = Sphere(1., vec3(2., 1., 0.), Material(vec3(0.0, 0.0, 1.0), 0.04));
+    let s2: Sphere = Sphere(1., vec3(0., 1., 0.), Material(vec3(0.0, 1.0, 0.0), 0.1));
+    let s3: Sphere = Sphere(1., vec3(2., 1., 0.), Material(vec3(0.0, 0.0, 1.0), 0.5));
     let p: Plane = Plane(0., vec3(0., 1., 0.), Material(vec3(0.5, 0.4, 0.3), 0.04));
 
     var hit = no_hit;
@@ -100,15 +100,8 @@ fn intersect_scene(ray: Ray) -> Hit {
     return hit;
 }
 
-fn get_color(ray_direction: vec3<f32>) -> vec3<f32> {
-    let a = 0.5 * (ray_direction.y + 1.0);
-    let color0 = (1.0 - a) * vec3(1.0, 1.0, 1.0);
-    let color1 = a * vec3(0.5, 0.7, 1.0);
-    return color0 + color1;
-}
-
 fn get_sky_color(ray_direction: vec3<f32>) -> vec3<f32> {
-    let sun_light: DirectionalLight = DirectionalLight(normalize(vec3(1.0, 0.5, 0.5)), vec3(1e3));
+    let sun_light: DirectionalLight = DirectionalLight(normalize(vec3(1.0, 0.5, 0.5)), vec3(1.));
     let transition: f32 = pow(smoothstep(0.02, 0.5, ray_direction.y), 0.4);
 
     let sky: vec3<f32> = 2e0*mix(vec3(0.52, 0.77, 1.0), vec3(0.12, 0.43, 1.0), transition);
@@ -142,7 +135,7 @@ fn radiance(r: Ray) -> vec3<f32> {
         let hit = intersect_scene(ray);
 
         if (hit.material.f0 >= 0.) {
-            let f = fresnel(hit.normal, -r.direction, hit.material.f0);
+            let f = fresnel(hit.normal, -ray.direction, hit.material.f0);
 
             let hit_pos = ray.origin + hit.t * ray.direction;
 
@@ -179,5 +172,5 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     var color: vec3<f32> = vec3(0.0);
     color = radiance(ray);
     
-    return vec4<f32>(color, 1.0);
+    return vec4<f32>(color / 1., 1.0);
 }
