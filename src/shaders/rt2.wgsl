@@ -80,16 +80,24 @@ fn intersect_plane(ray: Ray, plane: Plane) -> Intersect {
 fn trace(ray: Ray) -> Intersect {
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
 
-    let s1 = Sphere(2.0, vec3(-4.0, 3.0, 0.), Material(vec3(1.0, 0.0, 0.2), 1.0, 0.001));
-    let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
+    let s1 = Sphere(2.0, vec3(-4.0, 3.0, 0.0), Material(vec3(1.0, 0.0, 0.2), 1.0, 0.001));
+    let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
     let s3 = Sphere(1.0, vec3(0.5, 1.0, 6.0),  Material(vec3(1.0, 1.0, 1.0), 0.5, 0.25));
 
     var intersection = miss;
-    var plane = intersect_plane(ray, Plane(vec3(0., 1., 0.), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0)));
+    var plane = intersect_plane(ray, Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0)));
     if (plane.material.diffuse > 0.0 || plane.material.specular > 0.0) {
         intersection = plane;
     }
-    var sphere = intersect_sphere(ray, s3);
+    var sphere = intersect_sphere(ray, s1);
+    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
+        intersection = sphere;
+    }
+    sphere = intersect_sphere(ray, s2);
+    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
+        intersection = sphere;
+    }
+    sphere = intersect_sphere(ray, s3);
     if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
         intersection = sphere;
     }
@@ -123,8 +131,8 @@ fn radiance(r: Ray) -> vec3<f32> {
     let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(-1.0, 0.75, 1.0)));
     var color = vec3(0.0);
     var fresnel = vec3(0.0);
-    var mask = vec3(0.0);
-    for (var i = 0; i < SAMPLES; i++) {
+    var mask = vec3(1.0);
+    for (var i: i32 = 0; i <= 16; i += 1) {
         let hit = trace(ray);
         if (hit.material.diffuse > 0.0 || hit.material.specular > 0.0) {
             let r0 = hit.material.color * hit.material.specular;
@@ -132,8 +140,8 @@ fn radiance(r: Ray) -> vec3<f32> {
             fresnel = r0 + (1.0 - r0) * pow(1.0 - hv, 5.0);
             mask *= fresnel;
 
-            let r = trace(Ray(ray.origin + hit.len * ray.direction + EPSILON * light.direction, light.direction));
-            if (is_miss(r)) {
+            let result = trace(Ray(ray.origin + hit.len * ray.direction + EPSILON * light.direction, light.direction));
+            if (is_miss(result)) {
                 color += clamp(dot(hit.normal, light.direction), 0.0, 1.0) * light.color
                        * hit.material.color.rgb * hit.material.diffuse
                        * (1.0 - fresnel) * mask / fresnel;
