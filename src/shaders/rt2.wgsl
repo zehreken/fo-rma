@@ -175,7 +175,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     var uv = 2.0 * in.position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
     uv.y = -uv.y;
 
-    let ray = Ray(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
+    let ray = Ray(vec3(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
     let color = vec4(pow(radiance(ray) * EXPOSURE, vec3(1.0 / GAMMA)), 1.0);
     return color;
 }
