@@ -5,6 +5,13 @@ struct VertexOutput {
     @location(0) coord: vec2<f32>,
 }
 
+struct Uniforms {
+    time: f32,
+}
+
+@group(0) @binding(0)
+var<uniform> uniforms: Uniforms;
+
 struct Ray {
     origin: vec3<f32>,
     direction: vec3<f32>,
@@ -161,12 +168,14 @@ fn radiance(r: Ray) -> vec3<f32> {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let resolution: vec2<f32> = vec2(1600.0, 1200.0);
-    let aspect_ratio = 4.0 / 3.0;
+    let width = 1200.0;
+    let height = 1200.0;
+    let resolution: vec2<f32> = vec2(width, height);
+    let aspect_ratio = width / height;
     var uv = 2.0 * in.position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
     uv.y = -uv.y;
 
-    let ray = Ray(vec3(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
+    let ray = Ray(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
     let color = vec4(pow(radiance(ray) * EXPOSURE, vec3(1.0 / GAMMA)), 1.0);
     return color;
 }
