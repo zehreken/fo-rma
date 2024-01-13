@@ -104,7 +104,7 @@ pub async fn start() {
         .with_decorations(true)
         .with_resizable(false)
         .with_transparent(false)
-        .with_title("winit-wgpu-egui")
+        .with_title("fo-rma")
         .with_inner_size(size)
         .build(&event_loop)
         .unwrap();
