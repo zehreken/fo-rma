@@ -110,8 +110,6 @@ pub async fn start() {
         .unwrap();
 
     let app = App::new(window).await;
-    // create graphic
-    // let graphic = graphic::Graphic::new(&app.device, &app.surface_config);
     // create renderer
     let mut renderer = renderer::Renderer::new(&app.device, &app.surface_config);
     // create gui
@@ -154,15 +152,8 @@ pub async fn start() {
             let output_view = output_frame
                 .texture
                 .create_view(&wgpu::TextureViewDescriptor::default());
-            let mut encoder = app
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("encoder"),
-                });
-            // graphic.render(&mut encoder, &output_view);
             renderer.render(&app.device, &app.queue, &output_view, elapsed_time);
-            gui.render(&mut encoder, &app.window, &output_view, &app, fps);
-            app.queue.submit(Some(encoder.finish()));
+            gui.render(&app.window, &output_view, &app, fps);
             output_frame.present();
         }
         _ => {}
