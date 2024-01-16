@@ -90,6 +90,7 @@ fn trace(ray: Ray) -> Intersect {
     let s1 = Sphere(2.0, vec3(-4.0, 3.0, 0.0), Material(vec3(1.0, 0.0, 0.2), 1.0, 0.001));
     let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
     let s3 = Sphere(1.0, vec3(0.5, 1.0, 6.0),  Material(vec3(1.0, 1.0, 1.0), 0.5, 0.25));
+    let s4 = Sphere(1.0, vec3(6.0, 1.0, 3.0), Material(vec3(0.0, 1.0, 0.2), 0.5, 0.1));
 
     var intersection = miss;
     var plane = intersect_plane(ray, Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0)));
@@ -101,6 +102,10 @@ fn trace(ray: Ray) -> Intersect {
         intersection = sphere;
     }
     sphere = intersect_sphere(ray, s2);
+    if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
+        intersection = sphere;
+    }
+    sphere = intersect_sphere(ray, s4);
     if (sphere.material.diffuse > 0.0 || sphere.material.specular > 0.0) {
         intersection = sphere;
     }
@@ -135,7 +140,7 @@ fn radiance(r: Ray) -> vec3<f32> {
     let ambient: vec3<f32> = vec3(0.6, 0.8, 1.0) * INTENSITY / GAMMA;
     var ray = r;
     let miss: Intersect = Intersect(0.0, vec3(0.0), Material(vec3(0.0), 0.0, 0.0));
-    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(-1.0, 0.75, 1.0)));
+    let light = Light(vec3(1.0) * INTENSITY, normalize(vec3(cos(uniforms.time / 10f), 0.75, sin(uniforms.time / 10f))));
     var color = vec3(0.0);
     var fresnel = vec3(0.0);
     var mask = vec3(1.0);
@@ -175,7 +180,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     var uv = 2.0 * in.position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
     uv.y = -uv.y;
 
-    let ray = Ray(vec3(cos(uniforms.time), 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
+    let ray = Ray(vec3(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));
     let color = vec4(pow(radiance(ray) * EXPOSURE, vec3(1.0 / GAMMA)), 1.0);
     return color;
 }
