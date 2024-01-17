@@ -91,9 +91,10 @@ fn trace(ray: Ray) -> Intersect {
     let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
     let s3 = Sphere(1.0, vec3(0.5, 1.0, 6.0),  Material(vec3(1.0, 1.0, 1.0), 0.5, 0.25));
     let s4 = Sphere(1.0, vec3(6.0, 1.0, 3.0), Material(vec3(0.0, 1.0, 0.2), 0.5, 0.1));
+    var p1 = Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0));
 
     var intersection = miss;
-    var plane = intersect_plane(ray, Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0)));
+    var plane = intersect_plane(ray, p1);
     if (plane.material.diffuse > 0.0 || plane.material.specular > 0.0) {
         intersection = plane;
     }
