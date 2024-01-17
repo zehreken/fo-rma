@@ -90,7 +90,7 @@ fn trace(ray: Ray) -> Intersect {
     let s1 = Sphere(2.0, vec3(-4.0, 3.0, 0.0), Material(vec3(1.0, 0.0, 0.2), 1.0, 0.001));
     let s2 = Sphere(3.0, vec3(4.0 ,3.0, 0.0), Material(vec3(0.0, 0.2, 1.0), 1.0, 0.0));
     let s3 = Sphere(1.0, vec3(0.5, 1.0, 6.0),  Material(vec3(1.0, 1.0, 1.0), 0.5, 0.25));
-    let s4 = Sphere(1.0, vec3(6.0, 1.0, 3.0), Material(vec3(0.0, 1.0, 0.2), 0.5, 0.1));
+    let s4 = Sphere(1.0, vec3(6.0, 1.0, 4.0), Material(vec3(0.0, 1.0, 0.2), 0.5, 0.1));
     var p1 = Plane(vec3(0.0, 1.0, 0.0), Material(vec3(1.0, 1.0, 1.0), 1.0, 0.0));
 
     var intersection = miss;
@@ -174,11 +174,12 @@ fn radiance(r: Ray) -> vec3<f32> {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let width = 1200.0;
+    let width = 1600.0;
     let height = 1200.0;
     let resolution: vec2<f32> = vec2(width, height);
     let aspect_ratio = width / height;
-    var uv = 2.0 * in.position.xy / resolution.xy - 1.0; // Maps xy to [-1, 1]
+    var uv = 2.0 * in.position.xy / resolution.xy - vec2(1.0); // Maps xy to [-1, 1]
+    uv.x *= aspect_ratio;
     uv.y = -uv.y;
 
     let ray = Ray(vec3(0.0, 2.5, 12.0), normalize(vec3(uv.x, uv.y, -1.0)));

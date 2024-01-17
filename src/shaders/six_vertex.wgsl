@@ -9,6 +9,9 @@ fn vs_main(@builtin(vertex_index) in_vertex_index: u32) -> VertexOutput {
     let bound: f32 = 1.0;
     var x = 0.0;
     var y = 0.0;
+    // 0--2/ 5
+    // |  /  |
+    // 1 /3--4
     switch in_vertex_index {
         case 0u: {
             x = -bound;
