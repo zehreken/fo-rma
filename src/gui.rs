@@ -1,12 +1,12 @@
-use crate::app::App;
-use egui::{Color32, RichText};
+use egui::{Color32, RichText, ViewportId};
 use egui_wgpu::wgpu::TextureFormat;
-use egui_wgpu::{renderer::ScreenDescriptor, Renderer};
+use egui_wgpu::{Renderer, ScreenDescriptor};
 use egui_winit::{
     egui::{self, ClippedPrimitive, Context, TexturesDelta},
     State,
 };
-use winit::{event_loop::EventLoopWindowTarget, window::Window};
+use wgpu::{Device, Queue};
+use winit::window::Window;
 
 struct Test {
     is_window_open: bool,
@@ -15,7 +15,7 @@ struct Test {
 impl Test {
     fn new() -> Self {
         Self {
-            is_window_open: false,
+            is_window_open: true,
         }
     }
 
@@ -72,23 +72,23 @@ pub struct Gui {
 }
 
 impl Gui {
-    pub fn new<T>(
-        event_loop: &EventLoopWindowTarget<T>,
-        device: &wgpu::Device,
-        texture_format: TextureFormat,
-    ) -> Self {
-        let scale_factor = 2.;
-        let (width, height) = (1600, 1200);
+    pub fn new(window: &Window, device: &wgpu::Device, texture_format: TextureFormat) -> Self {
+        let scale_factor = window.scale_factor();
+        let size = window.inner_size();
         let max_texture_size = device.limits().max_texture_dimension_2d as usize;
 
         let egui_ctx = Context::default();
-        let mut egui_state = egui_winit::State::new(event_loop);
-        egui_state.set_max_texture_side(max_texture_size);
-        egui_state.set_pixels_per_point(scale_factor);
+        let egui_state = egui_winit::State::new(
+            egui_ctx.clone(),
+            ViewportId::ROOT,
+            window,
+            Some(scale_factor as f32),
+            Some(max_texture_size),
+        );
 
         let screen_descriptor = ScreenDescriptor {
-            size_in_pixels: [width, height],
-            pixels_per_point: scale_factor,
+            size_in_pixels: [size.width, size.height],
+            pixels_per_point: scale_factor as f32,
         };
         let renderer = Renderer::new(device, texture_format, None, 1);
         let textures = TexturesDelta::default();
@@ -106,8 +106,8 @@ impl Gui {
         }
     }
 
-    pub fn handle_event(&mut self, event: &winit::event::WindowEvent) {
-        let _ = self.state.on_event(&self.ctx, event);
+    pub fn handle_event(&mut self, window: &Window, event: &winit::event::WindowEvent) {
+        let _ = self.state.on_window_event(window, event);
     }
 
     // resize
@@ -118,7 +118,8 @@ impl Gui {
         &mut self,
         window: &Window,
         render_target: &wgpu::TextureView,
-        app: &App,
+        device: &Device,
+        queue: &Queue,
         fps: f32,
     ) {
         let raw_input = self.state.take_egui_input(window);
@@ -128,24 +129,22 @@ impl Gui {
 
         self.textures.append(output.textures_delta);
         self.state
-            .handle_platform_output(window, &self.ctx, output.platform_output);
-        self.paint_jobs = self.ctx.tessellate(output.shapes);
+            .handle_platform_output(window, output.platform_output);
+        self.paint_jobs = self
+            .ctx
+            .tessellate(output.shapes, window.scale_factor() as f32);
 
         // Upload all resources to the GPU.
         for (id, image_delta) in &self.textures.set {
             self.renderer
-                .update_texture(app.device(), app.queue(), *id, image_delta);
+                .update_texture(device, queue, *id, image_delta);
         }
-
-        let mut encoder = app
-            .device()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("gui encoder"),
-            });
-
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("gui encoder"),
+        });
         self.renderer.update_buffers(
-            app.device(),
-            app.queue(),
+            device,
+            queue,
             &mut encoder,
             &self.paint_jobs,
             &self.screen_descriptor,
@@ -160,17 +159,18 @@ impl Gui {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Load,
-                        store: true,
+                        store: wgpu::StoreOp::Store,
                     },
                 })],
                 depth_stencil_attachment: None,
+                ..Default::default()
             });
 
             self.renderer
                 .render(&mut rpass, &self.paint_jobs, &self.screen_descriptor);
         }
         // dropping rpass here
-        app.queue().submit(Some(encoder.finish()));
+        queue.submit(Some(encoder.finish()));
         // Cleanup
         let textures = std::mem::take(&mut self.textures);
         for id in &textures.free {

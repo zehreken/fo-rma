@@ -8,19 +8,19 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1"
-winit = "0.28"
-env_logger = "0.10"
+winit = "0.29"
+env_logger = "0.11"
 log = "0.4"
-wgpu = "0.17"
+wgpu = "0.19"
 pollster = "0.3"
 bytemuck = { version = "1.12", features = ["derive"] }
-egui-wgpu = "0.23"
-egui-winit = "0.23"
+egui-wgpu = "0.27"
+egui-winit = "0.27"
 
 image = "0.24.0"
 rand = "0.8.4"
 puffin = "0.14"
-egui = { version = "0.23", features = ["bytemuck"] }
+egui = { version = "0.27", features = ["bytemuck"] }
 # https://github.com/not-fl3/miniquad/issues/172
 [target.'cfg(target_os = "macos")'.dependencies]
 copypasta = "0.10"
