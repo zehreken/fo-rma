@@ -1,13 +1,13 @@
 use std::collections::VecDeque;
 
 use winit::{
-    dpi::{LogicalSize, PhysicalSize, Size},
+    dpi::{PhysicalSize, Size},
     event::{Event, WindowEvent},
     event_loop::EventLoop,
-    window::{Window, WindowBuilder},
+    window::WindowBuilder,
 };
 
-use crate::{gui, renderer};
+use crate::{basics::cube_renderer, gui, renderer};
 
 pub struct App {
     rolling_frame_time: VecDeque<f32>,
@@ -93,6 +93,7 @@ pub async fn start() {
     surface.configure(&device, &surface_config);
     // create renderer
     let mut renderer = renderer::Renderer::new(&device, &surface_config);
+    let mut cube_renderer = cube_renderer::State::new(&device, &surface_config);
     // create gui
     let mut gui = gui::Gui::new(&window, &device, texture_format);
 
@@ -133,7 +134,8 @@ pub async fn start() {
                 .texture
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
-            renderer.render(&device, &queue, &output_view, elapsed_time);
+            // renderer.render(&device, &queue, &output_view, elapsed_time);
+            cube_renderer.render(&device, &queue, &output_view);
             gui.render(&window, &output_view, &device, &queue, fps);
             output_frame.present();
             window.request_redraw();
