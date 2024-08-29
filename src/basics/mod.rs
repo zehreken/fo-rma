@@ -1,1 +1,1 @@
-pub mod cube_renderer;
+pub mod cube;
