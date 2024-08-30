@@ -66,9 +66,10 @@ impl Uniforms {
 
     pub fn update(&mut self, width: u32, height: u32) {
         let aspect = width as f32 / height as f32;
-        let proj = Mat4::perspective_rh(45.0f32.to_radians(), aspect, 0.1, 100.0);
-        let view = Mat4::look_at_rh(Vec3::new(2.0, 2.0, 2.0), Vec3::ZERO, Vec3::Y);
-        self.model_view_proj = (proj * view).to_cols_array_2d();
+        let proj = Mat4::orthographic_rh(-aspect, aspect, -1.0, 1.0, 0.1, 100.0);
+        let view = Mat4::look_at_rh(Vec3::new(10.0, 10.0, 10.0), Vec3::ZERO, Vec3::Y);
+        let model = Mat4::from_rotation_y(std::f32::consts::FRAC_PI_4);
+        self.model_view_proj = (proj * view * model).to_cols_array_2d();
     }
 }
 
@@ -79,16 +80,22 @@ pub struct State {
     num_indices: u32,
     uniform_buffer: wgpu::Buffer,
     uniform_bind_group: wgpu::BindGroup,
-    rotation: f32,
+    uniforms: Uniforms,
 }
 
 impl State {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+        let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/cube.wgsl").into()),
+        });
+
+        let mut uniforms = Uniforms::new();
+        uniforms.update(1600, 1200);
+
         let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Uniform Buffer"),
-            contents: bytemuck::cast_slice(&[Uniforms {
-                model_view_proj: Mat4::IDENTITY.to_cols_array_2d(),
-            }]),
+            label: Some("uniform_buffer"),
+            contents: bytemuck::cast_slice(&[uniforms]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
@@ -116,20 +123,15 @@ impl State {
             label: Some("uniform_bind_group"),
         });
 
-        let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/cube.wgsl").into()),
-        });
-
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("render pipeline layout"),
-                bind_group_layouts: &[],
+                label: Some("render_pipeline_layout"),
+                bind_group_layouts: &[&uniform_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("render pipeline"),
+            label: Some("render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader_module,
@@ -179,13 +181,13 @@ impl State {
         });
 
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("vertex buffer"),
+            label: Some("vertex_buffer"),
             contents: bytemuck::cast_slice(VERTICES),
             usage: wgpu::BufferUsages::VERTEX,
         });
 
         let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("index buffer"),
+            label: Some("index_buffer"),
             contents: bytemuck::cast_slice(INDICES),
             usage: wgpu::BufferUsages::INDEX,
         });
@@ -199,46 +201,51 @@ impl State {
             num_indices,
             uniform_buffer,
             uniform_bind_group,
-            rotation: 0.0,
+            uniforms,
         }
     }
 
     pub fn update(&mut self, queue: &Queue) {
-        self.rotation += 0.01;
-        println!("{}", self.rotation);
-        // let aspect_ratio = self.config.width as f32 / self.config.height as f32;
-        let aspect_ratio = 1.0;
+        // self.rotation += 0.01;
+        // println!("{}", self.rotation);
+        // // let aspect_ratio = self.config.width as f32 / self.config.height as f32;
+        // let aspect_ratio = 1.0;
 
-        // Projection matrix
-        let proj = Mat4::perspective_rh(45.0f32.to_radians(), aspect_ratio, 0.1, 100.0);
+        // // Projection matrix
+        // let proj = Mat4::perspective_rh(45.0f32.to_radians(), aspect_ratio, 0.1, 100.0);
 
-        // View matrix
-        let view = Mat4::look_at_rh(
-            Vec3::new(2.0, 2.0, 2.0), // Eye position
-            Vec3::ZERO,               // Look at point
-            Vec3::Y,                  // Up direction
-        );
+        // // View matrix
+        // let view = Mat4::look_at_rh(
+        //     Vec3::new(2.0, 2.0, 2.0), // Eye position
+        //     Vec3::ZERO,               // Look at point
+        //     Vec3::Y,                  // Up direction
+        // );
 
-        // Model matrix (rotation around Y-axis)
-        let model = Mat4::from_rotation_y(self.rotation);
+        // // Model matrix (rotation around Y-axis)
+        // let model = Mat4::from_rotation_y(self.rotation);
 
-        // Combine matrices
-        let mvp = proj * view * model;
+        // // Combine matrices
+        // let mvp = proj * view * model;
 
-        // Update uniform buffer
-        queue.write_buffer(
-            &self.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&mvp.to_cols_array_2d()),
-        );
+        // // Update uniform buffer
+        // queue.write_buffer(
+        //     &self.uniform_buffer,
+        //     0,
+        //     bytemuck::cast_slice(&mvp.to_cols_array_2d()),
+        // );
     }
 
     pub fn render(&mut self, device: &Device, queue: &Queue, view: &TextureView) {
+        queue.write_buffer(
+            &self.uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[self.uniforms]),
+        );
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("renderer encoder"),
+            label: Some("renderer=_encoder"),
         });
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("render pass"),
+            label: Some("render_pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view,
                 resolve_target: None,
@@ -257,6 +264,7 @@ impl State {
             occlusion_query_set: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
+        render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
