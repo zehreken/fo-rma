@@ -29,48 +29,13 @@ pub async fn start() {
         height: 1200,
     });
     let event_loop = EventLoop::new().unwrap();
-    let window = WindowBuilder::new()
-        .with_decorations(true)
-        .with_resizable(false)
-        .with_transparent(false)
-        .with_title("winit-wgpu-egui")
-        .with_inner_size(size)
-        .build(&event_loop)
-        .unwrap();
-
+    let window = create_window(size, &event_loop);
     let app = App::new().await;
-
-    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-        backends: wgpu::Backends::PRIMARY,
-        ..Default::default()
-    });
-    let surface = unsafe {
-        instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::from_window(&window).unwrap())
-    }
-    .unwrap();
-
+    let (instance, surface) = create_instance_and_surface(&window);
     // Async is fine but you can also use pollster::block_on without await
-    let adapter = instance
-        .request_adapter(&wgpu::RequestAdapterOptions {
-            power_preference: wgpu::PowerPreference::default(),
-            compatible_surface: Some(&surface),
-            force_fallback_adapter: false,
-        })
-        .await
-        .unwrap();
-
+    let adapter = create_adapter(instance, &surface).await;
     // Same with this one, pollster::block_on(adapter_request(...)).unwrap(); is another way
-    let (device, queue) = adapter
-        .request_device(
-            &wgpu::DeviceDescriptor {
-                required_features: wgpu::Features::default(),
-                required_limits: wgpu::Limits::default(),
-                label: None,
-            },
-            None,
-        )
-        .await
-        .unwrap();
+    let (device, queue) = create_device_and_queue(&adapter).await;
 
     let size = window.inner_size();
     let surface_caps = surface.get_capabilities(&adapter);
@@ -81,23 +46,34 @@ pub async fn start() {
         .find(|f| f.is_srgb())
         .unwrap_or(surface_caps.formats[0]);
 
-    let surface_config = wgpu::SurfaceConfiguration {
-        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-        format: texture_format,
-        width: size.width,
-        height: size.height,
-        present_mode: surface_caps.present_modes[0],
-        alpha_mode: surface_caps.alpha_modes[0],
-        view_formats: vec![],
-        desired_maximum_frame_latency: 2,
-    };
+    let surface_config = create_surface_config(texture_format, size, surface_caps);
     surface.configure(&device, &surface_config);
     // create renderer
     // let mut renderer = renderer::Renderer::new(&device, &surface_config);
-    let mut cube_renderer = cube::State::new(&device, &surface_config);
+    let cube_renderer = cube::State::new(&device, &surface_config);
     // create gui
-    let mut gui = gui::Gui::new(&window, &device, texture_format);
+    let gui = gui::Gui::new(&window, &device, texture_format);
 
+    run_event_loop(
+        event_loop,
+        window,
+        surface,
+        cube_renderer,
+        queue,
+        device,
+        gui,
+    );
+}
+
+fn run_event_loop(
+    event_loop: EventLoop<()>,
+    window: winit::window::Window,
+    surface: wgpu::Surface<'_>,
+    mut cube_renderer: cube::State,
+    queue: wgpu::Queue,
+    device: wgpu::Device,
+    mut gui: gui::Gui,
+) {
     let init = [0.0; 60];
     let mut rolling_frame_times = VecDeque::from(init);
     let mut earlier = std::time::Instant::now();
@@ -161,6 +137,77 @@ pub async fn start() {
         }
         _ => {}
     });
+}
+
+fn create_surface_config(
+    texture_format: wgpu::TextureFormat,
+    size: PhysicalSize<u32>,
+    surface_caps: wgpu::SurfaceCapabilities,
+) -> wgpu::SurfaceConfiguration {
+    let surface_config = wgpu::SurfaceConfiguration {
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+        format: texture_format,
+        width: size.width,
+        height: size.height,
+        present_mode: surface_caps.present_modes[0],
+        alpha_mode: surface_caps.alpha_modes[0],
+        view_formats: vec![],
+        desired_maximum_frame_latency: 2,
+    };
+    surface_config
+}
+
+async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) {
+    let (device, queue) = adapter
+        .request_device(
+            &wgpu::DeviceDescriptor {
+                required_features: wgpu::Features::default(),
+                required_limits: wgpu::Limits::default(),
+                label: None,
+            },
+            None,
+        )
+        .await
+        .unwrap();
+    (device, queue)
+}
+
+async fn create_adapter(instance: wgpu::Instance, surface: &wgpu::Surface<'_>) -> wgpu::Adapter {
+    let adapter = instance
+        .request_adapter(&wgpu::RequestAdapterOptions {
+            power_preference: wgpu::PowerPreference::default(),
+            compatible_surface: Some(surface),
+            force_fallback_adapter: false,
+        })
+        .await
+        .unwrap();
+    adapter
+}
+
+fn create_instance_and_surface(
+    window: &winit::window::Window,
+) -> (wgpu::Instance, wgpu::Surface<'static>) {
+    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        backends: wgpu::Backends::PRIMARY,
+        ..Default::default()
+    });
+    let surface = unsafe {
+        instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::from_window(window).unwrap())
+    }
+    .unwrap();
+    (instance, surface)
+}
+
+fn create_window(size: Size, event_loop: &EventLoop<()>) -> winit::window::Window {
+    let window = WindowBuilder::new()
+        .with_decorations(true)
+        .with_resizable(false)
+        .with_transparent(false)
+        .with_title("winit-wgpu-egui")
+        .with_inner_size(size)
+        .build(event_loop)
+        .unwrap();
+    window
 }
 
 pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
