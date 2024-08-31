@@ -2,8 +2,9 @@ use std::collections::VecDeque;
 
 use winit::{
     dpi::{PhysicalSize, Size},
-    event::{Event, WindowEvent},
+    event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::EventLoop,
+    keyboard::{KeyCode, PhysicalKey},
     window::WindowBuilder,
 };
 
@@ -107,6 +108,20 @@ pub async fn start() {
             event: WindowEvent::CloseRequested,
             window_id,
         } if window.id() == window_id => elwt.exit(),
+        Event::WindowEvent {
+            event:
+                WindowEvent::KeyboardInput {
+                    event:
+                        KeyEvent {
+                            physical_key: PhysicalKey::Code(KeyCode::Escape),
+                            state: ElementState::Pressed,
+                            repeat: false,
+                            ..
+                        },
+                    ..
+                },
+            ..
+        } => elwt.exit(),
         Event::WindowEvent {
             event: WindowEvent::RedrawRequested,
             ..
