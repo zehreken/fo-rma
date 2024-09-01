@@ -69,7 +69,9 @@ impl<'a> App<'a> {
         todo!()
     }
 
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        self.cube.update(&self.queue);
+    }
 
     fn render(&mut self, fps: f32) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
@@ -90,10 +92,42 @@ impl<'a> App<'a> {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("renderer_encoder"),
+            });
+        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("render_pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &output_view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: 1.0,
+                        g: 0.0,
+                        b: 0.03,
+                        a: 1.0,
+                    }),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
+        });
         self.cube.update(&self.queue);
-        self.cube.render(&self.device, &self.queue, &output_view);
-        self.gui
-            .render(&self.window, &output_view, &self.device, &self.queue, fps);
+        self.cube.render(&self.queue, &mut render_pass);
+        drop(render_pass);
+        self.gui.render(
+            &self.window,
+            &output_view,
+            &self.device,
+            &self.queue,
+            &mut encoder,
+            fps,
+        );
+        self.queue.submit(Some(encoder.finish()));
         output_frame.present();
         self.window.request_redraw();
         Ok(())
@@ -152,7 +186,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.push_back(frame_time.as_secs_f32());
             let fps = calculate_fps(&rolling_frame_times);
             app.update();
-            app.render(fps);
+            let _ = app.render(fps);
         }
         Event::WindowEvent { event, .. } => {
             app.gui.handle_event(&app.window, &event);
