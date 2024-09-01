@@ -56,10 +56,6 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn window(&self) -> &Window {
-        &self.window
-    }
-
     fn resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.size = size;
@@ -75,8 +71,32 @@ impl<'a> App<'a> {
 
     fn update(&mut self) {}
 
-    fn render(&mut self) -> Result<(), SurfaceError> {
-        todo!()
+    fn render(&mut self, fps: f32) -> Result<(), SurfaceError> {
+        let output_frame = match self.surface.get_current_texture() {
+            Ok(frame) => frame,
+            Err(wgpu::SurfaceError::Outdated) => {
+                // This error occurs when the app is minimized on Windows.
+                // Silently return here to prevent spamming the console with:
+                // "The underlying surface has changed, and therefore the swap chain must be updated"
+                eprintln!("Outdated");
+                return Ok(());
+            }
+            Err(e) => {
+                eprintln!("Dropped frame with error: {}", e);
+                return Err(e);
+            }
+        };
+        let output_view = output_frame
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+
+        self.cube.update(&self.queue);
+        self.cube.render(&self.device, &self.queue, &output_view);
+        self.gui
+            .render(&self.window, &output_view, &self.device, &self.queue, fps);
+        output_frame.present();
+        self.window.request_redraw();
+        Ok(())
     }
 
     fn render_ui(&mut self) {}
@@ -103,7 +123,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,
-        } if app.window().id() == window_id => elwt.exit(),
+        } if app.window.id() == window_id => elwt.exit(),
         Event::WindowEvent {
             event:
                 WindowEvent::KeyboardInput {
@@ -119,9 +139,9 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             ..
         } => elwt.exit(),
         Event::WindowEvent {
+            window_id,
             event: WindowEvent::Resized(size),
-            ..
-        } => app.resize(size),
+        } if app.window.id() == window_id => app.resize(size),
         Event::WindowEvent {
             event: WindowEvent::RedrawRequested,
             ..
@@ -131,30 +151,8 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
             let fps = calculate_fps(&rolling_frame_times);
-            let output_frame = match app.surface.get_current_texture() {
-                Ok(frame) => frame,
-                Err(wgpu::SurfaceError::Outdated) => {
-                    // This error occurs when the app is minimized on Windows.
-                    // Silently return here to prevent spamming the console with:
-                    // "The underlying surface has changed, and therefore the swap chain must be updated"
-                    return;
-                }
-                Err(e) => {
-                    eprintln!("Dropped frame with error: {}", e);
-                    return;
-                }
-            };
-            let output_view = output_frame
-                .texture
-                .create_view(&wgpu::TextureViewDescriptor::default());
-
-            // renderer.render(&device, &queue, &output_view, elapsed_time);
-            app.cube.update(&app.queue);
-            app.cube.render(&app.device, &app.queue, &output_view);
-            app.gui
-                .render(&app.window, &output_view, &app.device, &app.queue, fps);
-            output_frame.present();
-            app.window.request_redraw();
+            app.update();
+            app.render(fps);
         }
         Event::WindowEvent { event, .. } => {
             app.gui.handle_event(&app.window, &event);
