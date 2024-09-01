@@ -1,26 +1,80 @@
 use std::collections::VecDeque;
 
+use wgpu::{SurfaceCapabilities, SurfaceError, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::EventLoop,
     keyboard::{KeyCode, PhysicalKey},
-    window::WindowBuilder,
+    window::{Window, WindowBuilder},
 };
 
 use crate::{basics::cube, gui, renderer};
 
-pub struct App {
+pub struct App<'a> {
+    surface: wgpu::Surface<'a>,
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    config: wgpu::SurfaceConfiguration,
+    size: winit::dpi::PhysicalSize<u32>,
+    // The window must be declared after the surface so
+    // it gets dropped after it as the surface contains
+    // unsafe references to the window's resources.
+    window: &'a Window,
+    gui: gui::Gui,
+    cube: cube::State,
     rolling_frame_time: VecDeque<f32>,
 }
 
-impl App {
-    async fn new() -> App {
+impl<'a> App<'a> {
+    async fn new(window: &'a Window) -> App<'a> {
+        let size = window.inner_size();
+        let (instance, surface) = create_instance_and_surface(window);
+        let adapter = create_adapter(instance, &surface).await;
+        let (device, queue) = create_device_and_queue(&adapter).await;
+
+        let surface_caps = surface.get_capabilities(&adapter);
+        let texture_format = surface_caps
+            .formats
+            .iter()
+            .copied()
+            .find(|f| f.is_srgb())
+            .unwrap_or(surface_caps.formats[0]);
+        let surface_config = create_surface_config(size, texture_format, surface_caps);
+        surface.configure(&device, &surface_config);
         let init = vec![0.0; 60];
+        let gui = gui::Gui::new(window, &device, texture_format);
+        let cube = cube::State::new(&device, &surface_config);
         Self {
+            surface,
+            device,
+            queue,
+            config: surface_config,
+            size,
+            window: &window,
+            gui,
+            cube,
             rolling_frame_time: VecDeque::from(init),
         }
     }
+
+    pub fn window(&self) -> &Window {
+        &self.window
+    }
+
+    fn resize(&mut self, size: PhysicalSize<u32>) {}
+
+    fn input(&mut self, event: &WindowEvent) -> bool {
+        todo!()
+    }
+
+    fn update(&mut self) {}
+
+    fn render(&mut self) -> Result<(), SurfaceError> {
+        todo!()
+    }
+
+    fn render_ui(&mut self) {}
 }
 
 pub async fn start() {
@@ -30,50 +84,12 @@ pub async fn start() {
     });
     let event_loop = EventLoop::new().unwrap();
     let window = create_window(size, &event_loop);
-    let app = App::new().await;
-    let (instance, surface) = create_instance_and_surface(&window);
-    // Async is fine but you can also use pollster::block_on without await
-    let adapter = create_adapter(instance, &surface).await;
-    // Same with this one, pollster::block_on(adapter_request(...)).unwrap(); is another way
-    let (device, queue) = create_device_and_queue(&adapter).await;
+    let app = App::new(&window).await;
 
-    let size = window.inner_size();
-    let surface_caps = surface.get_capabilities(&adapter);
-    let texture_format = surface_caps
-        .formats
-        .iter()
-        .copied()
-        .find(|f| f.is_srgb())
-        .unwrap_or(surface_caps.formats[0]);
-
-    let surface_config = create_surface_config(texture_format, size, surface_caps);
-    surface.configure(&device, &surface_config);
-    // create renderer
-    // let mut renderer = renderer::Renderer::new(&device, &surface_config);
-    let cube_renderer = cube::State::new(&device, &surface_config);
-    // create gui
-    let gui = gui::Gui::new(&window, &device, texture_format);
-
-    run_event_loop(
-        event_loop,
-        window,
-        surface,
-        cube_renderer,
-        queue,
-        device,
-        gui,
-    );
+    run_event_loop(event_loop, app);
 }
 
-fn run_event_loop(
-    event_loop: EventLoop<()>,
-    window: winit::window::Window,
-    surface: wgpu::Surface<'_>,
-    mut cube_renderer: cube::State,
-    queue: wgpu::Queue,
-    device: wgpu::Device,
-    mut gui: gui::Gui,
-) {
+fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
     let init = [0.0; 60];
     let mut rolling_frame_times = VecDeque::from(init);
     let mut earlier = std::time::Instant::now();
@@ -83,7 +99,7 @@ fn run_event_loop(
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,
-        } if window.id() == window_id => elwt.exit(),
+        } if app.window().id() == window_id => elwt.exit(),
         Event::WindowEvent {
             event:
                 WindowEvent::KeyboardInput {
@@ -108,7 +124,7 @@ fn run_event_loop(
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
             let fps = calculate_fps(&rolling_frame_times);
-            let output_frame = match surface.get_current_texture() {
+            let output_frame = match app.surface.get_current_texture() {
                 Ok(frame) => frame,
                 Err(wgpu::SurfaceError::Outdated) => {
                     // This error occurs when the app is minimized on Windows.
@@ -126,23 +142,24 @@ fn run_event_loop(
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
             // renderer.render(&device, &queue, &output_view, elapsed_time);
-            cube_renderer.update(&queue);
-            cube_renderer.render(&device, &queue, &output_view);
-            gui.render(&window, &output_view, &device, &queue, fps);
+            app.cube.update(&app.queue);
+            app.cube.render(&app.device, &app.queue, &output_view);
+            app.gui
+                .render(&app.window, &output_view, &app.device, &app.queue, fps);
             output_frame.present();
-            window.request_redraw();
+            app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
-            gui.handle_event(&window, &event);
+            app.gui.handle_event(&app.window, &event);
         }
         _ => {}
     });
 }
 
 fn create_surface_config(
-    texture_format: wgpu::TextureFormat,
     size: PhysicalSize<u32>,
-    surface_caps: wgpu::SurfaceCapabilities,
+    texture_format: TextureFormat,
+    surface_caps: SurfaceCapabilities,
 ) -> wgpu::SurfaceConfiguration {
     let surface_config = wgpu::SurfaceConfiguration {
         usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
