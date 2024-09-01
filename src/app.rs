@@ -23,7 +23,6 @@ pub struct App<'a> {
     window: &'a Window,
     gui: gui::Gui,
     cube: cube::State,
-    rolling_frame_time: VecDeque<f32>,
 }
 
 impl<'a> App<'a> {
@@ -54,7 +53,6 @@ impl<'a> App<'a> {
             window: &window,
             gui,
             cube,
-            rolling_frame_time: VecDeque::from(init),
         }
     }
 
@@ -93,7 +91,6 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
     let init = [0.0; 60];
     let mut rolling_frame_times = VecDeque::from(init);
     let mut earlier = std::time::Instant::now();
-    let mut elapsed_time = 0.0;
 
     let r = event_loop.run(move |event, elwt| match event {
         Event::WindowEvent {
@@ -119,7 +116,6 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             ..
         } => {
             let frame_time = std::time::Instant::now().duration_since(earlier);
-            elapsed_time += frame_time.as_secs_f32();
             earlier = std::time::Instant::now();
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
