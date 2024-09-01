@@ -60,7 +60,14 @@ impl<'a> App<'a> {
         &self.window
     }
 
-    fn resize(&mut self, size: PhysicalSize<u32>) {}
+    fn resize(&mut self, size: PhysicalSize<u32>) {
+        if size.width > 0 && size.height > 0 {
+            self.size = size;
+            self.config.width = size.width;
+            self.config.height = size.height;
+            self.surface.configure(&self.device, &self.config);
+        }
+    }
 
     fn input(&mut self, event: &WindowEvent) -> bool {
         todo!()
@@ -111,6 +118,10 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 },
             ..
         } => elwt.exit(),
+        Event::WindowEvent {
+            event: WindowEvent::Resized(size),
+            ..
+        } => app.resize(size),
         Event::WindowEvent {
             event: WindowEvent::RedrawRequested,
             ..
@@ -214,7 +225,7 @@ fn create_instance_and_surface(
 fn create_window(size: Size, event_loop: &EventLoop<()>) -> winit::window::Window {
     let window = WindowBuilder::new()
         .with_decorations(true)
-        .with_resizable(false)
+        .with_resizable(true)
         .with_transparent(false)
         .with_title("winit-wgpu-egui")
         .with_inner_size(size)
