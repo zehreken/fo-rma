@@ -9,7 +9,10 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-use crate::{basics::cube, gui, renderer};
+use crate::{
+    basics::{cube, triangle},
+    gui, renderer,
+};
 
 pub struct App<'a> {
     surface: wgpu::Surface<'a>,
@@ -23,6 +26,7 @@ pub struct App<'a> {
     window: &'a Window,
     gui: gui::Gui,
     cube: cube::State,
+    triangle: triangle::State,
 }
 
 impl<'a> App<'a> {
@@ -44,6 +48,7 @@ impl<'a> App<'a> {
         let init = vec![0.0; 60];
         let gui = gui::Gui::new(window, &device, texture_format);
         let cube = cube::State::new(&device, &surface_config);
+        let triangle = triangle::State::new(&device, &surface_config);
         Self {
             surface,
             device,
@@ -53,6 +58,7 @@ impl<'a> App<'a> {
             window: &window,
             gui,
             cube,
+            triangle,
         }
     }
 
@@ -116,8 +122,12 @@ impl<'a> App<'a> {
             timestamp_writes: None,
             occlusion_query_set: None,
         });
+        // cube
         self.cube.update(&self.queue);
         self.cube.render(&self.queue, &mut render_pass);
+        // triangle
+        self.triangle.render(&self.queue, &mut render_pass);
+
         drop(render_pass);
         self.gui.render(
             &self.window,

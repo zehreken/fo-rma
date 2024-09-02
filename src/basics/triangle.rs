@@ -10,46 +10,12 @@ struct Vertex {
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
-    // Front face
-    Vertex { position: [-0.5, -0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    // Back face
-    Vertex { position: [-0.5, -0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [ 0.5, -0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [-0.5,  0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    // Right face
-    Vertex { position: [ 0.5, -0.5, -0.5], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], normal: [ 1.0,  0.0,  0.0] },
-    // Left face
-    Vertex { position: [-0.5, -0.5, -0.5], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5,  0.5, -0.5], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5, -0.5,  0.5], normal: [-1.0,  0.0,  0.0] },
-    // Top face
-    Vertex { position: [-0.5,  0.5, -0.5], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], normal: [ 0.0,  1.0,  0.0] },
-    // Bottom face
-    Vertex { position: [-0.5, -0.5, -0.5], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5, -0.5], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [-0.5, -0.5,  0.5], normal: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [-0.5, -0.5,  0.0], normal: [ 0.0,  1.0,  1.0] },
+    Vertex { position: [ 0.5, -0.5,  0.0], normal: [ 0.0,  1.0,  1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.0], normal: [ 0.0,  1.0,  1.0] },
 ];
 
-const INDICES: &[u16] = &[
-    0, 1, 2, 2, 3, 0, // front
-    4, 5, 6, 6, 7, 4, // back
-    8, 9, 10, 10, 11, 8, // right
-    12, 13, 14, 14, 15, 12, // left
-    16, 17, 18, 18, 19, 16, // top
-    20, 21, 22, 22, 23, 20, // bottom
-];
+const INDICES: &[u16] = &[0, 1, 2];
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
@@ -203,36 +169,6 @@ impl State {
             uniform_bind_group,
             uniforms,
         }
-    }
-
-    pub fn update(&mut self, queue: &Queue) {
-        // self.rotation += 0.01;
-        // println!("{}", self.rotation);
-        // // let aspect_ratio = self.config.width as f32 / self.config.height as f32;
-        // let aspect_ratio = 1.0;
-
-        // // Projection matrix
-        // let proj = Mat4::perspective_rh(45.0f32.to_radians(), aspect_ratio, 0.1, 100.0);
-
-        // // View matrix
-        // let view = Mat4::look_at_rh(
-        //     Vec3::new(2.0, 2.0, 2.0), // Eye position
-        //     Vec3::ZERO,               // Look at point
-        //     Vec3::Y,                  // Up direction
-        // );
-
-        // // Model matrix (rotation around Y-axis)
-        // let model = Mat4::from_rotation_y(self.rotation);
-
-        // // Combine matrices
-        // let mvp = proj * view * model;
-
-        // // Update uniform buffer
-        // queue.write_buffer(
-        //     &self.uniform_buffer,
-        //     0,
-        //     bytemuck::cast_slice(&mvp.to_cols_array_2d()),
-        // );
     }
 
     pub fn render<'a>(&'a mut self, queue: &Queue, render_pass: &mut RenderPass<'a>) {
