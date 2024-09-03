@@ -69,6 +69,7 @@ impl<'a> App<'a> {
             self.config.height = size.height;
             self.surface.configure(&self.device, &self.config);
             self.cube.resize(size);
+            self.triangle.resize(size);
             self.gui.resize(size, self.window.scale_factor());
         }
     }
