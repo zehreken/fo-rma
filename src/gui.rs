@@ -6,6 +6,7 @@ use egui_winit::{
     State,
 };
 use wgpu::{CommandEncoder, Device, Queue};
+use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
 struct Test {
@@ -110,7 +111,12 @@ impl Gui {
         let _ = self.state.on_window_event(window, event);
     }
 
-    // resize
+    pub fn resize(&mut self, size: PhysicalSize<u32>, scale_factor: f64) {
+        self.screen_descriptor = ScreenDescriptor {
+            size_in_pixels: [size.width, size.height],
+            pixels_per_point: scale_factor as f32,
+        };
+    }
 
     // update scale factor
 

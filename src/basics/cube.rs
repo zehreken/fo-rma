@@ -1,5 +1,6 @@
 use glam::{Mat4, Vec3};
 use wgpu::{util::DeviceExt, Device, Queue, RenderPass, SurfaceConfiguration};
+use winit::dpi::PhysicalSize;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -247,5 +248,9 @@ impl State {
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
+    }
+
+    pub fn resize(&mut self, size: PhysicalSize<u32>) {
+        self.uniforms.update(size.width, size.height)
     }
 }
