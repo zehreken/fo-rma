@@ -33,8 +33,9 @@ impl Uniforms {
 
     pub fn update(&mut self, width: u32, height: u32) {
         let aspect = width as f32 / height as f32;
-        let proj = Mat4::orthographic_rh(-aspect, aspect, -1.0, 1.0, 0.1, 100.0);
-        let view = Mat4::look_at_rh(Vec3::new(10.0, 10.0, 10.0), Vec3::ZERO, Vec3::Y);
+        // let proj = Mat4::orthographic_rh(-aspect, aspect, -1.0, 1.0, 0.1, 100.0);
+        let proj = Mat4::perspective_rh(45.0f32.to_radians(), aspect, 0.1, 100.0);
+        let view = Mat4::look_at_rh(Vec3::new(1.0, 1.0, 1.0), Vec3::ZERO, Vec3::Y);
         let model = Mat4::from_rotation_y(std::f32::consts::FRAC_PI_4);
         self.model_view_proj = (proj * view * model).to_cols_array_2d();
     }

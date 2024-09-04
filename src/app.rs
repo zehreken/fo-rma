@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
-use wgpu::{SurfaceCapabilities, SurfaceError, TextureFormat};
+use glam::{vec3, Vec3};
+use wgpu::{util::DeviceExt, Device, SurfaceCapabilities, SurfaceError, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
@@ -10,7 +11,10 @@ use winit::{
 };
 
 use crate::{
-    basics::{cube, triangle},
+    basics::{
+        camera::{Camera, CameraUniform},
+        cube, triangle,
+    },
     gui, renderer,
 };
 
@@ -25,6 +29,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window,
     gui: gui::Gui,
+    camera: Camera,
     cube: cube::State,
     triangle: triangle::State,
 }
@@ -47,6 +52,7 @@ impl<'a> App<'a> {
         surface.configure(&device, &surface_config);
         let init = vec![0.0; 60];
         let gui = gui::Gui::new(window, &device, texture_format);
+        let camera = create_camera(size, &device);
         let cube = cube::State::new(&device, &surface_config);
         let triangle = triangle::State::new(&device, &surface_config);
         Self {
@@ -57,6 +63,7 @@ impl<'a> App<'a> {
             size,
             window: &window,
             gui,
+            camera,
             cube,
             triangle,
         }
@@ -277,6 +284,20 @@ fn create_window(size: Size, event_loop: &EventLoop<()>) -> winit::window::Windo
         .build(event_loop)
         .unwrap();
     window
+}
+
+fn create_camera(size: PhysicalSize<u32>, device: &Device) -> Camera {
+    let camera = Camera::new(
+        device,
+        vec3(0.0, 1.0, 2.0),
+        vec3(0.0, 0.0, 0.0),
+        size.width as f32 / size.height as f32,
+        45.0,
+        0.1,
+        100.0,
+    );
+
+    camera
 }
 
 pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
