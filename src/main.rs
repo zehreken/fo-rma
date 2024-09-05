@@ -1,6 +1,7 @@
 mod app;
 mod basics;
 mod gui;
+mod rend;
 mod renderer;
 
 fn main() {

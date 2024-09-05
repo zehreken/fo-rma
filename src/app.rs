@@ -15,7 +15,7 @@ use crate::{
         camera::{Camera, CameraUniform},
         cube, triangle,
     },
-    gui, renderer,
+    gui, rend, renderer,
 };
 
 pub struct App<'a> {
