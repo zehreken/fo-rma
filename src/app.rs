@@ -27,7 +27,7 @@ pub struct App<'a> {
     // The window must be declared after the surface so
     // it gets dropped after it as the surface contains
     // unsafe references to the window's resources.
-    window: &'a Window,
+    window: &'a Window, // this stays here but above goes to renderer
     gui: gui::Gui,
     camera: Camera,
     cube: cube::State,
