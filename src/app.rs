@@ -19,65 +19,68 @@ use crate::{
 };
 
 pub struct App<'a> {
-    surface: wgpu::Surface<'a>,
-    device: wgpu::Device,
-    queue: wgpu::Queue,
-    config: wgpu::SurfaceConfiguration,
+    // surface: wgpu::Surface<'a>,
+    // device: wgpu::Device,
+    // queue: wgpu::Queue,
+    // config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     // The window must be declared after the surface so
     // it gets dropped after it as the surface contains
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
-    gui: gui::Gui,
-    camera: Camera,
-    cube: cube::State,
-    triangle: triangle::State,
+    renderer: rend::Renderer<'a>,
+    // gui: gui::Gui,
+    // camera: Camera,
+    // cube: cube::State,
+    // triangle: triangle::State,
 }
 
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
-        let (instance, surface) = create_instance_and_surface(window);
-        let adapter = create_adapter(instance, &surface).await;
-        let (device, queue) = create_device_and_queue(&adapter).await;
+        // let (instance, surface) = create_instance_and_surface(window);
+        // let adapter = create_adapter(instance, &surface).await;
+        // let (device, queue) = create_device_and_queue(&adapter).await;
 
-        let surface_caps = surface.get_capabilities(&adapter);
-        let texture_format = surface_caps
-            .formats
-            .iter()
-            .copied()
-            .find(|f| f.is_srgb())
-            .unwrap_or(surface_caps.formats[0]);
-        let surface_config = create_surface_config(size, texture_format, surface_caps);
-        surface.configure(&device, &surface_config);
+        // let surface_caps = surface.get_capabilities(&adapter);
+        // let texture_format = surface_caps
+        //     .formats
+        //     .iter()
+        //     .copied()
+        //     .find(|f| f.is_srgb())
+        //     .unwrap_or(surface_caps.formats[0]);
+        // let surface_config = create_surface_config(size, texture_format, surface_caps);
+        // surface.configure(&device, &surface_config);
+        let renderer = rend::Renderer::new(window).await;
         let init = vec![0.0; 60];
-        let gui = gui::Gui::new(window, &device, texture_format);
-        let camera = create_camera(size, &device);
-        let cube = cube::State::new(&device, &surface_config);
-        let triangle = triangle::State::new(&device, &surface_config);
+        // let gui = gui::Gui::new(window, &device, texture_format);
+        // let camera = create_camera(size, &device);
+        // let cube = cube::State::new(&device, &surface_config);
+        // let triangle = triangle::State::new(&device, &surface_config);
         Self {
-            surface,
-            device,
-            queue,
-            config: surface_config,
+            // surface,
+            // device,
+            // queue,
+            // config: surface_config,
             size,
             window: &window,
-            gui,
-            camera,
-            cube,
-            triangle,
+            renderer,
+            // gui,
+            // camera,
+            // cube,
+            // triangle,
         }
     }
 
     fn resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.size = size;
-            self.config.width = size.width;
-            self.config.height = size.height;
-            self.surface.configure(&self.device, &self.config);
-            self.cube.resize(size);
-            self.triangle.resize(size);
-            self.gui.resize(size, self.window.scale_factor());
+            // self.config.width = size.width;
+            // self.config.height = size.height;
+            // self.surface.configure(&self.device, &self.config);
+            // self.cube.resize(size);
+            // self.triangle.resize(size);
+            // self.gui.resize(size, self.window.scale_factor());
         }
     }
 
@@ -85,11 +88,12 @@ impl<'a> App<'a> {
         todo!()
     }
 
-    fn update(&mut self) {
-        self.cube.update(&self.queue);
-    }
+    // fn update(&mut self) {
+    //     self.cube.update(&self.queue);
+    // }
 
     fn render(&mut self, fps: f32) -> Result<(), SurfaceError> {
+        /*
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
             Err(wgpu::SurfaceError::Outdated) => {
@@ -151,6 +155,8 @@ impl<'a> App<'a> {
         output_frame.present();
         self.window.request_redraw();
         Ok(())
+        */
+        Ok(())
     }
 
     fn render_ui(&mut self) {}
@@ -205,11 +211,12 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
             let fps = calculate_fps(&rolling_frame_times);
-            app.update();
-            let _ = app.render(fps);
+            // app.update();
+            // let _ = app.render(fps);
+            let _ = app.renderer.render();
         }
         Event::WindowEvent { event, .. } => {
-            app.gui.handle_event(&app.window, &event);
+            // app.gui.handle_event(&app.window, &event);
         }
         _ => {}
     });

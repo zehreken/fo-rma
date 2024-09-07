@@ -1,8 +1,9 @@
 use glam::Mat4;
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
-    BindGroup, Buffer, BufferUsages, Device, Queue, RenderPipeline, Surface, SurfaceCapabilities,
-    TextureFormat,
+    BindGroup, Buffer, BufferUsages, Color, CommandEncoderDescriptor, Device, LoadOp, Operations,
+    Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
+    SurfaceCapabilities, SurfaceError, TextureFormat, TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -22,7 +23,7 @@ impl Uniforms {
     }
 }
 
-struct Renderer<'a> {
+pub struct Renderer<'a> {
     surface: Surface<'a>,
     device: Device,
     queue: Queue,
@@ -46,6 +47,7 @@ impl<'a> Renderer<'a> {
             .find(|f| f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
         let surface_config = create_surface_config(size, texture_format, surface_caps);
+        surface.configure(&device, &surface_config);
         // uniform stuff =============
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("shader"),
@@ -146,8 +148,54 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render() {
-        todo!()
+    pub fn render(&mut self) -> Result<(), SurfaceError> {
+        let output_frame = match self.surface.get_current_texture() {
+            Ok(frame) => frame,
+            Err(SurfaceError::Outdated) => {
+                return Ok(());
+            }
+            Err(e) => {
+                return Err(e);
+            }
+        };
+
+        let output_view = output_frame
+            .texture
+            .create_view(&TextureViewDescriptor::default());
+
+        let mut encoder = self
+            .device
+            .create_command_encoder(&CommandEncoderDescriptor {
+                label: Some("renderer_encoder"),
+            });
+
+        let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
+            label: Some("render_pass"),
+            color_attachments: &[Some(RenderPassColorAttachment {
+                view: &output_view,
+                resolve_target: None,
+                ops: Operations {
+                    load: LoadOp::Clear(Color {
+                        r: 0.3,
+                        g: 0.3,
+                        b: 0.3,
+                        a: 1.0,
+                    }),
+                    store: StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
+        });
+
+        // render some meshes
+
+        drop(render_pass);
+
+        self.queue.submit(Some(encoder.finish()));
+        output_frame.present();
+        Ok(())
     }
 }
 
