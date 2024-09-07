@@ -1,143 +1,262 @@
+use glam::Mat4;
 use wgpu::{
-    util::BufferInitDescriptor, util::DeviceExt, BindGroup, BindGroupDescriptor, BindGroupEntry,
-    BindGroupLayoutDescriptor, BindGroupLayoutEntry, Buffer, BufferBindingType, BufferUsages,
-    Device, Queue, RenderPipeline, ShaderStages, SurfaceConfiguration, TextureView,
+    util::{BufferInitDescriptor, DeviceExt},
+    BindGroup, Buffer, BufferUsages, Color, CommandEncoderDescriptor, Device, LoadOp, Operations,
+    Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
+    SurfaceCapabilities, SurfaceError, TextureFormat, TextureViewDescriptor,
 };
+use winit::{dpi::PhysicalSize, window::Window};
+
+use crate::basics::{core::Vertex, triangle};
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, Default, bytemuck::Zeroable, bytemuck::Pod)]
-pub struct Uniforms {
-    pub time: f32,
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+struct Uniforms {
+    view_proj: [[f32; 4]; 4],
 }
 
 impl Uniforms {
-    fn as_bytes(&self) -> &[u8] {
-        bytemuck::bytes_of(self)
+    pub fn new() -> Self {
+        Self {
+            view_proj: Mat4::IDENTITY.to_cols_array_2d(),
+        }
     }
 }
 
-pub struct Renderer {
+pub struct Renderer<'a> {
+    surface: Surface<'a>,
+    pub device: Device,
+    queue: Queue,
     uniforms: Uniforms,
-    uniforms_buffer: Buffer,
-    uniforms_bind_group: BindGroup,
+    uniform_buffer: Buffer,
+    uniform_bind_group: BindGroup,
     render_pipeline: RenderPipeline,
 }
 
-impl Renderer {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let uniforms = Uniforms::default();
-        let uniforms_buffer = device.create_buffer_init(&BufferInitDescriptor {
-            label: None,
-            contents: uniforms.as_bytes(),
+impl<'a> Renderer<'a> {
+    pub async fn new(window: &'a Window) -> Self {
+        let size = window.inner_size();
+        let (instance, surface) = create_instance_and_surface(window);
+        let adapter = create_adapter(instance, &surface).await;
+        let (device, queue) = create_device_and_queue(&adapter).await;
+        let surface_caps = surface.get_capabilities(&adapter);
+        let texture_format = surface_caps
+            .formats
+            .iter()
+            .copied()
+            .find(|f| f.is_srgb())
+            .unwrap_or(surface_caps.formats[0]);
+        let surface_config = create_surface_config(size, texture_format, surface_caps);
+        surface.configure(&device, &surface_config);
+        // uniform stuff =============
+        let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/cube.wgsl").into()),
+        });
+        let uniforms = Uniforms::new();
+        let uniform_buffer = device.create_buffer_init(&BufferInitDescriptor {
+            label: Some("uniform_buffer"),
+            contents: bytemuck::cast_slice(&[uniforms]),
             usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
         });
-
-        let uniforms_buffer_layout = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            label: None,
-            entries: &[BindGroupLayoutEntry {
+        let uniform_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+                label: Some("uniform_bind_group_layout"),
+            });
+        let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &uniform_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                visibility: ShaderStages::FRAGMENT,
-                count: None,
-                ty: wgpu::BindingType::Buffer {
-                    ty: BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
+                resource: uniform_buffer.as_entire_binding(),
             }],
+            label: Some("uniform_bind_group"),
         });
-
-        let uniforms_bind_group = device.create_bind_group(&BindGroupDescriptor {
-            label: None,
-            layout: &uniforms_buffer_layout,
-            entries: &[BindGroupEntry {
-                binding: 0,
-                resource: uniforms_buffer.as_entire_binding(),
-            }],
-        });
-
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("render pipeline layout"),
-                bind_group_layouts: &[&uniforms_buffer_layout],
+                label: Some("render_pipeline_layout"),
+                bind_group_layouts: &[&uniform_bind_group_layout],
                 push_constant_ranges: &[],
             });
-
-        let vertex_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("vertex shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/six_vertex.wgsl").into()),
-        });
-        let fragment_shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("fragment shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/rt2.wgsl").into()),
-        });
-
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("render pipeline"),
+            label: Some("render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
-                module: &vertex_shader_module,
+                module: &shader_module,
                 entry_point: "vs_main",
-                buffers: &[],
+                buffers: &[wgpu::VertexBufferLayout {
+                    array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+                    step_mode: wgpu::VertexStepMode::Vertex,
+                    attributes: &[
+                        wgpu::VertexAttribute {
+                            offset: 0,
+                            shader_location: 0,
+                            format: wgpu::VertexFormat::Float32x3,
+                        },
+                        wgpu::VertexAttribute {
+                            offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                            shader_location: 1,
+                            format: wgpu::VertexFormat::Float32x3,
+                        },
+                    ],
+                }],
             },
             fragment: Some(wgpu::FragmentState {
-                // 3.
-                module: &fragment_shader_module,
+                module: &shader_module,
                 entry_point: "fs_main",
                 targets: &[Some(wgpu::ColorTargetState {
-                    // 4.
                     format: surface_config.format,
                     blend: Some(wgpu::BlendState::REPLACE),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
             }),
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: None, // 1.
-            multisample: wgpu::MultisampleState {
-                count: 1,                         // 2.
-                mask: !0,                         // 3.
-                alpha_to_coverage_enabled: false, // 4.
+            primitive: wgpu::PrimitiveState {
+                topology: wgpu::PrimitiveTopology::TriangleList,
+                strip_index_format: None,
+                front_face: wgpu::FrontFace::Ccw,
+                cull_mode: Some(wgpu::Face::Back),
+                polygon_mode: wgpu::PolygonMode::Fill,
+                unclipped_depth: false,
+                conservative: false,
             },
-            multiview: None, // 5.
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState {
+                count: 1,
+                mask: !0,
+                alpha_to_coverage_enabled: false,
+            },
+            multiview: None,
         });
-
+        // ===========================
         Self {
+            surface,
+            device,
+            queue,
             uniforms,
-            uniforms_buffer,
-            uniforms_bind_group,
+            uniform_buffer,
+            uniform_bind_group,
             render_pipeline,
         }
     }
 
-    pub fn render(&mut self, device: &Device, queue: &Queue, view: &TextureView, time: f32) {
-        self.uniforms.time = time;
+    pub fn render(&mut self, triangle: &triangle::State) -> Result<(), SurfaceError> {
+        let output_frame = match self.surface.get_current_texture() {
+            Ok(frame) => frame,
+            Err(SurfaceError::Outdated) => {
+                return Ok(());
+            }
+            Err(e) => {
+                return Err(e);
+            }
+        };
 
-        queue.write_buffer(&self.uniforms_buffer, 0, self.uniforms.as_bytes());
-        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("renderer encoder"),
-        });
-        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("Render Pass"),
-            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                view,
+        let output_view = output_frame
+            .texture
+            .create_view(&TextureViewDescriptor::default());
+
+        let mut encoder = self
+            .device
+            .create_command_encoder(&CommandEncoderDescriptor {
+                label: Some("renderer_encoder"),
+            });
+
+        let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
+            label: Some("render_pass"),
+            color_attachments: &[Some(RenderPassColorAttachment {
+                view: &output_view,
                 resolve_target: None,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: 1.0,
-                        g: 0.0,
-                        b: 0.03,
+                ops: Operations {
+                    load: LoadOp::Clear(Color {
+                        r: 0.3,
+                        g: 0.3,
+                        b: 0.3,
                         a: 1.0,
                     }),
-                    store: wgpu::StoreOp::Store,
+                    store: StoreOp::Store,
                 },
             })],
             depth_stencil_attachment: None,
             timestamp_writes: None,
             occlusion_query_set: None,
         });
+
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_bind_group(0, &self.uniforms_bind_group, &[]);
-        render_pass.draw(0..6, 0..1);
+        render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
+        // render some meshes
+        triangle.draw(&mut render_pass);
+
         drop(render_pass);
-        queue.submit(Some(encoder.finish()));
-    } // pass a list of objects
+
+        self.queue.submit(Some(encoder.finish()));
+        output_frame.present();
+        Ok(())
+    }
+}
+
+fn create_instance_and_surface(
+    window: &winit::window::Window,
+) -> (wgpu::Instance, wgpu::Surface<'static>) {
+    let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        backends: wgpu::Backends::PRIMARY,
+        ..Default::default()
+    });
+    let surface = unsafe {
+        instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::from_window(window).unwrap())
+    }
+    .unwrap();
+    (instance, surface)
+}
+
+async fn create_adapter(instance: wgpu::Instance, surface: &wgpu::Surface<'_>) -> wgpu::Adapter {
+    let adapter = instance
+        .request_adapter(&wgpu::RequestAdapterOptions {
+            power_preference: wgpu::PowerPreference::default(),
+            compatible_surface: Some(surface),
+            force_fallback_adapter: false,
+        })
+        .await
+        .unwrap();
+    adapter
+}
+
+async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) {
+    let (device, queue) = adapter
+        .request_device(
+            &wgpu::DeviceDescriptor {
+                required_features: wgpu::Features::default(),
+                required_limits: wgpu::Limits::default(),
+                label: None,
+            },
+            None,
+        )
+        .await
+        .unwrap();
+    (device, queue)
+}
+
+fn create_surface_config(
+    size: PhysicalSize<u32>,
+    texture_format: TextureFormat,
+    surface_caps: SurfaceCapabilities,
+) -> wgpu::SurfaceConfiguration {
+    let surface_config = wgpu::SurfaceConfiguration {
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+        format: texture_format,
+        width: size.width,
+        height: size.height,
+        present_mode: surface_caps.present_modes[0],
+        alpha_mode: surface_caps.alpha_modes[0],
+        view_formats: vec![],
+        desired_maximum_frame_latency: 2,
+    };
+    surface_config
 }

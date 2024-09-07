@@ -15,7 +15,7 @@ use crate::{
         camera::{Camera, CameraUniform},
         cube, triangle,
     },
-    gui, rend, renderer,
+    gui, renderer,
 };
 
 pub struct App<'a> {
@@ -28,11 +28,11 @@ pub struct App<'a> {
     // it gets dropped after it as the surface contains
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
-    renderer: rend::Renderer<'a>,
+    renderer: renderer::Renderer<'a>,
     // gui: gui::Gui,
     // camera: Camera,
     // cube: cube::State,
-    // triangle: triangle::State,
+    triangle: triangle::State,
 }
 
 impl<'a> App<'a> {
@@ -51,12 +51,12 @@ impl<'a> App<'a> {
         //     .unwrap_or(surface_caps.formats[0]);
         // let surface_config = create_surface_config(size, texture_format, surface_caps);
         // surface.configure(&device, &surface_config);
-        let renderer = rend::Renderer::new(window).await;
+        let renderer = renderer::Renderer::new(window).await;
         let init = vec![0.0; 60];
         // let gui = gui::Gui::new(window, &device, texture_format);
         // let camera = create_camera(size, &device);
         // let cube = cube::State::new(&device, &surface_config);
-        // let triangle = triangle::State::new(&device, &surface_config);
+        let triangle = triangle::State::new(&renderer.device);
         Self {
             // surface,
             // device,
@@ -68,7 +68,7 @@ impl<'a> App<'a> {
             // gui,
             // camera,
             // cube,
-            // triangle,
+            triangle,
         }
     }
 
@@ -213,7 +213,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             let fps = calculate_fps(&rolling_frame_times);
             // app.update();
             // let _ = app.render(fps);
-            let _ = app.renderer.render();
+            let _ = app.renderer.render(&app.triangle);
         }
         Event::WindowEvent { event, .. } => {
             // app.gui.handle_event(&app.window, &event);
