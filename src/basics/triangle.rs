@@ -15,7 +15,8 @@ const VERTICES: &[Vertex] = &[
     Vertex { position: [ 0.5,  -0.5,  0.0], color: [ 0.0,  1.0,  1.0] },
 ];
 
-const INDICES: &[u16] = &[0, 1, 2];
+// Double faced triangle
+const INDICES: &[u16] = &[0, 1, 2, 0, 2, 1];
 
 pub struct State {
     vertex_buffer: wgpu::Buffer,

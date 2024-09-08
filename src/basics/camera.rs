@@ -49,12 +49,8 @@ impl Camera {
         // Mat4::IDENTITY.to_cols_array_2d()
     }
 
-    pub fn update(&mut self, v: f32) {
-        self.eye = Vec3 {
-            x: 0.0,
-            y: 1.0,
-            z: v,
-        };
+    pub fn update_position(&mut self, position: Vec3) {
+        self.eye = position;
         self.build_view_projection_matrix();
     }
 }

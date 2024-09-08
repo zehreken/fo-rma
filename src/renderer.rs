@@ -188,8 +188,9 @@ impl<'a> Renderer<'a> {
             occlusion_query_set: None,
         });
 
+        let elapsed = self.start_time.elapsed().as_secs_f32();
         self.camera
-            .update(12.0 + 10.0 * self.start_time.elapsed().as_secs_f32().sin());
+            .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
         self.queue.write_buffer(
             &self.camera_buffer,
             0,
