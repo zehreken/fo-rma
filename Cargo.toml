@@ -17,6 +17,7 @@ bytemuck = { version = "1.12", features = ["derive"] }
 egui-wgpu = "0.27"
 egui-winit = "0.27"
 glam = "0.29"
+cpal = "0.15"
 
 image = "0.25.0"
 rand = "0.8.4"
