@@ -211,7 +211,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             let fps = calculate_fps(&rolling_frame_times);
             // app.update();
             // let _ = app.render(fps);
-            let _ = app.renderer.render(&app.triangle);
+            let _ = app.renderer.render(&app.window, &app.triangle);
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {

@@ -6,16 +6,20 @@ use wgpu::{
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
-use crate::basics::{
-    camera::{self, Camera},
-    core::Vertex,
-    triangle,
+use crate::{
+    basics::{
+        camera::{self, Camera},
+        core::Vertex,
+        triangle,
+    },
+    gui::Gui,
 };
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
     pub device: Device,
     queue: Queue,
+    gui: Gui,
     camera: Camera,
     camera_buffer: Buffer,
     camera_bind_group: BindGroup,
@@ -47,6 +51,7 @@ impl<'a> Renderer<'a> {
             0.1,
             100.0,
         );
+        let gui = Gui::new(&window, &device, texture_format);
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("camera_buffer"),
             contents: bytemuck::cast_slice(&[camera.update_view_proj()]),
@@ -139,6 +144,7 @@ impl<'a> Renderer<'a> {
             surface,
             device,
             queue,
+            gui,
             camera,
             camera_buffer,
             camera_bind_group,
@@ -147,7 +153,11 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render(&mut self, triangle: &triangle::State) -> Result<(), SurfaceError> {
+    pub fn render(
+        &mut self,
+        window: &Window,
+        triangle: &triangle::State,
+    ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
             Err(SurfaceError::Outdated) => {
@@ -203,6 +213,23 @@ impl<'a> Renderer<'a> {
         triangle.draw(&mut render_pass);
 
         drop(render_pass);
+        self.queue.submit(Some(encoder.finish()));
+        // =================
+        // render gui on top
+        let mut encoder = self
+            .device
+            .create_command_encoder(&CommandEncoderDescriptor {
+                label: Some("gui_encoder"),
+            });
+        self.gui.render(
+            &window,
+            &output_view,
+            &self.device,
+            &self.queue,
+            &mut encoder,
+            0.0,
+        );
+        // =====================
 
         self.queue.submit(Some(encoder.finish()));
         output_frame.present();
