@@ -72,11 +72,12 @@ impl<'a> App<'a> {
     fn resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.size = size;
+            self.renderer.resize(size, self.window.scale_factor());
             // self.config.width = size.width;
             // self.config.height = size.height;
             // self.surface.configure(&self.device, &self.config);
             // self.cube.resize(size);
-            // self.triangle.resize(size);
+            self.triangle.resize(size);
             // self.gui.resize(size, self.window.scale_factor());
         }
     }

@@ -2,7 +2,8 @@ use glam::vec3;
 use wgpu::{
     util::DeviceExt, BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp,
     Operations, Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp,
-    Surface, SurfaceCapabilities, SurfaceError, TextureFormat, TextureViewDescriptor,
+    Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat,
+    TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -19,6 +20,7 @@ pub struct Renderer<'a> {
     surface: Surface<'a>,
     pub device: Device,
     queue: Queue,
+    surface_config: SurfaceConfiguration,
     gui: Gui,
     camera: Camera,
     camera_buffer: Buffer,
@@ -144,6 +146,7 @@ impl<'a> Renderer<'a> {
             surface,
             device,
             queue,
+            surface_config,
             gui,
             camera,
             camera_buffer,
@@ -215,12 +218,8 @@ impl<'a> Renderer<'a> {
         drop(render_pass); // also releases encoder
 
         // =================
+
         // render gui on top
-        // let mut encoder = self
-        //     .device
-        //     .create_command_encoder(&CommandEncoderDescriptor {
-        //         label: Some("gui_encoder"),
-        //     });
         self.gui.render(
             &window,
             &output_view,
@@ -234,6 +233,13 @@ impl<'a> Renderer<'a> {
         self.queue.submit(Some(encoder.finish()));
         output_frame.present();
         Ok(())
+    }
+
+    pub fn resize(&mut self, size: PhysicalSize<u32>, scale_factor: f64) {
+        self.surface_config.width = size.width;
+        self.surface_config.height = size.height;
+        self.surface.configure(&self.device, &self.surface_config);
+        self.gui.resize(size, scale_factor)
     }
 }
 
