@@ -212,15 +212,15 @@ impl<'a> Renderer<'a> {
         // render some meshes
         triangle.draw(&mut render_pass);
 
-        drop(render_pass);
-        self.queue.submit(Some(encoder.finish()));
+        drop(render_pass); // also releases encoder
+
         // =================
         // render gui on top
-        let mut encoder = self
-            .device
-            .create_command_encoder(&CommandEncoderDescriptor {
-                label: Some("gui_encoder"),
-            });
+        // let mut encoder = self
+        //     .device
+        //     .create_command_encoder(&CommandEncoderDescriptor {
+        //         label: Some("gui_encoder"),
+        //     });
         self.gui.render(
             &window,
             &output_view,
