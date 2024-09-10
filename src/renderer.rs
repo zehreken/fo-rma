@@ -21,7 +21,7 @@ pub struct Renderer<'a> {
     pub device: Device,
     queue: Queue,
     surface_config: SurfaceConfiguration,
-    gui: Gui,
+    pub gui: Gui,
     camera: Camera,
     camera_buffer: Buffer,
     camera_bind_group: BindGroup,

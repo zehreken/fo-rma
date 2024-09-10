@@ -216,7 +216,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
-            // app.gui.handle_event(&app.window, &event);
+            app.renderer.gui.handle_event(&app.window, &event);
         }
         _ => {}
     });
