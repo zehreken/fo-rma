@@ -1,12 +1,6 @@
+use super::core::Vertex;
 use wgpu::{util::DeviceExt, Device, RenderPass};
 use winit::dpi::PhysicalSize;
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-struct Vertex {
-    position: [f32; 3],
-    color: [f32; 3],
-}
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[

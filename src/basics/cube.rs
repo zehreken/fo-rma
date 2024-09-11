@@ -1,46 +1,40 @@
+use super::core::Vertex;
 use glam::{Mat4, Vec3};
 use wgpu::{util::DeviceExt, Device, Queue, RenderPass, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-struct Vertex {
-    position: [f32; 3],
-    normal: [f32; 3],
-}
-
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
     // Front face
-    Vertex { position: [-0.5, -0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], normal: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.0,  0.0,  1.0] },
     // Back face
-    Vertex { position: [-0.5, -0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [ 0.5, -0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [-0.5,  0.5, -0.5], normal: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.0,  0.0, -1.0] },
     // Right face
-    Vertex { position: [ 0.5, -0.5, -0.5], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], normal: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 1.0,  0.0,  0.0] },
     // Left face
-    Vertex { position: [-0.5, -0.5, -0.5], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5,  0.5, -0.5], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5, -0.5,  0.5], normal: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [-1.0,  0.0,  0.0] },
     // Top face
-    Vertex { position: [-0.5,  0.5, -0.5], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], normal: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.0,  1.0,  0.0] },
     // Bottom face
-    Vertex { position: [-0.5, -0.5, -0.5], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5, -0.5], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [-0.5, -0.5,  0.5], normal: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.0, -1.0,  0.0] },
 ];
 
 const INDICES: &[u16] = &[
