@@ -160,6 +160,7 @@ impl<'a> Renderer<'a> {
         &mut self,
         window: &Window,
         triangle: &triangle::State,
+        fps: f32,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
@@ -226,7 +227,7 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &mut encoder,
-            0.0,
+            fps,
         );
         // =====================
 

@@ -1,7 +1,6 @@
 use std::collections::VecDeque;
 
-use glam::{vec3, Vec3};
-use wgpu::{util::DeviceExt, Device, SurfaceCapabilities, SurfaceError, TextureFormat};
+use wgpu::{SurfaceCapabilities, SurfaceError, TextureFormat};
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
@@ -11,11 +10,8 @@ use winit::{
 };
 
 use crate::{
-    basics::{
-        camera::{Camera, CameraUniform},
-        cube, triangle,
-    },
-    gui, renderer,
+    basics::{cube, triangle},
+    renderer,
 };
 
 pub struct App<'a> {
@@ -157,8 +153,6 @@ impl<'a> App<'a> {
         */
         Ok(())
     }
-
-    fn render_ui(&mut self) {}
 }
 
 pub async fn start() {
@@ -212,7 +206,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             let fps = calculate_fps(&rolling_frame_times);
             // app.update();
             // let _ = app.render(fps);
-            let _ = app.renderer.render(&app.window, &app.triangle);
+            let _ = app.renderer.render(&app.window, &app.triangle, fps);
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
