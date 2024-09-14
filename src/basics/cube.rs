@@ -1,5 +1,5 @@
 use super::core::Vertex;
-use wgpu::{util::DeviceExt, Device, SurfaceConfiguration};
+use wgpu::{util::DeviceExt, Device, RenderPass, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 
 #[rustfmt::skip]
@@ -52,7 +52,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+    pub fn new(device: &Device) -> Self {
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("vertex_buffer"),
             contents: bytemuck::cast_slice(VERTICES),
@@ -72,6 +72,12 @@ impl State {
             index_buffer,
             num_indices,
         }
+    }
+
+    pub fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>) {
+        render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+        render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+        render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {}

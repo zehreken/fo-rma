@@ -20,7 +20,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
-    // cube: cube::State,
+    cube: cube::State,
     triangle: triangle::State,
 }
 
@@ -28,15 +28,15 @@ impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
-        let init = vec![0.0; 60];
+        // let init = vec![0.0; 60];
 
-        // let cube = cube::State::new(&device, &surface_config);
+        let cube = cube::State::new(&renderer.device);
         let triangle = triangle::State::new(&renderer.device);
         Self {
             size,
             window: &window,
             renderer,
-            // cube,
+            cube,
             triangle,
         }
     }
@@ -45,7 +45,7 @@ impl<'a> App<'a> {
         if size.width > 0 && size.height > 0 {
             self.size = size;
             self.renderer.resize(size, self.window.scale_factor());
-            // self.cube.resize(size);
+            self.cube.resize(size);
             self.triangle.resize(size);
         }
     }
@@ -55,7 +55,6 @@ impl<'a> App<'a> {
     }
 
     fn update(&mut self) {
-        // self.cube.update(&self.queue);
         // self.camera.update();
     }
 }
@@ -109,7 +108,9 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
             let fps = calculate_fps(&rolling_frame_times);
-            let _ = app.renderer.render(&app.window, &app.triangle, fps);
+            let _ = app
+                .renderer
+                .render(&app.window, &app.cube, &app.triangle, fps);
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
