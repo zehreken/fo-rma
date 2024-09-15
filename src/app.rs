@@ -9,7 +9,7 @@ use winit::{
 };
 
 use crate::{
-    basics::{cube, triangle},
+    basics::{cube, quad, triangle},
     renderer,
 };
 
@@ -20,6 +20,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
+    quad: quad::State,
     cube: cube::State,
     triangle: triangle::State,
 }
@@ -30,12 +31,14 @@ impl<'a> App<'a> {
         let renderer = renderer::Renderer::new(window).await;
         // let init = vec![0.0; 60];
 
+        let quad = quad::State::new(&renderer.device);
         let cube = cube::State::new(&renderer.device);
         let triangle = triangle::State::new(&renderer.device);
         Self {
             size,
             window: &window,
             renderer,
+            quad,
             cube,
             triangle,
         }
@@ -45,6 +48,7 @@ impl<'a> App<'a> {
         if size.width > 0 && size.height > 0 {
             self.size = size;
             self.renderer.resize(size, self.window.scale_factor());
+            self.quad.resize(size);
             self.cube.resize(size);
             self.triangle.resize(size);
         }
@@ -110,7 +114,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             let fps = calculate_fps(&rolling_frame_times);
             let _ = app
                 .renderer
-                .render(&app.window, &app.cube, &app.triangle, fps);
+                .render(&app.window, &app.quad, &app.cube, &app.triangle, fps);
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {

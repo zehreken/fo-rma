@@ -11,7 +11,7 @@ use crate::{
     basics::{
         camera::{self, Camera},
         core::Vertex,
-        cube, triangle,
+        cube, quad, triangle,
     },
     gui::Gui,
 };
@@ -159,6 +159,7 @@ impl<'a> Renderer<'a> {
     pub fn render(
         &mut self,
         window: &Window,
+        quad: &quad::State,
         cube: &cube::State,
         triangle: &triangle::State,
         fps: f32,
@@ -215,7 +216,8 @@ impl<'a> Renderer<'a> {
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         // render some meshes
-        cube.draw(&mut render_pass);
+        quad.draw(&mut render_pass);
+        // cube.draw(&mut render_pass);
         triangle.draw(&mut render_pass);
 
         drop(render_pass); // also releases encoder
