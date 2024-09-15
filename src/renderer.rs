@@ -84,7 +84,7 @@ impl<'a> Renderer<'a> {
         // ===================
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/cube.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
         });
 
         let render_pipeline_layout =

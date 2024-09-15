@@ -46,7 +46,6 @@ impl Camera {
     pub fn update_view_proj(&mut self) -> [[f32; 4]; 4] {
         self.uniform.view_proj = self.build_view_projection_matrix().to_cols_array_2d();
         self.uniform.view_proj
-        // Mat4::IDENTITY.to_cols_array_2d()
     }
 
     pub fn update_position(&mut self, position: Vec3) {
