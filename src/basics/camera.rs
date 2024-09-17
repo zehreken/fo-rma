@@ -8,15 +8,13 @@ pub struct Camera {
     pub fov_y: f32,
     pub z_near: f32,
     pub z_far: f32,
-    pub uniform: CameraUniform,
 }
 
 impl Camera {
     pub fn new(eye: Vec3, target: Vec3, aspect: f32, fov_y: f32, z_near: f32, z_far: f32) -> Self {
         let up = Vec3::Y;
-        let uniform = CameraUniform::new();
 
-        let mut camera = Camera {
+        let camera = Camera {
             eye,
             target,
             up,
@@ -24,14 +22,12 @@ impl Camera {
             fov_y,
             z_near,
             z_far,
-            uniform,
         };
-        camera.update_view_proj();
 
         camera
     }
 
-    fn build_view_projection_matrix(&self) -> Mat4 {
+    pub fn build_view_projection_matrix(&self) -> [[f32; 4]; 4] {
         let view = Mat4::look_at_rh(self.eye, self.target, self.up);
         let proj = Mat4::perspective_rh(
             self.fov_y.to_radians(),
@@ -40,30 +36,10 @@ impl Camera {
             self.z_far,
         );
 
-        return proj * view;
-    }
-
-    pub fn update_view_proj(&mut self) -> [[f32; 4]; 4] {
-        self.uniform.view_proj = self.build_view_projection_matrix().to_cols_array_2d();
-        self.uniform.view_proj
+        return (proj * view).to_cols_array_2d();
     }
 
     pub fn update_position(&mut self, position: Vec3) {
         self.eye = position;
-        self.build_view_projection_matrix();
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct CameraUniform {
-    view_proj: [[f32; 4]; 4],
-}
-
-impl CameraUniform {
-    pub fn new() -> Self {
-        Self {
-            view_proj: Mat4::IDENTITY.to_cols_array_2d(),
-        }
     }
 }

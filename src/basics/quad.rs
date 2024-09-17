@@ -1,4 +1,5 @@
 use super::core::Vertex;
+use glam::{Mat4, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 use winit::dpi::PhysicalSize;
 
@@ -19,6 +20,8 @@ pub struct State {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
     num_indices: u32,
+    position: Vec3,
+    model_matrix: [[f32; 4]; 4],
 }
 
 impl State {
@@ -41,6 +44,8 @@ impl State {
             vertex_buffer,
             index_buffer,
             num_indices,
+            position: Vec3::ZERO,
+            model_matrix: Mat4::IDENTITY.to_cols_array_2d(),
         }
     }
 
@@ -48,6 +53,11 @@ impl State {
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
+    }
+
+    pub fn update(&mut self) {
+        self.position.z += 0.01;
+        self.model_matrix = Mat4::from_translation(self.position).to_cols_array_2d();
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {}

@@ -10,7 +10,7 @@ use winit::{dpi::PhysicalSize, window::Window};
 use crate::{
     basics::{
         camera::{self, Camera},
-        core::Vertex,
+        core::{Uniforms, Vertex},
         cube, quad, triangle,
     },
     gui::Gui,
@@ -23,8 +23,9 @@ pub struct Renderer<'a> {
     surface_config: SurfaceConfiguration,
     pub gui: Gui,
     camera: Camera,
-    camera_buffer: Buffer,
-    camera_bind_group: BindGroup,
+    uniforms: Uniforms,
+    uniform_buffer: Buffer,
+    uniform_bind_group: BindGroup,
     render_pipeline: RenderPipeline,
     start_time: std::time::Instant,
 }
@@ -45,7 +46,7 @@ impl<'a> Renderer<'a> {
         let surface_config = create_surface_config(size, texture_format, surface_caps);
         surface.configure(&device, &surface_config);
         // camera ============
-        let mut camera = camera::Camera::new(
+        let camera = camera::Camera::new(
             vec3(0.0, 0.0, 2.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
@@ -54,12 +55,13 @@ impl<'a> Renderer<'a> {
             100.0,
         );
         let gui = Gui::new(&window, &device, texture_format);
-        let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("camera_buffer"),
-            contents: bytemuck::cast_slice(&[camera.update_view_proj()]),
+        let uniforms = Uniforms::new();
+        let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("uniform_buffer"),
+            contents: bytemuck::cast_slice(&[uniforms]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
-        let camera_bind_group_layout =
+        let uniform_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
@@ -71,15 +73,15 @@ impl<'a> Renderer<'a> {
                     },
                     count: None,
                 }],
-                label: Some("camera_bind_group_layout"),
+                label: Some("uniform_bind_group_layout"),
             });
-        let camera_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &camera_bind_group_layout,
+        let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &uniform_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: camera_buffer.as_entire_binding(),
+                resource: uniform_buffer.as_entire_binding(),
             }],
-            label: Some("camera_bind_group"),
+            label: Some("uniform_bind_group"),
         });
         // ===================
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -90,7 +92,7 @@ impl<'a> Renderer<'a> {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[&camera_bind_group_layout],
+                bind_group_layouts: &[&uniform_bind_group_layout],
                 push_constant_ranges: &[],
             });
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -149,8 +151,9 @@ impl<'a> Renderer<'a> {
             surface_config,
             gui,
             camera,
-            camera_buffer,
-            camera_bind_group,
+            uniforms,
+            uniform_buffer,
+            uniform_bind_group,
             render_pipeline,
             start_time: std::time::Instant::now(),
         }
@@ -207,14 +210,16 @@ impl<'a> Renderer<'a> {
         let elapsed = self.start_time.elapsed().as_secs_f32();
         self.camera
             .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
+        self.uniforms.view_proj = self.camera.build_view_projection_matrix();
+        self.uniforms.model = triangle.model_matrix;
         self.queue.write_buffer(
-            &self.camera_buffer,
+            &self.uniform_buffer,
             0,
-            bytemuck::cast_slice(&self.camera.update_view_proj()),
+            bytemuck::cast_slice(&[self.uniforms]),
         );
 
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
+        render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
         // render some meshes
         quad.draw(&mut render_pass);
         // cube.draw(&mut render_pass);

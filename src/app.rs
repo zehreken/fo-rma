@@ -112,6 +112,8 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(frame_time.as_secs_f32());
             let fps = calculate_fps(&rolling_frame_times);
+            app.quad.update();
+            app.triangle.update();
             let _ = app
                 .renderer
                 .render(&app.window, &app.quad, &app.cube, &app.triangle, fps);
