@@ -27,7 +27,6 @@ pub struct Renderer<'a> {
     uniform_buffer: Buffer,
     uniform_bind_group: BindGroup,
     render_pipeline: RenderPipeline,
-    start_time: std::time::Instant,
 }
 
 impl<'a> Renderer<'a> {
@@ -155,7 +154,6 @@ impl<'a> Renderer<'a> {
             uniform_buffer,
             uniform_bind_group,
             render_pipeline,
-            start_time: std::time::Instant::now(),
         }
     }
 
@@ -165,6 +163,8 @@ impl<'a> Renderer<'a> {
         quad: &quad::State,
         cube: &cube::State,
         triangle: &triangle::State,
+        elapsed: f32,
+        delta_time: f32,
         fps: f32,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
@@ -207,7 +207,6 @@ impl<'a> Renderer<'a> {
             occlusion_query_set: None,
         });
 
-        let elapsed = self.start_time.elapsed().as_secs_f32();
         self.camera
             .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
         self.uniforms.view_proj = self.camera.build_view_projection_matrix();

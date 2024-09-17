@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, time};
 
 use winit::{
     dpi::{PhysicalSize, Size},
@@ -79,6 +79,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
     let init = [0.0; 60];
     let mut rolling_frame_times = VecDeque::from(init);
     let mut earlier = std::time::Instant::now();
+    let mut elapsed: f32 = 0.0;
 
     let r = event_loop.run(move |event, elwt| match event {
         Event::WindowEvent {
@@ -107,16 +108,25 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             event: WindowEvent::RedrawRequested,
             ..
         } => {
-            let frame_time = std::time::Instant::now().duration_since(earlier);
+            let frame_time = std::time::Instant::now()
+                .duration_since(earlier)
+                .as_secs_f32();
+            elapsed += frame_time;
             earlier = std::time::Instant::now();
             rolling_frame_times.pop_front();
-            rolling_frame_times.push_back(frame_time.as_secs_f32());
+            rolling_frame_times.push_back(frame_time);
             let fps = calculate_fps(&rolling_frame_times);
             app.quad.update();
             app.triangle.update();
-            let _ = app
-                .renderer
-                .render(&app.window, &app.quad, &app.cube, &app.triangle, fps);
+            let _ = app.renderer.render(
+                &app.window,
+                &app.quad,
+                &app.cube,
+                &app.triangle,
+                elapsed,
+                frame_time,
+                fps,
+            );
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
