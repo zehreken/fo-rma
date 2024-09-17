@@ -1,5 +1,5 @@
-use super::core::Vertex;
-use glam::{Mat4, Vec3};
+use super::core::{Transform, Vertex};
+use glam::{EulerRot, Mat4, Quat};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 use winit::dpi::PhysicalSize;
 
@@ -17,7 +17,7 @@ pub struct State {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
     num_indices: u32,
-    position: Vec3,
+    transform: Transform,
     pub model_matrix: [[f32; 4]; 4],
 }
 
@@ -41,7 +41,7 @@ impl State {
             vertex_buffer,
             index_buffer,
             num_indices,
-            position: Vec3::ZERO,
+            transform: Transform::new(),
             model_matrix: Mat4::IDENTITY.to_cols_array_2d(),
         }
     }
@@ -52,10 +52,21 @@ impl State {
         render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
     }
 
-    pub fn update(&mut self) {
-        self.position.y += 0.0001;
-        self.model_matrix = Mat4::from_translation(self.position).to_cols_array_2d();
+    pub fn update(&mut self, delta_time: f32) {
+        let mut rotation = self.transform.rotation.to_euler(glam::EulerRot::XYZ);
+        rotation.0 += delta_time * 2.0;
+        self.transform.rotation =
+            Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
+
+        self.model_matrix = Mat4::from_scale_rotation_translation(
+            self.transform.scale,
+            self.transform.rotation,
+            self.transform.position,
+        )
+        .to_cols_array_2d();
     }
+
+    pub fn rotate(&mut self) {}
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {}
 }

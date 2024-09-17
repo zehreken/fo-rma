@@ -108,23 +108,23 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             event: WindowEvent::RedrawRequested,
             ..
         } => {
-            let frame_time = std::time::Instant::now()
+            let delta_time = std::time::Instant::now()
                 .duration_since(earlier)
                 .as_secs_f32();
-            elapsed += frame_time;
+            elapsed += delta_time;
             earlier = std::time::Instant::now();
             rolling_frame_times.pop_front();
-            rolling_frame_times.push_back(frame_time);
+            rolling_frame_times.push_back(delta_time);
             let fps = calculate_fps(&rolling_frame_times);
             app.quad.update();
-            app.triangle.update();
+            app.triangle.update(delta_time);
             let _ = app.renderer.render(
                 &app.window,
                 &app.quad,
                 &app.cube,
                 &app.triangle,
                 elapsed,
-                frame_time,
+                delta_time,
                 fps,
             );
             app.window.request_redraw();
