@@ -11,7 +11,9 @@ use crate::{
     basics::{
         camera::{self, Camera},
         core::{Uniforms, Vertex},
-        cube, quad, triangle,
+        cube,
+        primitive::Primitive,
+        quad, triangle,
     },
     gui::Gui,
 };
@@ -160,9 +162,7 @@ impl<'a> Renderer<'a> {
     pub fn render(
         &mut self,
         window: &Window,
-        quad: &quad::State,
-        cube: &cube::State,
-        triangle: &triangle::State,
+        primitives: &Vec<Box<dyn Primitive>>,
         elapsed: f32,
         delta_time: f32,
         fps: f32,
@@ -210,7 +210,7 @@ impl<'a> Renderer<'a> {
         self.camera
             .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
         self.uniforms.view_proj = self.camera.build_view_projection_matrix();
-        self.uniforms.model = triangle.model_matrix;
+        self.uniforms.model = primitives[0].model_matrix();
         self.queue.write_buffer(
             &self.uniform_buffer,
             0,
@@ -220,9 +220,10 @@ impl<'a> Renderer<'a> {
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
         // render some meshes
-        quad.draw(&mut render_pass);
         // cube.draw(&mut render_pass);
-        triangle.draw(&mut render_pass);
+        for primitive in primitives {
+            primitive.draw(&mut render_pass);
+        }
 
         drop(render_pass); // also releases encoder
 

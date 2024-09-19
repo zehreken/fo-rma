@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, time};
+use std::collections::VecDeque;
 
 use winit::{
     dpi::{PhysicalSize, Size},
@@ -9,7 +9,7 @@ use winit::{
 };
 
 use crate::{
-    basics::{cube, quad, triangle},
+    basics::{cube::Cube, primitive::Primitive},
     renderer,
 };
 
@@ -20,9 +20,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
-    quad: quad::State,
-    cube: cube::State,
-    triangle: triangle::State,
+    primitives: Vec<Box<dyn Primitive>>,
 }
 
 impl<'a> App<'a> {
@@ -31,16 +29,16 @@ impl<'a> App<'a> {
         let renderer = renderer::Renderer::new(window).await;
         // let init = vec![0.0; 60];
 
-        let quad = quad::State::new(&renderer.device);
-        let cube = cube::State::new(&renderer.device);
-        let triangle = triangle::State::new(&renderer.device);
+        let primitives: Vec<Box<dyn Primitive>> = vec![
+            // Box::new(Triangle::new(&renderer.device)),
+            // Box::new(Quad::new(&renderer.device)),
+            Box::new(Cube::new(&renderer.device)),
+        ];
         Self {
             size,
             window: &window,
             renderer,
-            quad,
-            cube,
-            triangle,
+            primitives,
         }
     }
 
@@ -48,9 +46,9 @@ impl<'a> App<'a> {
         if size.width > 0 && size.height > 0 {
             self.size = size;
             self.renderer.resize(size, self.window.scale_factor());
-            self.quad.resize(size);
-            self.cube.resize(size);
-            self.triangle.resize(size);
+            for primitive in &mut self.primitives {
+                primitive.resize(size);
+            }
         }
     }
 
@@ -116,17 +114,12 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(delta_time);
             let fps = calculate_fps(&rolling_frame_times);
-            app.quad.update(delta_time);
-            app.triangle.update(delta_time);
-            let _ = app.renderer.render(
-                &app.window,
-                &app.quad,
-                &app.cube,
-                &app.triangle,
-                elapsed,
-                delta_time,
-                fps,
-            );
+            for primitive in &mut app.primitives {
+                primitive.update(delta_time);
+            }
+            let _ = app
+                .renderer
+                .render(&app.window, &app.primitives, elapsed, delta_time, fps);
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
