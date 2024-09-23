@@ -9,7 +9,7 @@ use winit::{
 };
 
 use crate::{
-    basics::{cube::Cube, primitive::Primitive},
+    basics::{cube::Cube, primitive::Primitive, quad::Quad, triangle::Triangle},
     renderer,
 };
 
@@ -30,8 +30,8 @@ impl<'a> App<'a> {
         // let init = vec![0.0; 60];
 
         let primitives: Vec<Box<dyn Primitive>> = vec![
-            // Box::new(Triangle::new(&renderer.device)),
-            // Box::new(Quad::new(&renderer.device)),
+            Box::new(Triangle::new(&renderer.device)),
+            Box::new(Quad::new(&renderer.device)),
             Box::new(Cube::new(&renderer.device)),
         ];
         Self {

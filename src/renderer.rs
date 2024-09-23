@@ -1,9 +1,10 @@
+use std::{mem, num::NonZeroU64};
+
 use glam::vec3;
 use wgpu::{
-    util::DeviceExt, BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp,
-    Operations, Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp,
-    Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat,
-    TextureViewDescriptor,
+    BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
+    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
+    SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -11,12 +12,12 @@ use crate::{
     basics::{
         camera::{self, Camera},
         core::{Uniforms, Vertex},
-        cube,
         primitive::Primitive,
-        quad, triangle,
     },
     gui::Gui,
 };
+
+const MAX_PRIMITIVES: usize = 3;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -25,7 +26,7 @@ pub struct Renderer<'a> {
     surface_config: SurfaceConfiguration,
     pub gui: Gui,
     camera: Camera,
-    uniforms: Uniforms,
+    uniforms: Vec<Uniforms>,
     uniform_buffer: Buffer,
     uniform_bind_group: BindGroup,
     render_pipeline: RenderPipeline,
@@ -56,11 +57,16 @@ impl<'a> Renderer<'a> {
             100.0,
         );
         let gui = Gui::new(&window, &device, texture_format);
-        let uniforms = Uniforms::new();
-        let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        let uniform_alignment =
+            device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
+        let uniform_size = mem::size_of::<Uniforms>() as wgpu::BufferAddress;
+        let aligned_uniform_size =
+            (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
+        let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("uniform_buffer"),
-            contents: bytemuck::cast_slice(&[uniforms]),
+            size: aligned_uniform_size * MAX_PRIMITIVES as u64, // Adjust MAX_PRIMITIVES as needed
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
         });
         let uniform_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -69,8 +75,10 @@ impl<'a> Renderer<'a> {
                     visibility: wgpu::ShaderStages::VERTEX,
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
+                        has_dynamic_offset: true,
+                        min_binding_size: Some(
+                            NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap(),
+                        ),
                     },
                     count: None,
                 }],
@@ -80,10 +88,16 @@ impl<'a> Renderer<'a> {
             layout: &uniform_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: uniform_buffer.as_entire_binding(),
+                resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                    buffer: &uniform_buffer,
+                    offset: 0,
+                    size: Some(NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap()),
+                }),
             }],
             label: Some("uniform_bind_group"),
         });
+        // Initialize uniforms vector
+        let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("shader"),
@@ -206,22 +220,27 @@ impl<'a> Renderer<'a> {
             timestamp_writes: None,
             occlusion_query_set: None,
         });
+        render_pass.set_pipeline(&self.render_pipeline);
+
+        let uniform_alignment =
+            self.device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
+        let uniform_size = mem::size_of::<Uniforms>() as wgpu::BufferAddress;
+        let aligned_uniform_size =
+            (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
         self.camera
             .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
-        self.uniforms.view_proj = self.camera.build_view_projection_matrix();
-        self.uniforms.model = primitives[0].model_matrix();
-        self.queue.write_buffer(
-            &self.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[self.uniforms]),
-        );
+        for (i, primitive) in primitives.iter().enumerate() {
+            self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
+            self.uniforms[i].model = primitive.model_matrix();
+            let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
-        render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
-        // render some meshes
-        // cube.draw(&mut render_pass);
-        for primitive in primitives {
+            self.queue.write_buffer(
+                &self.uniform_buffer,
+                uniform_offset,
+                bytemuck::cast_slice(&[self.uniforms[i]]),
+            );
+            render_pass.set_bind_group(0, &self.uniform_bind_group, &[uniform_offset as u32]);
             primitive.draw(&mut render_pass);
         }
 

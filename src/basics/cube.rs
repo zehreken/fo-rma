@@ -2,6 +2,7 @@ use super::{
     core::Vertex,
     primitive::{Primitive, PrimitiveState},
 };
+use glam::Mat4;
 use wgpu::{Device, RenderPass};
 use winit::dpi::PhysicalSize;
 
@@ -68,7 +69,16 @@ impl Primitive for Cube {
     }
 
     fn update(&mut self, delta_time: f32) {
-        self.state.update(delta_time);
+        // self.state.update(delta_time);
+        let mut position = self.state.transform.position;
+        position.x += delta_time * 0.1;
+        self.state.transform.position = position;
+        self.state.model_matrix = Mat4::from_scale_rotation_translation(
+            self.state.transform.scale,
+            self.state.transform.rotation,
+            self.state.transform.position,
+        )
+        .to_cols_array_2d();
     }
 
     fn resize(&mut self, size: PhysicalSize<u32>) {}
