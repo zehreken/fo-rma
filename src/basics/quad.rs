@@ -41,7 +41,7 @@ impl Primitive for Quad {
     fn update(&mut self, delta_time: f32) {
         // self.state.update(delta_time);
         let mut rotation = self.state.transform.rotation.to_euler(glam::EulerRot::XYZ);
-        rotation.1 += delta_time * 0.1;
+        rotation.2 += delta_time * 0.1;
         self.state.transform.rotation =
             Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
 
