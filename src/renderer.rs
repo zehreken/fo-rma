@@ -4,7 +4,8 @@ use glam::vec3;
 use wgpu::{
     BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
     RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
-    SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureViewDescriptor,
+    SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
+    TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -29,6 +30,7 @@ pub struct Renderer<'a> {
     uniforms: Vec<Uniforms>,
     uniform_buffer: Buffer,
     uniform_bind_group: BindGroup,
+    depth_texture: TextureView,
     render_pipeline: RenderPipeline,
 }
 
@@ -99,6 +101,7 @@ impl<'a> Renderer<'a> {
         // Initialize uniforms vector
         let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
+        let depth_texture = create_depth_texture(&device, &surface_config);
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
@@ -151,7 +154,13 @@ impl<'a> Renderer<'a> {
                 unclipped_depth: false,
                 conservative: false,
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: wgpu::TextureFormat::Depth32Float,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less,
+                stencil: wgpu::StencilState::default(),
+                bias: wgpu::DepthBiasState::default(),
+            }),
             multisample: wgpu::MultisampleState {
                 count: 1,
                 mask: !0,
@@ -169,6 +178,7 @@ impl<'a> Renderer<'a> {
             uniforms,
             uniform_buffer,
             uniform_bind_group,
+            depth_texture,
             render_pipeline,
         }
     }
@@ -216,7 +226,14 @@ impl<'a> Renderer<'a> {
                     store: StoreOp::Store,
                 },
             })],
-            depth_stencil_attachment: None,
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &self.depth_texture,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: wgpu::StoreOp::Store,
+                }),
+                stencil_ops: None,
+            }),
             timestamp_writes: None,
             occlusion_query_set: None,
         });
@@ -329,4 +346,27 @@ fn create_surface_config(
         desired_maximum_frame_latency: 2,
     };
     surface_config
+}
+
+fn create_depth_texture(
+    device: &wgpu::Device,
+    config: &wgpu::SurfaceConfiguration,
+) -> wgpu::TextureView {
+    let size = wgpu::Extent3d {
+        width: config.width,
+        height: config.height,
+        depth_or_array_layers: 1,
+    };
+    let desc = wgpu::TextureDescriptor {
+        label: Some("depth_texture"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Depth32Float,
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+        view_formats: &[],
+    };
+    let texture = device.create_texture(&desc);
+    texture.create_view(&wgpu::TextureViewDescriptor::default())
 }
