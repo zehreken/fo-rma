@@ -20,6 +20,7 @@ glam = "0.29"
 cpal = "0.15"
 kopek = { git = "https://github.com/zehreken/kopek.git" }
 
+ringbuf = "0.3.2"
 image = "0.25.0"
 rand = "0.8.4"
 puffin = "0.19"

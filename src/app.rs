@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 
+use ringbuf::HeapRb;
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
@@ -9,6 +10,7 @@ use winit::{
 };
 
 use crate::{
+    audio::{core::AudioModel, generator::Generator},
     basics::{cube::Cube, primitive::Primitive, quad::Quad, triangle::Triangle},
     renderer,
 };
@@ -21,6 +23,7 @@ pub struct App<'a> {
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
     primitives: Vec<Box<dyn Primitive>>,
+    audio_model: AudioModel,
 }
 
 impl<'a> App<'a> {
@@ -34,11 +37,20 @@ impl<'a> App<'a> {
             Box::new(Quad::new(&renderer.device)),
             Box::new(Cube::new(&renderer.device)),
         ];
+
+        let ring = HeapRb::new(2048);
+        let (producer, consumer) = ring.split();
+        let audio_model = AudioModel::new(consumer).unwrap();
+        let mut generator = Generator::new(producer, audio_model.sample_rate).unwrap();
+        std::thread::spawn(move || loop {
+            generator.update();
+        });
         Self {
             size,
             window: &window,
             renderer,
             primitives,
+            audio_model,
         }
     }
 
