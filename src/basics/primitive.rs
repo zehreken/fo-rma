@@ -7,7 +7,6 @@ use super::core::{Transform, Vertex};
 pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
     fn update(&mut self, delta_time: f32);
-    fn resize(&mut self, size: PhysicalSize<u32>);
     fn model_matrix(&self) -> [[f32; 4]; 4];
 }
 

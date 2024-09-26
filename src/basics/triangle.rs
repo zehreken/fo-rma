@@ -38,8 +38,6 @@ impl Primitive for Triangle {
         self.state.update(delta_time);
     }
 
-    fn resize(&mut self, size: PhysicalSize<u32>) {}
-
     fn model_matrix(&self) -> [[f32; 4]; 4] {
         self.state.model_matrix
     }

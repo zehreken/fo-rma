@@ -58,9 +58,6 @@ impl<'a> App<'a> {
         if size.width > 0 && size.height > 0 {
             self.size = size;
             self.renderer.resize(size, self.window.scale_factor());
-            for primitive in &mut self.primitives {
-                primitive.resize(size);
-            }
         }
     }
 

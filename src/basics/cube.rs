@@ -81,8 +81,6 @@ impl Primitive for Cube {
         .to_cols_array_2d();
     }
 
-    fn resize(&mut self, size: PhysicalSize<u32>) {}
-
     fn model_matrix(&self) -> [[f32; 4]; 4] {
         self.state.model_matrix
     }
