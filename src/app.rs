@@ -1,4 +1,7 @@
-use std::collections::VecDeque;
+use std::{
+    collections::VecDeque,
+    time::{Duration, Instant},
+};
 
 use ringbuf::{HeapConsumer, HeapRb};
 use winit::{
@@ -88,8 +91,12 @@ pub async fn start() {
 fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
     let init = [0.0; 60];
     let mut rolling_frame_times = VecDeque::from(init);
-    let mut earlier = std::time::Instant::now();
+    let mut earlier = Instant::now();
     let mut elapsed: f32 = 0.0;
+
+    const TARGET_FPS: u64 = 60;
+    const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / TARGET_FPS);
+    let mut last_frame_time = Instant::now();
 
     let r = event_loop.run(move |event, elwt| match event {
         Event::WindowEvent {
@@ -138,6 +145,13 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 fps,
                 signal,
             );
+
+            let frame_duration = last_frame_time.elapsed();
+            if frame_duration < FRAME_TIME {
+                std::thread::sleep(FRAME_TIME - frame_duration);
+            }
+            last_frame_time = Instant::now();
+
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
