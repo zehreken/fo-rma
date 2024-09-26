@@ -1,6 +1,5 @@
 use glam::{EulerRot, Mat4, Quat};
 use wgpu::{util::DeviceExt, Device, RenderPass};
-use winit::dpi::PhysicalSize;
 
 use super::core::{Transform, Vertex};
 

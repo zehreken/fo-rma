@@ -129,9 +129,15 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             for primitive in &mut app.primitives {
                 primitive.update(delta_time);
             }
-            let _ = app
-                .renderer
-                .render(&app.window, &app.primitives, elapsed, delta_time, fps);
+            let signal = app.view_consumer.pop().unwrap_or(0.0);
+            let _ = app.renderer.render(
+                &app.window,
+                &app.primitives,
+                elapsed,
+                delta_time,
+                fps,
+                signal,
+            );
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
