@@ -18,7 +18,7 @@ use crate::{
     gui::Gui,
 };
 
-const MAX_PRIMITIVES: usize = 3;
+const MAX_PRIMITIVES: usize = 1;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -219,9 +219,9 @@ impl<'a> Renderer<'a> {
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Clear(Color {
-                        r: 0.3,
-                        g: 0.3,
-                        b: 0.3,
+                        r: 0.0,
+                        g: 0.0,
+                        b: 0.6,
                         a: 1.0,
                     }),
                     store: StoreOp::Store,

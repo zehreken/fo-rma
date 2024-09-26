@@ -1,5 +1,5 @@
-use kopek::{noise::Noise, oscillator::*, utils::A_FREQ};
-use ringbuf::{HeapConsumer, HeapProducer};
+use kopek::{noise::Noise, oscillator::*, utils::F_FREQ};
+use ringbuf::HeapProducer;
 
 pub enum OscillatorType {
     Sine,
@@ -36,11 +36,11 @@ impl Generator {
         Ok(Generator {
             is_running: true,
             tick: 0.0,
-            freq: A_FREQ * TEMP_OCTAVE as f32,
+            freq: F_FREQ * TEMP_OCTAVE as f32,
             oscillator: Oscillator::new(sample_rate),
             oscillator_type: OscillatorType::Sine,
             noise: Noise::new(),
-            noise_type: NoiseType::Random,
+            noise_type: NoiseType::None,
             producer,
             view_producer,
         })
@@ -55,11 +55,12 @@ impl Generator {
                     OscillatorType::Square => self.oscillator.square(self.freq, self.tick),
                     OscillatorType::Triangle => self.oscillator.triangle(self.freq, self.tick),
                 };
-                value += match self.noise_type {
-                    NoiseType::None => 0.0,
-                    NoiseType::Random => self.noise.rand_noise(),
-                    NoiseType::White => self.noise.white_noise(),
-                };
+                value += 0.5
+                    * match self.noise_type {
+                        NoiseType::None => 0.0,
+                        NoiseType::Random => self.noise.rand_noise(),
+                        NoiseType::White => self.noise.white_noise(),
+                    };
                 // let value = kopek::wave::white_noise();
                 // let value = kopek::wave::rand_noise();
                 self.producer.push(value).unwrap();

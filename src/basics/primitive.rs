@@ -43,7 +43,7 @@ impl PrimitiveState {
 
     pub fn update(&mut self, delta_time: f32) {
         let mut rotation = self.transform.rotation.to_euler(glam::EulerRot::XYZ);
-        rotation.0 += delta_time * 0.1;
+        rotation.0 += delta_time * 0.001;
         self.transform.rotation =
             Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
 

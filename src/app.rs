@@ -38,8 +38,8 @@ impl<'a> App<'a> {
 
         let primitives: Vec<Box<dyn Primitive>> = vec![
             Box::new(Triangle::new(&renderer.device)),
-            Box::new(Quad::new(&renderer.device)),
-            Box::new(Cube::new(&renderer.device)),
+            // Box::new(Quad::new(&renderer.device)),
+            // Box::new(Cube::new(&renderer.device)),
         ];
 
         let ring = HeapRb::new(2048);
@@ -136,7 +136,8 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             for primitive in &mut app.primitives {
                 primitive.update(delta_time);
             }
-            let signal = app.view_consumer.pop().unwrap_or(0.0);
+            let signal = (app.view_consumer.pop().unwrap_or(0.0) + 1.0) / 2.0;
+            // app.view_consumer.clear();
             let _ = app.renderer.render(
                 &app.window,
                 &app.primitives,
