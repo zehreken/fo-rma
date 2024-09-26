@@ -251,6 +251,7 @@ impl<'a> Renderer<'a> {
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
+            self.uniforms[i].signal = signal;
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
             self.queue.write_buffer(

@@ -12,6 +12,8 @@ pub struct Vertex {
 pub struct Uniforms {
     pub view_proj: [[f32; 4]; 4],
     pub model: [[f32; 4]; 4],
+    _padding: [f32; 3],
+    pub signal: f32,
 }
 
 impl Uniforms {
@@ -19,6 +21,8 @@ impl Uniforms {
         Self {
             view_proj: Mat4::IDENTITY.to_cols_array_2d(),
             model: Mat4::IDENTITY.to_cols_array_2d(),
+            signal: 0.0,
+            _padding: [0.0; 3],
         }
     }
 }

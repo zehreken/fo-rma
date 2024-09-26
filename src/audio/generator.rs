@@ -40,7 +40,7 @@ impl Generator {
             oscillator: Oscillator::new(sample_rate),
             oscillator_type: OscillatorType::Sine,
             noise: Noise::new(),
-            noise_type: NoiseType::None,
+            noise_type: NoiseType::Random,
             producer,
             view_producer,
         })
