@@ -285,6 +285,8 @@ impl<'a> Renderer<'a> {
         self.surface_config.width = size.width;
         self.surface_config.height = size.height;
         self.surface.configure(&self.device, &self.surface_config);
+        self.depth_texture = create_depth_texture(&self.device, &self.surface_config);
+        self.camera.resize(size);
         self.gui.resize(size, scale_factor)
     }
 }

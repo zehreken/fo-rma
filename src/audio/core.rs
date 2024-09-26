@@ -7,8 +7,6 @@
 extern crate cpal;
 extern crate ringbuf;
 
-use std::error::Error;
-
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,

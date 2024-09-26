@@ -1,4 +1,5 @@
 use glam::{Mat4, Vec3};
+use winit::dpi::PhysicalSize;
 
 pub struct Camera {
     pub eye: Vec3,
@@ -25,6 +26,10 @@ impl Camera {
         };
 
         camera
+    }
+
+    pub fn resize(&mut self, size: PhysicalSize<u32>) {
+        self.aspect = size.width as f32 / size.height as f32;
     }
 
     pub fn build_view_projection_matrix(&self) -> [[f32; 4]; 4] {
