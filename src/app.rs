@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use ringbuf::HeapRb;
+use ringbuf::{HeapConsumer, HeapRb};
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
@@ -10,7 +10,7 @@ use winit::{
 };
 
 use crate::{
-    audio::{core::AudioModel, generator::Generator},
+    audio::{audio_model::AudioModel, generator::Generator},
     basics::{cube::Cube, primitive::Primitive, quad::Quad, triangle::Triangle},
     renderer,
 };
@@ -24,6 +24,7 @@ pub struct App<'a> {
     renderer: renderer::Renderer<'a>,
     primitives: Vec<Box<dyn Primitive>>,
     audio_model: AudioModel,
+    view_consumer: HeapConsumer<f32>,
 }
 
 impl<'a> App<'a> {
@@ -40,8 +41,11 @@ impl<'a> App<'a> {
 
         let ring = HeapRb::new(2048);
         let (producer, consumer) = ring.split();
+        let view_ring = HeapRb::new(100000);
+        let (view_producer, view_consumer) = view_ring.split();
         let audio_model = AudioModel::new(consumer).unwrap();
-        let mut generator = Generator::new(producer, audio_model.sample_rate).unwrap();
+        let mut generator =
+            Generator::new(producer, view_producer, audio_model.sample_rate).unwrap();
         std::thread::spawn(move || loop {
             generator.update();
         });
@@ -51,6 +55,7 @@ impl<'a> App<'a> {
             renderer,
             primitives,
             audio_model,
+            view_consumer,
         }
     }
 
@@ -65,9 +70,7 @@ impl<'a> App<'a> {
         todo!()
     }
 
-    fn update(&mut self) {
-        // self.camera.update();
-    }
+    fn update(&mut self) {}
 }
 
 pub async fn start() {

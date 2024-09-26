@@ -23,10 +23,15 @@ pub struct Generator {
     noise: Noise,
     noise_type: NoiseType,
     producer: HeapProducer<f32>,
+    view_producer: HeapProducer<f32>,
 }
 
 impl Generator {
-    pub fn new(producer: HeapProducer<f32>, sample_rate: f32) -> Result<Generator, ()> {
+    pub fn new(
+        producer: HeapProducer<f32>,
+        view_producer: HeapProducer<f32>,
+        sample_rate: f32,
+    ) -> Result<Generator, ()> {
         const TEMP_OCTAVE: u8 = 2u8.pow(3);
         Ok(Generator {
             is_running: true,
@@ -37,6 +42,7 @@ impl Generator {
             noise: Noise::new(),
             noise_type: NoiseType::None,
             producer,
+            view_producer,
         })
     }
 
@@ -57,9 +63,9 @@ impl Generator {
                 // let value = kopek::wave::white_noise();
                 // let value = kopek::wave::rand_noise();
                 self.producer.push(value).unwrap();
-                // if !self.view_producer.is_full() {
-                //     self.view_producer.push(value).unwrap();
-                // }
+                if !self.view_producer.is_full() {
+                    self.view_producer.push(value).unwrap();
+                }
                 self.tick += 1.0;
             }
         }
