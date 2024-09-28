@@ -1,7 +1,7 @@
 struct Uniforms {
     view_proj: mat4x4<f32>,
     model: mat4x4<f32>,
-    padding: vec3<f32>,
+    _padding: vec3<f32>,
     signal: f32,
 };
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
