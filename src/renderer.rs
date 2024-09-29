@@ -2,9 +2,9 @@ use std::{mem, num::NonZeroU64};
 
 use glam::vec3;
 use wgpu::{
-    BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
-    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
-    SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
+    util::DeviceExt, BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp,
+    Operations, Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp,
+    Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
     TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
@@ -12,13 +12,13 @@ use winit::{dpi::PhysicalSize, window::Window};
 use crate::{
     basics::{
         camera::{self, Camera},
-        core::{Uniforms, Vertex},
+        core::{LightUniform, Uniforms, Vertex},
         primitive::Primitive,
     },
     gui::Gui,
 };
 
-const MAX_PRIMITIVES: usize = 1;
+const MAX_PRIMITIVES: usize = 3;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -30,6 +30,9 @@ pub struct Renderer<'a> {
     uniforms: Vec<Uniforms>,
     uniform_buffer: Buffer,
     uniform_bind_group: BindGroup,
+    light_uniform: LightUniform,
+    light_buffer: Buffer,
+    light_bind_group: BindGroup,
     depth_texture: TextureView,
     render_pipeline: RenderPipeline,
 }
@@ -78,9 +81,7 @@ impl<'a> Renderer<'a> {
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: true,
-                        min_binding_size: Some(
-                            NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap(),
-                        ),
+                        min_binding_size: Some(NonZeroU64::new(uniform_size as u64).unwrap()),
                     },
                     count: None,
                 }],
@@ -93,7 +94,7 @@ impl<'a> Renderer<'a> {
                 resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
                     buffer: &uniform_buffer,
                     offset: 0,
-                    size: Some(NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap()),
+                    size: Some(NonZeroU64::new(uniform_size as u64).unwrap()),
                 }),
             }],
             label: Some("uniform_bind_group"),
@@ -101,16 +102,55 @@ impl<'a> Renderer<'a> {
         // Initialize uniforms vector
         let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
+        // Light uniform
+        let light_uniform = LightUniform {
+            position: [2.0, 2.0, 2.0],
+            _padding: 0.0,
+            color: [1.0, 1.0, 1.0],
+            _padding2: 0.0,
+        };
+
+        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("light_buffer"),
+            contents: bytemuck::cast_slice(&[light_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+        let light_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+                label: None,
+            });
+
+        let light_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &light_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: light_buffer.as_entire_binding(),
+            }],
+            label: Some("light_bind_group"),
+        });
+
+        // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
+            // source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic_light.wgsl").into()),
         });
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[&uniform_bind_group_layout],
+                bind_group_layouts: &[&uniform_bind_group_layout, &light_bind_group_layout],
                 push_constant_ranges: &[],
             });
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -131,6 +171,11 @@ impl<'a> Renderer<'a> {
                         wgpu::VertexAttribute {
                             offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                             shader_location: 1,
+                            format: wgpu::VertexFormat::Float32x3,
+                        },
+                        wgpu::VertexAttribute {
+                            offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
+                            shader_location: 2,
                             format: wgpu::VertexFormat::Float32x3,
                         },
                     ],
@@ -178,6 +223,9 @@ impl<'a> Renderer<'a> {
             uniforms,
             uniform_buffer,
             uniform_bind_group,
+            light_uniform,
+            light_buffer,
+            light_bind_group,
             depth_texture,
             render_pipeline,
         }
@@ -259,7 +307,13 @@ impl<'a> Renderer<'a> {
                 uniform_offset,
                 bytemuck::cast_slice(&[self.uniforms[i]]),
             );
+            self.queue.write_buffer(
+                &self.light_buffer,
+                0,
+                bytemuck::cast_slice(&[self.light_uniform]),
+            );
             render_pass.set_bind_group(0, &self.uniform_bind_group, &[uniform_offset as u32]);
+            render_pass.set_bind_group(1, &self.light_bind_group, &[]);
             primitive.draw(&mut render_pass);
         }
 

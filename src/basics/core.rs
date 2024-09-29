@@ -1,10 +1,11 @@
-use glam::{Mat4, Quat, Vec3};
+use glam::{Mat3, Mat4, Quat, Vec3};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     pub position: [f32; 3],
     pub color: [f32; 3],
+    pub normal: [f32; 3],
 }
 
 #[repr(C)]
@@ -14,6 +15,9 @@ pub struct Uniforms {
     pub model: [[f32; 4]; 4],
     _padding: [f32; 3],
     pub signal: f32,
+    pub normal1: [f32; 4],
+    pub normal2: [f32; 4],
+    pub normal3: [f32; 4],
 }
 
 impl Uniforms {
@@ -23,8 +27,20 @@ impl Uniforms {
             model: Mat4::IDENTITY.to_cols_array_2d(),
             signal: 0.0,
             _padding: [0.0; 3],
+            normal1: [0.0; 4],
+            normal2: [0.0; 4],
+            normal3: [0.0; 4],
         }
     }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct LightUniform {
+    pub position: [f32; 3],
+    pub _padding: f32,
+    pub color: [f32; 3],
+    pub _padding2: f32,
 }
 
 pub struct Transform {

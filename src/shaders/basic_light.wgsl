@@ -1,10 +1,9 @@
 struct Uniforms {
     view_proj: mat4x4<f32>,
     model: mat4x4<f32>,
-    normal_matrix: mat3x3<f32>,
-    signal: f32,
     _padding: vec3<f32>,
-    _padding2: vec3<f32>,  
+    signal: f32,
+    normal: mat3x3<f32>,
 };
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 
@@ -36,7 +35,7 @@ fn vs_main(model: VertexInput) -> VertexOutput {
     out.color = model.color * uniforms.signal;  // Apply signal to color
     let world_position = (uniforms.model * vec4<f32>(model.position, 1.0)).xyz;
     out.world_position = world_position;
-    out.world_normal = uniforms.normal_matrix * model.normal;
+    out.world_normal = uniforms.normal * model.normal;
     out.clip_position = uniforms.view_proj * vec4<f32>(world_position, 1.0);
     return out;
 }

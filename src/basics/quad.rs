@@ -4,14 +4,13 @@ use super::{
 };
 use glam::{EulerRot, Mat4, Quat};
 use wgpu::{Device, RenderPass};
-use winit::dpi::PhysicalSize;
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
-    Vertex { position: [-0.5, -0.5, 0.0], color: [1.0, 0.0, 0.0] }, // Bottom-left
-    Vertex { position: [ 0.5, -0.5, 0.0], color: [0.0, 1.0, 0.0] }, // Bottom-right
-    Vertex { position: [ 0.5,  0.5, 0.0], color: [0.0, 0.0, 1.0] }, // Top-right
-    Vertex { position: [-0.5,  0.5, 0.0], color: [1.0, 1.0, 1.0] }, // Top-left
+    Vertex { position: [-0.5, -0.5, 0.0], color: [1.0, 0.0, 0.0], normal: [0.0, 0.0, 1.0] }, // Bottom-left
+    Vertex { position: [ 0.5, -0.5, 0.0], color: [0.0, 1.0, 0.0], normal: [0.0, 0.0, 1.0] }, // Bottom-right
+    Vertex { position: [ 0.5,  0.5, 0.0], color: [0.0, 0.0, 1.0], normal: [0.0, 0.0, 1.0] }, // Top-right
+    Vertex { position: [-0.5,  0.5, 0.0], color: [1.0, 1.0, 1.0], normal: [0.0, 0.0, 1.0] }, // Top-left
 ];
 
 const INDICES: &[u16] = &[
