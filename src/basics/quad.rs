@@ -49,10 +49,13 @@ impl Primitive for Quad {
             self.state.transform.rotation,
             self.state.transform.position,
         )
-        .to_cols_array_2d();
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
-        self.state.model_matrix
+        self.state.model_matrix.to_cols_array_2d()
+    }
+
+    fn normal_matrix(&self) -> glam::Mat3 {
+        self.state.normal_matrix
     }
 }

@@ -1,4 +1,4 @@
-use glam::{Mat3, Mat4, Quat, Vec3};
+use glam::{Mat4, Quat, Vec3};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]

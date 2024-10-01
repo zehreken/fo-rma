@@ -2,7 +2,7 @@ use super::{
     core::Vertex,
     primitive::{Primitive, PrimitiveState},
 };
-use glam::Mat4;
+use glam::{Mat3, Mat4};
 use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
@@ -76,11 +76,16 @@ impl Primitive for Cube {
             self.state.transform.scale,
             self.state.transform.rotation,
             self.state.transform.position,
-        )
-        .to_cols_array_2d();
+        );
+
+        self.state.normal_matrix = Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
-        self.state.model_matrix
+        self.state.model_matrix.to_cols_array_2d()
+    }
+
+    fn normal_matrix(&self) -> Mat3 {
+        self.state.normal_matrix
     }
 }

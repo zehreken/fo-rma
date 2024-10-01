@@ -1,4 +1,4 @@
-use glam::{EulerRot, Mat4, Quat};
+use glam::{EulerRot, Mat3, Mat4, Quat};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 
 use super::core::{Transform, Vertex};
@@ -7,6 +7,7 @@ pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
     fn update(&mut self, delta_time: f32);
     fn model_matrix(&self) -> [[f32; 4]; 4];
+    fn normal_matrix(&self) -> Mat3;
 }
 
 pub struct PrimitiveState {
@@ -14,7 +15,8 @@ pub struct PrimitiveState {
     pub index_buffer: wgpu::Buffer,
     pub num_indices: u32,
     pub transform: Transform,
-    pub model_matrix: [[f32; 4]; 4],
+    pub model_matrix: Mat4,
+    pub normal_matrix: Mat3,
 }
 
 impl PrimitiveState {
@@ -37,7 +39,8 @@ impl PrimitiveState {
             index_buffer,
             num_indices,
             transform: Transform::new(),
-            model_matrix: Mat4::IDENTITY.to_cols_array_2d(),
+            model_matrix: Mat4::IDENTITY,
+            normal_matrix: Mat3::IDENTITY,
         }
     }
 
@@ -51,7 +54,8 @@ impl PrimitiveState {
             self.transform.scale,
             self.transform.rotation,
             self.transform.position,
-        )
-        .to_cols_array_2d();
+        );
+
+        self.normal_matrix = Mat3::from_mat4(self.model_matrix.inverse().transpose());
     }
 }

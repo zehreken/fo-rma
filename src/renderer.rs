@@ -13,6 +13,7 @@ use crate::{
     basics::{
         camera::{self, Camera},
         core::{LightUniform, Uniforms, Vertex},
+        light::Light,
         primitive::Primitive,
     },
     gui::Gui,
@@ -30,6 +31,7 @@ pub struct Renderer<'a> {
     uniforms: Vec<Uniforms>,
     uniform_buffer: Buffer,
     uniform_bind_group: BindGroup,
+    light: Light,
     light_uniform: LightUniform,
     light_buffer: Buffer,
     light_bind_group: BindGroup,
@@ -54,7 +56,7 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
         // camera ============
         let camera = camera::Camera::new(
-            vec3(0.0, 0.0, 2.0),
+            vec3(0.0, 0.0, 10.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -103,10 +105,12 @@ impl<'a> Renderer<'a> {
         let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
         // Light uniform
+        let mut light = Light::new([1.0; 3]);
+        light.update_position(vec3(2.0, 2.0, 2.0));
         let light_uniform = LightUniform {
-            position: [2.0, 2.0, 2.0],
+            position: light.transform.position.to_array(),
             _padding: 0.0,
-            color: [1.0, 1.0, 1.0],
+            color: light.color,
             _padding2: 0.0,
         };
 
@@ -223,6 +227,7 @@ impl<'a> Renderer<'a> {
             uniforms,
             uniform_buffer,
             uniform_bind_group,
+            light,
             light_uniform,
             light_buffer,
             light_bind_group,
@@ -294,13 +299,20 @@ impl<'a> Renderer<'a> {
         let aligned_uniform_size =
             (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
-        self.camera
-            .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
+        // self.camera
+        //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
+        self.light
+            .update_position(vec3(2.0 * elapsed.cos(), 2.0, 2.0 * elapsed.sin()));
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
-            self.uniforms[i].signal = signal;
+            self.uniforms[i].normal1 = primitive.normal_matrix().x_axis.extend(0.0).to_array();
+            self.uniforms[i].normal2 = primitive.normal_matrix().y_axis.extend(0.0).to_array();
+            self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
+            self.uniforms[i].signal = 1.0; //signal;
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
+
+            self.light_uniform.position = self.light.transform.position.to_array();
 
             self.queue.write_buffer(
                 &self.uniform_buffer,

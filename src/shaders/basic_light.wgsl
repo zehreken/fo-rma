@@ -57,5 +57,10 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     // Combine lighting with vertex color (which includes signal)
     let result = (ambient + diffuse) * in.color;
 
+    // Debugging: Uncomment one of these to visualize different aspects
+    // return vec4<f32>((light_dir + 1.0) / 2.0, 1.0);  // Visualize light direction
+    // return vec4<f32>((normal + 1.0) / 2.0, 1.0);     // Visualize normals
+    // return vec4<f32>(vec3<f32>(diff), 1.0);          // Visualize diffuse term
+
     return vec4<f32>(result, 1.0);
 }
