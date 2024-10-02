@@ -105,7 +105,7 @@ impl<'a> Renderer<'a> {
         let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
         // Light uniform
-        let mut light = Light::new([1.0; 3]);
+        let mut light = Light::new(&device, [1.0; 3]);
         light.update_position(vec3(2.0, 2.0, 2.0));
         let light_uniform = LightUniform {
             position: light.transform.position.to_array(),

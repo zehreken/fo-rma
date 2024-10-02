@@ -1,19 +1,22 @@
 use glam::Vec3;
+use wgpu::Device;
 
-use super::core::Transform;
+use super::{core::Transform, cube::Cube, primitive::Primitive};
 
 pub struct Light {
     pub transform: Transform,
     pub color: [f32; 3],
     pub intensity: f32,
+    pub debug_mesh: Cube,
 }
 
 impl Light {
-    pub fn new(color: [f32; 3]) -> Self {
+    pub fn new(device: &Device, color: [f32; 3]) -> Self {
         Self {
             transform: Transform::new(),
             color,
             intensity: 1.0,
+            debug_mesh: Cube::new(device),
         }
     }
 

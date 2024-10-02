@@ -58,4 +58,16 @@ impl PrimitiveState {
 
         self.normal_matrix = Mat3::from_mat4(self.model_matrix.inverse().transpose());
     }
+
+    pub fn set_position(&mut self) {
+        todo!()
+    }
+
+    pub fn set_rotation(&mut self) {
+        todo!()
+    }
+
+    pub fn set_scale(&mut self) {
+        todo!()
+    }
 }
