@@ -59,14 +59,39 @@ impl Transform {
     }
 
     pub fn translate(&mut self, delta: Vec3) {
-        todo!()
+        self.position += delta;
     }
 
-    pub fn rotate(&mut self, euler: Vec3) {
-        todo!()
+    pub fn set_position(&mut self, position: Vec3) {
+        self.position = position;
+    }
+
+    // Angles in radians
+    pub fn rotate(&mut self, euler_angles: Vec3) {
+        let rotation = Quat::from_euler(
+            glam::EulerRot::XYZ,
+            euler_angles.x,
+            euler_angles.y,
+            euler_angles.z,
+        );
+
+        self.rotation *= rotation;
+    }
+
+    pub fn set_rotation(&mut self, euler_angles: Vec3) {
+        self.rotation = Quat::from_euler(
+            glam::EulerRot::XYZ,
+            euler_angles.x,
+            euler_angles.y,
+            euler_angles.z,
+        );
     }
 
     pub fn scale(&mut self, scale: Vec3) {
-        todo!()
+        self.scale *= scale;
+    }
+
+    pub fn set_scale(&mut self, scale: Vec3) {
+        self.scale = scale;
     }
 }

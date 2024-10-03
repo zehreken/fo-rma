@@ -1,4 +1,4 @@
-use glam::{EulerRot, Mat3, Mat4, Quat};
+use glam::{EulerRot, Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 
 use super::core::{Transform, Vertex};
@@ -59,15 +59,15 @@ impl PrimitiveState {
         self.normal_matrix = Mat3::from_mat4(self.model_matrix.inverse().transpose());
     }
 
-    pub fn set_position(&mut self) {
-        todo!()
+    pub fn set_position(&mut self, position: Vec3) {
+        self.transform.set_position(position);
     }
 
-    pub fn set_rotation(&mut self) {
-        todo!()
+    pub fn rotate(&mut self, euler_angles: Vec3) {
+        self.transform.rotate(euler_angles);
     }
 
-    pub fn set_scale(&mut self) {
-        todo!()
+    pub fn scale(&mut self, scale: Vec3) {
+        self.transform.scale(scale);
     }
 }
