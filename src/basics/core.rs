@@ -57,4 +57,16 @@ impl Transform {
             scale: Vec3::ONE,
         }
     }
+
+    pub fn translate(&mut self, delta: Vec3) {
+        todo!()
+    }
+
+    pub fn rotate(&mut self, euler: Vec3) {
+        todo!()
+    }
+
+    pub fn scale(&mut self, scale: Vec3) {
+        todo!()
+    }
 }
