@@ -7,6 +7,7 @@ pub struct Light {
     pub transform: Transform,
     pub color: [f32; 3],
     pub intensity: f32,
+    pub debug_mesh: Cube,
 }
 
 impl Light {
@@ -15,6 +16,7 @@ impl Light {
             transform: Transform::new(),
             color,
             intensity: 1.0,
+            debug_mesh: Cube::new(device),
         }
     }
 
