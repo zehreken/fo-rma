@@ -8,6 +8,7 @@ pub trait Primitive {
     fn update(&mut self, delta_time: f32);
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
+    fn transform(&mut self) -> &mut Transform;
 }
 
 pub struct PrimitiveState {

@@ -88,4 +88,8 @@ impl Primitive for Cube {
     fn normal_matrix(&self) -> Mat3 {
         self.state.normal_matrix
     }
+
+    fn transform(&mut self) -> &mut super::core::Transform {
+        &mut self.state.transform
+    }
 }

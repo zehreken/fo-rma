@@ -44,4 +44,8 @@ impl Primitive for Triangle {
     fn normal_matrix(&self) -> glam::Mat3 {
         self.state.normal_matrix
     }
+
+    fn transform(&mut self) -> &mut super::core::Transform {
+        &mut self.state.transform
+    }
 }
