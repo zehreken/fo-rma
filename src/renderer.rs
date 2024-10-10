@@ -37,6 +37,9 @@ pub struct Renderer<'a> {
     light_bind_group: BindGroup,
     depth_texture: TextureView,
     render_pipeline: RenderPipeline,
+    debug_render_pipeline: RenderPipeline,
+    debug_uniform_buffer: Buffer,
+    debug_uniform_bind_group: BindGroup,
 }
 
 impl<'a> Renderer<'a> {
@@ -144,6 +147,110 @@ impl<'a> Renderer<'a> {
         });
 
         // =============
+        // Debug
+        let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("debug_shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
+        });
+        let debug_uniform_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: Some(
+                            NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap(),
+                        ),
+                    },
+                    count: None,
+                }],
+                label: Some("debug_uniform_bind_group_layout"),
+            });
+        let debug_render_pipeline_layout =
+            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("debug_render_pipeline_layout"),
+                bind_group_layouts: &[&debug_uniform_bind_group_layout],
+                push_constant_ranges: &[],
+            });
+        let debug_render_pipeline =
+            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("debug_render_pipeline"),
+                layout: Some(&debug_render_pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &debug_shader,
+                    entry_point: "vs_main",
+                    buffers: &[wgpu::VertexBufferLayout {
+                        array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+                        step_mode: wgpu::VertexStepMode::Vertex,
+                        attributes: &[
+                            wgpu::VertexAttribute {
+                                offset: 0,
+                                shader_location: 0,
+                                format: wgpu::VertexFormat::Float32x3,
+                            },
+                            wgpu::VertexAttribute {
+                                offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                                shader_location: 1,
+                                format: wgpu::VertexFormat::Float32x3,
+                            },
+                            wgpu::VertexAttribute {
+                                offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
+                                shader_location: 2,
+                                format: wgpu::VertexFormat::Float32x3,
+                            },
+                        ],
+                    }],
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &debug_shader,
+                    entry_point: "fs_main",
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format: surface_config.format,
+                        blend: Some(wgpu::BlendState::REPLACE),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                }),
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    strip_index_format: None,
+                    front_face: wgpu::FrontFace::Ccw,
+                    cull_mode: Some(wgpu::Face::Back),
+                    polygon_mode: wgpu::PolygonMode::Fill,
+                    unclipped_depth: false,
+                    conservative: false,
+                },
+                depth_stencil: Some(wgpu::DepthStencilState {
+                    format: wgpu::TextureFormat::Depth32Float,
+                    depth_write_enabled: true,
+                    depth_compare: wgpu::CompareFunction::Less,
+                    stencil: wgpu::StencilState::default(),
+                    bias: wgpu::DepthBiasState::default(),
+                }),
+                multisample: wgpu::MultisampleState {
+                    count: 1,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                multiview: None,
+            });
+
+        let debug_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("debug_uniform_buffer"),
+            size: std::mem::size_of::<Uniforms>() as wgpu::BufferAddress,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let debug_uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("debug_uniform_bind_group"),
+            layout: &debug_uniform_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: debug_uniform_buffer.as_entire_binding(),
+            }],
+        });
+        // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("shader"),
@@ -233,6 +340,9 @@ impl<'a> Renderer<'a> {
             light_bind_group,
             depth_texture,
             render_pipeline,
+            debug_render_pipeline,
+            debug_uniform_buffer,
+            debug_uniform_bind_group,
         }
     }
 
@@ -303,6 +413,8 @@ impl<'a> Renderer<'a> {
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
         self.light
             .update_position(vec3(2.0 * elapsed.cos(), 2.0, 2.0 * elapsed.sin()));
+        const DEBUG: bool = true;
+        if (DEBUG) {}
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
@@ -330,6 +442,71 @@ impl<'a> Renderer<'a> {
         }
 
         drop(render_pass); // also releases encoder
+
+        // debug render pass
+        {
+            let mut debug_render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
+                label: Some("debug_render_pass"),
+                color_attachments: &[Some(RenderPassColorAttachment {
+                    view: &output_view,
+                    resolve_target: None,
+                    ops: Operations {
+                        load: LoadOp::Load,
+                        store: StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                    view: &self.depth_texture,
+                    depth_ops: Some(wgpu::Operations {
+                        load: wgpu::LoadOp::Load,
+                        store: wgpu::StoreOp::Store,
+                    }),
+                    stencil_ops: None,
+                }),
+                timestamp_writes: None,
+                occlusion_query_set: None,
+            });
+
+            debug_render_pass.set_pipeline(&self.debug_render_pipeline);
+
+            // Update debug uniforms
+            let mut debug_uniforms = Uniforms::new();
+            debug_uniforms.view_proj = self.camera.build_view_projection_matrix();
+            debug_uniforms.model = self.light.debug_mesh.model_matrix();
+            debug_uniforms.normal1 = self
+                .light
+                .debug_mesh
+                .normal_matrix()
+                .x_axis
+                .extend(0.0)
+                .to_array();
+            debug_uniforms.normal2 = self
+                .light
+                .debug_mesh
+                .normal_matrix()
+                .y_axis
+                .extend(0.0)
+                .to_array();
+            debug_uniforms.normal3 = self
+                .light
+                .debug_mesh
+                .normal_matrix()
+                .z_axis
+                .extend(0.0)
+                .to_array();
+
+            self.queue.write_buffer(
+                &self.debug_uniform_buffer,
+                0,
+                bytemuck::cast_slice(&[debug_uniforms]),
+            );
+
+            debug_render_pass.set_bind_group(0, &self.debug_uniform_bind_group, &[]);
+
+            // Draw debug mesh (assuming you have a debug_mesh field in your Renderer)
+            self.light.debug_mesh.draw(&mut debug_render_pass);
+        }
+        // =================
 
         // =================
 

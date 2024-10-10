@@ -22,5 +22,7 @@ impl Light {
 
     pub fn update_position(&mut self, position: Vec3) {
         self.transform.position = position;
+        self.debug_mesh.transform().position = position;
+        self.debug_mesh.update(0.0);
     }
 }
