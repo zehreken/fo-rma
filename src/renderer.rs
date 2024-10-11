@@ -217,7 +217,7 @@ impl<'a> Renderer<'a> {
                     strip_index_format: None,
                     front_face: wgpu::FrontFace::Ccw,
                     cull_mode: Some(wgpu::Face::Back),
-                    polygon_mode: wgpu::PolygonMode::Fill,
+                    polygon_mode: wgpu::PolygonMode::Line,
                     unclipped_depth: false,
                     conservative: false,
                 },
@@ -566,7 +566,7 @@ async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu
     let (device, queue) = adapter
         .request_device(
             &wgpu::DeviceDescriptor {
-                required_features: wgpu::Features::default(),
+                required_features: wgpu::Features::POLYGON_MODE_LINE,
                 required_limits: wgpu::Limits::default(),
                 label: None,
             },
