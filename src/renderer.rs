@@ -150,7 +150,7 @@ impl<'a> Renderer<'a> {
         // Debug
         let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("debug_shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/debug.wgsl").into()),
         });
         let debug_uniform_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
