@@ -59,7 +59,7 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
         // camera ============
         let camera = camera::Camera::new(
-            vec3(0.0, 0.0, 10.0),
+            vec3(-5.0, 3.0, 5.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -109,7 +109,7 @@ impl<'a> Renderer<'a> {
         // ===================
         // Light uniform
         let mut light = Light::new(&device, [1.0; 3]);
-        light.update_position(vec3(2.0, 2.0, 2.0));
+        light.update_position(vec3(2.0, 0.0, 2.0));
         let light_uniform = LightUniform {
             position: light.transform.position.to_array(),
             _padding: 0.0,
@@ -412,7 +412,7 @@ impl<'a> Renderer<'a> {
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
         self.light
-            .update_position(vec3(2.0 * elapsed.cos(), 2.0, 2.0 * elapsed.sin()));
+            .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
         const DEBUG: bool = true;
         if (DEBUG) {}
         for (i, primitive) in primitives.iter().enumerate() {

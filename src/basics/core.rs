@@ -8,6 +8,16 @@ pub struct Vertex {
     pub normal: [f32; 3],
 }
 
+impl Vertex {
+    pub fn default() -> Self {
+        Self {
+            position: [0.0; 3],
+            color: [0.0; 3],
+            normal: [0.0; 3],
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Uniforms {
