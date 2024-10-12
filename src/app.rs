@@ -78,8 +78,8 @@ impl<'a> App<'a> {
 
 pub async fn start() {
     let size = Size::Physical(PhysicalSize {
-        width: 1600,
-        height: 1200,
+        width: 1080,
+        height: 1080,
     });
     let event_loop = EventLoop::new().unwrap();
     let window = create_window(size, &event_loop);

@@ -16,7 +16,7 @@ struct Test {
 impl Test {
     fn new() -> Self {
         Self {
-            is_window_open: true,
+            is_window_open: false,
         }
     }
 
