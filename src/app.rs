@@ -13,7 +13,7 @@ use winit::{
 };
 
 use crate::{
-    audio::{audio_model::AudioModel, generator::Generator},
+    audio::audio_model::AudioModel,
     basics::{cube::Cube, primitive::Primitive, quad::Quad, triangle::Triangle},
     renderer,
 };
@@ -42,16 +42,10 @@ impl<'a> App<'a> {
             Box::new(Cube::new(&renderer.device)),
         ];
 
-        let ring = HeapRb::new(2048);
-        let (producer, consumer) = ring.split();
         let view_ring = HeapRb::new(100000);
         let (view_producer, view_consumer) = view_ring.split();
-        let audio_model = AudioModel::new(consumer).unwrap();
-        let mut generator =
-            Generator::new(producer, view_producer, audio_model.sample_rate).unwrap();
-        std::thread::spawn(move || loop {
-            generator.update();
-        });
+        let audio_model = AudioModel::new(view_producer).unwrap();
+
         Self {
             size,
             window: &window,

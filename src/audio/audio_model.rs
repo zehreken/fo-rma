@@ -11,19 +11,20 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
-use kopek::metronome::{self, Metronome};
-use ringbuf::HeapConsumer;
+use kopek::metronome::Metronome;
+use ringbuf::{HeapProducer, HeapRb};
+
+use super::generator::Generator;
 
 const LATENCY_MS: f32 = 10.0;
 
 pub struct AudioModel {
-    pub sample_rate: f32,
     output_stream: Stream,
     metronome: Metronome,
 }
 
 impl AudioModel {
-    pub fn new(mut consumer: HeapConsumer<f32>) -> Result<AudioModel, ()> {
+    pub fn new(view_producer: HeapProducer<f32>) -> Result<AudioModel, ()> {
         let host = cpal::default_host();
 
         // Default devices.
@@ -60,7 +61,12 @@ impl AudioModel {
         //     producer.push(0.0).unwrap();
         // }
 
-        let mut metronome = Metronome::new(60, config.sample_rate.0, config.channels as u32);
+        let ring = HeapRb::new(2048);
+        let (producer, mut consumer) = ring.split();
+
+        let sample_rate = config.sample_rate.0;
+
+        let mut metronome = Metronome::new(60, sample_rate, config.channels as u32);
 
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
@@ -88,8 +94,11 @@ impl AudioModel {
         );
         output_stream.play().expect("Can't play output stream");
 
+        let mut generator = Generator::new(producer, view_producer, sample_rate as f32).unwrap();
+        std::thread::spawn(move || loop {
+            generator.update();
+        });
         Ok(AudioModel {
-            sample_rate: config.sample_rate.0 as f32,
             output_stream,
             metronome,
         })
