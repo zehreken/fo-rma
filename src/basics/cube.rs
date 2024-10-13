@@ -5,38 +5,72 @@ use super::{
 use glam::{Mat3, Mat4};
 use wgpu::{Device, RenderPass};
 
+// #[rustfmt::skip]
+// const VERTICES: &[Vertex] = &[
+//     // Front face (z = 0.5)
+//     Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
+//     Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
+//     Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
+//     Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
+//     // Back face (z = -0.5)
+//     Vertex { position: [-0.5, -0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
+//     Vertex { position: [ 0.5, -0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
+//     Vertex { position: [ 0.5,  0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
+//     Vertex { position: [-0.5,  0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
+//     // Right face (x = 0.5)
+//     Vertex { position: [ 0.5, -0.5, -0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
+//     Vertex { position: [ 0.5,  0.5, -0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
+//     Vertex { position: [ 0.5,  0.5,  0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
+//     Vertex { position: [ 0.5, -0.5,  0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
+//     // Left face (x = -0.5)
+//     Vertex { position: [-0.5, -0.5, -0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
+//     Vertex { position: [-0.5,  0.5, -0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
+//     Vertex { position: [-0.5,  0.5,  0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
+//     Vertex { position: [-0.5, -0.5,  0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
+//     // Top face (y = 0.5)
+//     Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
+//     Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
+//     Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
+//     Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
+//     // Bottom face (y = -0.5)
+//     Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
+//     Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
+//     Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
+//     Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
+// ];
+
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
     // Front face (z = 0.5)
-    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.0,  0.0,  1.0], normal: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0,  1.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0,  1.0] },
     // Back face (z = -0.5)
-    Vertex { position: [-0.5, -0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
-    Vertex { position: [-0.5,  0.5, -0.5], color: [ 1.0,  0.0,  1.0], normal: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0, -1.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  0.0, -1.0] },
     // Right face (x = 0.5)
-    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 1.0,  0.0,  0.0], normal: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 1.0,  0.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 1.0,  0.0,  0.0] },
     // Left face (x = -0.5)
-    Vertex { position: [-0.5, -0.5, -0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5,  0.5, -0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
-    Vertex { position: [-0.5, -0.5,  0.5], color: [ 1.0,  1.0,  0.0], normal: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [-1.0,  0.0,  0.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [-1.0,  0.0,  0.0] },
     // Top face (y = 0.5)
-    Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
-    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.0,  1.0,  1.0], normal: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  1.0,  0.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0,  1.0,  0.0] },
     // Bottom face (y = -0.5)
-    Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
-    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.0,  1.0,  0.0], normal: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0, -1.0,  0.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [ 0.3,  0.3,  0.3], normal: [ 0.0, -1.0,  0.0] },
 ];
 
 const INDICES: &[u16] = &[
@@ -68,17 +102,17 @@ impl Primitive for Cube {
     }
 
     fn update(&mut self, delta_time: f32) {
-        // self.state.update(delta_time);
-        let mut position = self.state.transform.position;
-        position.x += delta_time * 0.1;
-        self.state.transform.position = position;
-        self.state.model_matrix = Mat4::from_scale_rotation_translation(
-            self.state.transform.scale,
-            self.state.transform.rotation,
-            self.state.transform.position,
-        );
+        self.state.update(delta_time);
+        // let mut position = self.state.transform.position;
+        // position.x += delta_time * 0.1;
+        // self.state.transform.position = position;
+        // self.state.model_matrix = Mat4::from_scale_rotation_translation(
+        //     self.state.transform.scale,
+        //     self.state.transform.rotation,
+        //     self.state.transform.position,
+        // );
 
-        self.state.normal_matrix = Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
+        // self.state.normal_matrix = Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {

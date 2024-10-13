@@ -8,7 +8,7 @@ use super::{
     primitive::{Primitive, PrimitiveState},
 };
 
-const RADIUS: f32 = 0.1;
+const RADIUS: f32 = 0.01;
 const STACK_COUNT: usize = 8;
 const STACK_STEP: f32 = PI / STACK_COUNT as f32;
 const SECTOR_COUNT: usize = 12;

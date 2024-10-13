@@ -19,7 +19,7 @@ use crate::{
     gui::Gui,
 };
 
-const MAX_PRIMITIVES: usize = 3;
+const MAX_PRIMITIVES: usize = 1;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -59,7 +59,7 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
         // camera ============
         let camera = camera::Camera::new(
-            vec3(-5.0, 3.0, 5.0),
+            vec3(-3.0, 3.0, 3.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -108,7 +108,7 @@ impl<'a> Renderer<'a> {
         let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
         // Light uniform
-        let mut light = Light::new(&device, [1.0; 3]);
+        let mut light = Light::new(&device, [1.0, 0.0, 0.0]);
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_uniform = LightUniform {
             position: light.transform.position.to_array(),
@@ -411,8 +411,9 @@ impl<'a> Renderer<'a> {
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
+        let el = elapsed * 1.0;
         self.light
-            .update_position(vec3(2.0 * elapsed.cos(), 0.0, 2.0 * elapsed.sin()));
+            .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
         const DEBUG: bool = true;
         if (DEBUG) {}
         for (i, primitive) in primitives.iter().enumerate() {

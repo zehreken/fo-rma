@@ -1,4 +1,4 @@
-use kopek::{noise::Noise, oscillator::*, utils::F_FREQ};
+use kopek::{noise::Noise, oscillator::*, utils::C_FREQ};
 use ringbuf::HeapProducer;
 
 pub enum OscillatorType {
@@ -32,11 +32,11 @@ impl Generator {
         view_producer: HeapProducer<f32>,
         sample_rate: f32,
     ) -> Result<Generator, ()> {
-        const TEMP_OCTAVE: u8 = 2u8.pow(3);
+        const TEMP_OCTAVE: u8 = 2u8.pow(4);
         Ok(Generator {
             is_running: true,
             tick: 0.0,
-            freq: F_FREQ * TEMP_OCTAVE as f32,
+            freq: C_FREQ * TEMP_OCTAVE as f32,
             oscillator: Oscillator::new(sample_rate),
             oscillator_type: OscillatorType::Sine,
             noise: Noise::new(),

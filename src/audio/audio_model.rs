@@ -11,6 +11,7 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
+use kopek::metronome::{self, Metronome};
 use ringbuf::HeapConsumer;
 
 const LATENCY_MS: f32 = 10.0;
@@ -18,6 +19,7 @@ const LATENCY_MS: f32 = 10.0;
 pub struct AudioModel {
     pub sample_rate: f32,
     output_stream: Stream,
+    metronome: Metronome,
 }
 
 impl AudioModel {
@@ -58,13 +60,14 @@ impl AudioModel {
         //     producer.push(0.0).unwrap();
         // }
 
-        let channel_count = config.channels as usize;
+        let mut metronome = Metronome::new(60, config.sample_rate.0, config.channels as u32);
 
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 if let Some(input) = consumer.pop() {
                     *sample = input;
                 }
+                metronome.update();
             }
         };
 
@@ -88,6 +91,7 @@ impl AudioModel {
         Ok(AudioModel {
             sample_rate: config.sample_rate.0 as f32,
             output_stream,
+            metronome,
         })
     }
 }
