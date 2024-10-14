@@ -1,1 +1,1 @@
-* Add debug mesh for lights
+* Add camera controls
