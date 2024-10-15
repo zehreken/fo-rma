@@ -3,7 +3,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-use ringbuf::{HeapConsumer, HeapRb};
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
@@ -27,7 +26,6 @@ pub struct App<'a> {
     renderer: renderer::Renderer<'a>,
     primitives: Vec<Box<dyn Primitive>>,
     audio_model: AudioModel,
-    view_consumer: HeapConsumer<f32>,
 }
 
 impl<'a> App<'a> {
@@ -42,9 +40,7 @@ impl<'a> App<'a> {
             Box::new(Cube::new(&renderer.device)),
         ];
 
-        let view_ring = HeapRb::new(100000);
-        let (view_producer, view_consumer) = view_ring.split();
-        let audio_model = AudioModel::new(view_producer).unwrap();
+        let audio_model = AudioModel::new().unwrap();
 
         Self {
             size,
@@ -52,7 +48,6 @@ impl<'a> App<'a> {
             renderer,
             primitives,
             audio_model,
-            view_consumer,
         }
     }
 
@@ -127,11 +122,10 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.pop_front();
             rolling_frame_times.push_back(delta_time);
             let fps = calculate_fps(&rolling_frame_times);
+            let signal = app.audio_model.get_signal();
             for primitive in &mut app.primitives {
-                primitive.update(delta_time);
+                primitive.update(delta_time * signal * 10.0);
             }
-            let signal = (app.view_consumer.pop().unwrap_or(0.0) + 1.0) / 2.0;
-            // app.view_consumer.clear();
             let _ = app.renderer.render(
                 &app.window,
                 &app.primitives,

@@ -112,7 +112,7 @@ impl<'a> Renderer<'a> {
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_uniform = LightUniform {
             position: light.transform.position.to_array(),
-            _padding: 0.0,
+            intensity: light.intensity,
             color: light.color,
             _padding2: 0.0,
         };
@@ -382,9 +382,9 @@ impl<'a> Renderer<'a> {
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Clear(Color {
-                        r: 0.0,
-                        g: 0.0,
-                        b: 0.6,
+                        r: 0.3,
+                        g: 0.3,
+                        b: 0.3,
                         a: 1.0,
                     }),
                     store: StoreOp::Store,
@@ -411,7 +411,7 @@ impl<'a> Renderer<'a> {
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
-        let el = elapsed * 1.0;
+        let el = elapsed * 0.1;
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
         const DEBUG: bool = true;
@@ -426,6 +426,7 @@ impl<'a> Renderer<'a> {
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
             self.light_uniform.position = self.light.transform.position.to_array();
+            self.light_uniform.intensity = signal;
 
             self.queue.write_buffer(
                 &self.uniform_buffer,

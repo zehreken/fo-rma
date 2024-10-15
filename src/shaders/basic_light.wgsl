@@ -9,7 +9,7 @@ struct Uniforms {
 
 struct Light {
     position: vec3<f32>,
-    _padding: f32,
+    intensity: f32,
     color: vec3<f32>,
     _padding2: f32,
 };
@@ -48,11 +48,11 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 
     // Ambient
     let ambient_strength = 0.1;
-    let ambient = light.color * ambient_strength;
+    let ambient = vec3(1.0, 1.0, 1.0) * ambient_strength;
 
     // Diffuse
     let diff = max(dot(normal, light_dir), 0.0);
-    let diffuse = light.color * diff;
+    let diffuse = light.color * diff * light.intensity * 2.0;
 
     // Combine lighting with vertex color (which includes signal)
     let result = (ambient + diffuse) * in.color;

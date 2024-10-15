@@ -12,7 +12,7 @@ use cpal::{
     Stream,
 };
 use kopek::metronome::Metronome;
-use ringbuf::{HeapProducer, HeapRb};
+use ringbuf::{HeapConsumer, HeapRb};
 
 use super::generator::Generator;
 
@@ -21,10 +21,11 @@ const LATENCY_MS: f32 = 10.0;
 pub struct AudioModel {
     output_stream: Stream,
     metronome: Metronome,
+    view_consumer: HeapConsumer<f32>,
 }
 
 impl AudioModel {
-    pub fn new(view_producer: HeapProducer<f32>) -> Result<AudioModel, ()> {
+    pub fn new() -> Result<AudioModel, ()> {
         let host = cpal::default_host();
 
         // Default devices.
@@ -63,6 +64,8 @@ impl AudioModel {
 
         let ring = HeapRb::new(2048);
         let (producer, mut consumer) = ring.split();
+        let view_ring = HeapRb::new(100000);
+        let (view_producer, view_consumer) = view_ring.split();
 
         let sample_rate = config.sample_rate.0;
 
@@ -71,7 +74,11 @@ impl AudioModel {
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 if let Some(input) = consumer.pop() {
-                    *sample = input;
+                    if metronome.show_beat() {
+                        *sample = input;
+                    } else {
+                        *sample = 0.0;
+                    }
                 }
                 metronome.update();
             }
@@ -101,7 +108,14 @@ impl AudioModel {
         Ok(AudioModel {
             output_stream,
             metronome,
+            view_consumer,
         })
+    }
+
+    pub fn get_signal(&mut self) -> f32 {
+        let signal = (self.view_consumer.pop().unwrap_or(0.0) + 1.0) / 2.0;
+        self.view_consumer.clear();
+        signal
     }
 }
 
