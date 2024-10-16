@@ -113,7 +113,7 @@ impl AudioModel {
     }
 
     pub fn get_signal(&mut self) -> f32 {
-        let signal = (self.view_consumer.pop().unwrap_or(0.0) + 1.0) / 2.0;
+        let signal = self.view_consumer.pop().unwrap_or(0.0);
         self.view_consumer.clear();
         signal
     }
