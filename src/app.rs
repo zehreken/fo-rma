@@ -124,7 +124,11 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             let fps = calculate_fps(&rolling_frame_times);
             let signal = app.audio_model.get_signal();
             for primitive in &mut app.primitives {
-                primitive.update(delta_time);
+                primitive.update(if app.audio_model.show_beat() {
+                    delta_time * 10.0
+                } else {
+                    delta_time
+                });
             }
             let _ = app.renderer.render(
                 &app.window,

@@ -7,6 +7,8 @@
 extern crate cpal;
 extern crate ringbuf;
 
+use std::sync::{atomic::AtomicBool, Arc};
+
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
@@ -22,6 +24,7 @@ pub struct AudioModel {
     output_stream: Stream,
     metronome: Metronome,
     view_consumer: HeapConsumer<f32>,
+    show_beat: Arc<AtomicBool>,
 }
 
 impl AudioModel {
@@ -70,6 +73,8 @@ impl AudioModel {
         let sample_rate = config.sample_rate.0;
 
         let mut metronome = Metronome::new(60, sample_rate, config.channels as u32);
+        let show_beat = Arc::new(AtomicBool::new(false));
+        let show_beat_clone = show_beat.clone();
 
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
@@ -80,6 +85,7 @@ impl AudioModel {
                         *sample = 0.0;
                     }
                 }
+                show_beat_clone.store(metronome.show_beat(), std::sync::atomic::Ordering::SeqCst);
                 metronome.update();
             }
         };
@@ -109,6 +115,7 @@ impl AudioModel {
             output_stream,
             metronome,
             view_consumer,
+            show_beat,
         })
     }
 
@@ -116,6 +123,10 @@ impl AudioModel {
         let signal = self.view_consumer.pop().unwrap_or(0.0);
         self.view_consumer.clear();
         signal
+    }
+
+    pub fn show_beat(&self) -> bool {
+        self.show_beat.load(std::sync::atomic::Ordering::SeqCst)
     }
 }
 
