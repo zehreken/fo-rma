@@ -3,9 +3,9 @@ use std::{mem, num::NonZeroU64};
 use glam::vec3;
 use wgpu::{
     util::DeviceExt, BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp,
-    Operations, Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp,
-    Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
-    TextureViewDescriptor,
+    Operations, Queue, RenderPass, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline,
+    StoreOp, Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat,
+    TextureView, TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -59,7 +59,7 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
         // camera ============
         let camera = camera::Camera::new(
-            vec3(-3.0, 3.0, 3.0),
+            vec3(-2.0, 3.0, 2.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -414,8 +414,7 @@ impl<'a> Renderer<'a> {
         let el = elapsed * 0.1;
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
-        const DEBUG: bool = true;
-        if (DEBUG) {}
+
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
@@ -426,7 +425,7 @@ impl<'a> Renderer<'a> {
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
             self.light_uniform.position = self.light.transform.position.to_array();
-            self.light_uniform.intensity = signal;
+            // self.light_uniform.intensity = signal;
 
             self.queue.write_buffer(
                 &self.uniform_buffer,
@@ -446,7 +445,8 @@ impl<'a> Renderer<'a> {
         drop(render_pass); // also releases encoder
 
         // debug render pass
-        {
+        const DEBUG: bool = true;
+        if DEBUG {
             let mut debug_render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
                 label: Some("debug_render_pass"),
                 color_attachments: &[Some(RenderPassColorAttachment {
@@ -474,28 +474,11 @@ impl<'a> Renderer<'a> {
             // Update debug uniforms
             let mut debug_uniforms = Uniforms::new();
             debug_uniforms.view_proj = self.camera.build_view_projection_matrix();
-            debug_uniforms.model = self.light.debug_mesh.model_matrix();
-            debug_uniforms.normal1 = self
-                .light
-                .debug_mesh
-                .normal_matrix()
-                .x_axis
-                .extend(0.0)
-                .to_array();
-            debug_uniforms.normal2 = self
-                .light
-                .debug_mesh
-                .normal_matrix()
-                .y_axis
-                .extend(0.0)
-                .to_array();
-            debug_uniforms.normal3 = self
-                .light
-                .debug_mesh
-                .normal_matrix()
-                .z_axis
-                .extend(0.0)
-                .to_array();
+            // debug_uniforms.model = self.light.debug_mesh.model_matrix();
+            debug_uniforms.model = primitives[0].model_matrix();
+            debug_uniforms.normal1 = primitives[0].normal_matrix().x_axis.extend(0.0).to_array();
+            debug_uniforms.normal2 = primitives[0].normal_matrix().y_axis.extend(0.0).to_array();
+            debug_uniforms.normal3 = primitives[0].normal_matrix().z_axis.extend(0.0).to_array();
 
             self.queue.write_buffer(
                 &self.debug_uniform_buffer,
@@ -506,7 +489,8 @@ impl<'a> Renderer<'a> {
             debug_render_pass.set_bind_group(0, &self.debug_uniform_bind_group, &[]);
 
             // Draw debug mesh (assuming you have a debug_mesh field in your Renderer)
-            self.light.debug_mesh.draw(&mut debug_render_pass);
+            // self.light.debug_mesh.draw(&mut debug_render_pass);
+            primitives[0].draw(&mut debug_render_pass);
         }
         // =================
 

@@ -125,7 +125,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             let signal = app.audio_model.get_signal();
             for primitive in &mut app.primitives {
                 primitive.update(if app.audio_model.show_beat() {
-                    delta_time * 10.0
+                    delta_time * 20.0
                 } else {
                     delta_time
                 });
