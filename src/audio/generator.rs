@@ -24,6 +24,7 @@ pub struct Generator {
     noise_type: NoiseType,
     producer: HeapProducer<f32>,
     view_producer: HeapProducer<f32>,
+    ramp: f32,
 }
 
 impl Generator {
@@ -43,6 +44,7 @@ impl Generator {
             noise_type: NoiseType::None,
             producer,
             view_producer,
+            ramp: 0.0,
         })
     }
 
@@ -99,4 +101,13 @@ impl Generator {
         //     }
         // }
     }
+}
+
+#[derive(Debug)]
+pub enum Input {
+    Start,
+    Stop,
+    ChangeFreq(f32),
+    ChangeOscillator(u8),
+    ChangeNoise(u8),
 }
