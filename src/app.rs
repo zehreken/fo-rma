@@ -6,7 +6,7 @@ use std::{
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
-    event_loop::EventLoop,
+    event_loop::{EventLoop, EventLoopWindowTarget},
     keyboard::{KeyCode, PhysicalKey},
     window::{Window, WindowBuilder},
 };
@@ -93,19 +93,11 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             window_id,
         } if app.window.id() == window_id => elwt.exit(),
         Event::WindowEvent {
-            event:
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::Escape),
-                            state: ElementState::Pressed,
-                            repeat: false,
-                            ..
-                        },
-                    ..
-                },
+            event: WindowEvent::KeyboardInput {
+                event: key_event, ..
+            },
             ..
-        } => elwt.exit(),
+        } => handle_key_event(&key_event, elwt, &mut app),
         Event::WindowEvent {
             window_id,
             event: WindowEvent::Resized(size),
@@ -171,4 +163,21 @@ pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
 
     let average_time = sum / times.len() as f32;
     return 1.0 / average_time;
+}
+
+fn handle_key_event(key_event: &KeyEvent, elwt: &EventLoopWindowTarget<()>, app: &mut App) {
+    match key_event.physical_key {
+        PhysicalKey::Code(KeyCode::Escape) => {
+            if key_event.state == ElementState::Pressed && !key_event.repeat {
+                elwt.exit();
+            }
+        }
+        PhysicalKey::Code(KeyCode::KeyZ) => {
+            // app.audio_model.test(false);
+        }
+        PhysicalKey::Code(KeyCode::KeyX) => {
+            // app.audio_model.test(true);
+        }
+        _ => {}
+    }
 }

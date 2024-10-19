@@ -108,7 +108,7 @@ impl<'a> Renderer<'a> {
         let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
         // Light uniform
-        let mut light = Light::new(&device, [1.0, 0.0, 0.0]);
+        let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_uniform = LightUniform {
             position: light.transform.position.to_array(),
@@ -411,7 +411,7 @@ impl<'a> Renderer<'a> {
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
-        let el = elapsed * 0.1;
+        let el = elapsed * 0.5;
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
