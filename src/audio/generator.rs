@@ -1,6 +1,8 @@
 use kopek::{noise::Noise, oscillator::*, utils::C_FREQ};
 use ringbuf::{HeapConsumer, HeapProducer};
 
+use crate::basics::core::clamp;
+
 pub enum OscillatorType {
     Sine,
     Sawtooth,
@@ -69,9 +71,9 @@ impl Generator {
                 // let value = kopek::wave::white_noise();
                 // let value = kopek::wave::rand_noise();
                 if self.is_running && self.ramp < 1.0 {
-                    self.ramp += 0.001;
+                    self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
                 } else if !self.is_running && self.ramp > 0.0 {
-                    self.ramp -= 0.001;
+                    self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
                 }
                 value *= self.ramp;
                 self.producer.push(value).unwrap();
