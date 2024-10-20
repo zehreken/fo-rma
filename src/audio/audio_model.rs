@@ -14,15 +14,16 @@ use cpal::{
     Stream,
 };
 use kopek::metronome::Metronome;
-use ringbuf::{HeapConsumer, HeapRb};
+use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
 
-use super::generator::Generator;
+use super::generator::{Generator, Input};
 
 const LATENCY_MS: f32 = 10.0;
 
 pub struct AudioModel {
     output_stream: Stream,
     metronome: Metronome,
+    input_producer: HeapProducer<Input>,
     view_consumer: HeapConsumer<f32>,
     show_beat: Arc<AtomicBool>,
 }
@@ -67,23 +68,21 @@ impl AudioModel {
 
         let ring = HeapRb::new(2048);
         let (producer, mut consumer) = ring.split();
+        let input_ring = HeapRb::new(10);
+        let (input_producer, input_consumer) = input_ring.split();
         let view_ring = HeapRb::new(100000);
         let (view_producer, view_consumer) = view_ring.split();
 
         let sample_rate = config.sample_rate.0;
 
-        let mut metronome = Metronome::new(60, sample_rate, config.channels as u32);
+        let mut metronome = Metronome::new(120, sample_rate, config.channels as u32);
         let show_beat = Arc::new(AtomicBool::new(false));
         let show_beat_clone = show_beat.clone();
 
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
             for sample in data {
                 if let Some(input) = consumer.pop() {
-                    if metronome.show_beat() {
-                        *sample = input;
-                    } else {
-                        *sample = 0.0;
-                    }
+                    *sample = input;
                 }
                 show_beat_clone.store(metronome.show_beat(), std::sync::atomic::Ordering::SeqCst);
                 metronome.update();
@@ -107,13 +106,15 @@ impl AudioModel {
         );
         output_stream.play().expect("Can't play output stream");
 
-        let mut generator = Generator::new(producer, view_producer, sample_rate as f32).unwrap();
+        let mut generator =
+            Generator::new(producer, input_consumer, view_producer, sample_rate as f32).unwrap();
         std::thread::spawn(move || loop {
             generator.update();
         });
         Ok(AudioModel {
             output_stream,
             metronome,
+            input_producer,
             view_consumer,
             show_beat,
         })
@@ -127,6 +128,15 @@ impl AudioModel {
 
     pub fn show_beat(&self) -> bool {
         self.show_beat.load(std::sync::atomic::Ordering::SeqCst)
+    }
+
+    pub fn update(&mut self) {
+        let t = self.show_beat.load(std::sync::atomic::Ordering::SeqCst);
+        if t {
+            self.input_producer.push(Input::Start).unwrap();
+        } else {
+            self.input_producer.push(Input::Stop).unwrap();
+        }
     }
 }
 

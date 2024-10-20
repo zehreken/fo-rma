@@ -131,6 +131,8 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 signal,
             );
 
+            app.audio_model.update();
+
             let frame_duration = last_frame_time.elapsed();
             if frame_duration < FRAME_TIME {
                 std::thread::sleep(FRAME_TIME - frame_duration);
