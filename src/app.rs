@@ -175,10 +175,10 @@ fn handle_key_event(key_event: &KeyEvent, elwt: &EventLoopWindowTarget<()>, app:
             }
         }
         PhysicalKey::Code(KeyCode::KeyZ) => {
-            // app.audio_model.test(false);
+            app.renderer.camera.orbit(true);
         }
         PhysicalKey::Code(KeyCode::KeyX) => {
-            // app.audio_model.test(true);
+            app.renderer.camera.orbit(false);
         }
         _ => {}
     }

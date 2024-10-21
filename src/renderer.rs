@@ -27,7 +27,7 @@ pub struct Renderer<'a> {
     queue: Queue,
     surface_config: SurfaceConfiguration,
     pub gui: Gui,
-    camera: Camera,
+    pub camera: Camera,
     uniforms: Vec<Uniforms>,
     uniform_buffer: Buffer,
     uniform_bind_group: BindGroup,

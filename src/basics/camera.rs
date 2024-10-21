@@ -47,4 +47,8 @@ impl Camera {
     pub fn update_position(&mut self, position: Vec3) {
         self.eye = position;
     }
+
+    pub fn orbit(&mut self, left: bool) {
+        self.eye.y += if left { 0.1 } else { -0.1 }
+    }
 }
