@@ -174,7 +174,7 @@ fn handle_key_event(key_event: &KeyEvent, elwt: &EventLoopWindowTarget<()>, app:
                 elwt.exit();
             }
         }
-        PhysicalKey::Code(Keycode::KeyW) => {}
+        PhysicalKey::Code(KeyCode::KeyW) => {}
         PhysicalKey::Code(KeyCode::KeyA) => {}
         PhysicalKey::Code(KeyCode::KeyS) => {}
         PhysicalKey::Code(KeyCode::KeyD) => {}
