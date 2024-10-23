@@ -7,7 +7,7 @@ use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::{EventLoop, EventLoopWindowTarget},
-    keyboard::{KeyCode, PhysicalKey},
+    keyboard::{KeyCode, ModifiersState, PhysicalKey},
     window::{Window, WindowBuilder},
 };
 
@@ -87,17 +87,23 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
     const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / TARGET_FPS);
     let mut last_frame_time = Instant::now();
 
+    let mut modifiers = winit::keyboard::ModifiersState::empty();
+
     let r = event_loop.run(move |event, elwt| match event {
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,
         } if app.window.id() == window_id => elwt.exit(),
         Event::WindowEvent {
+            window_id: _,
+            event: WindowEvent::ModifiersChanged(new_modifiers),
+        } => modifiers = new_modifiers.state(),
+        Event::WindowEvent {
             event: WindowEvent::KeyboardInput {
                 event: key_event, ..
             },
             ..
-        } => handle_key_event(&key_event, elwt, &mut app),
+        } => handle_key_event(&modifiers, &key_event, elwt, &mut app),
         Event::WindowEvent {
             window_id,
             event: WindowEvent::Resized(size),
@@ -167,19 +173,36 @@ pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
     return 1.0 / average_time;
 }
 
-fn handle_key_event(key_event: &KeyEvent, elwt: &EventLoopWindowTarget<()>, app: &mut App) {
-    match key_event.physical_key {
-        PhysicalKey::Code(KeyCode::Escape) => {
-            if key_event.state == ElementState::Pressed && !key_event.repeat {
-                elwt.exit();
-            }
+fn handle_key_event(
+    modifiers: &ModifiersState,
+    key_event: &KeyEvent,
+    elwt: &EventLoopWindowTarget<()>,
+    app: &mut App,
+) {
+    if modifiers.shift_key() {
+        match key_event.physical_key {
+            PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.orbit_z(true),
+            PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.orbit_x(false),
+            PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.orbit_z(false),
+            PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.orbit_x(true),
+            PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.orbit_y(true),
+            PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.orbit_y(false),
+            _ => {}
         }
-        PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
-        PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
-        PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
-        PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.move_x(true),
-        PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.move_y(true),
-        PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.move_y(false),
-        _ => {}
+    } else {
+        match key_event.physical_key {
+            PhysicalKey::Code(KeyCode::Escape) => {
+                if key_event.state == ElementState::Pressed && !key_event.repeat {
+                    elwt.exit();
+                }
+            }
+            PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
+            PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
+            PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
+            PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.move_x(true),
+            PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.move_y(true),
+            PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.move_y(false),
+            _ => {}
+        }
     }
 }
