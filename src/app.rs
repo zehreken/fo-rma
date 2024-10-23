@@ -174,16 +174,12 @@ fn handle_key_event(key_event: &KeyEvent, elwt: &EventLoopWindowTarget<()>, app:
                 elwt.exit();
             }
         }
-        PhysicalKey::Code(KeyCode::KeyW) => {}
-        PhysicalKey::Code(KeyCode::KeyA) => {}
-        PhysicalKey::Code(KeyCode::KeyS) => {}
-        PhysicalKey::Code(KeyCode::KeyD) => {}
-        PhysicalKey::Code(KeyCode::KeyZ) => {
-            app.renderer.camera.orbit(true);
-        }
-        PhysicalKey::Code(KeyCode::KeyX) => {
-            app.renderer.camera.orbit(false);
-        }
+        PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
+        PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
+        PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
+        PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.move_x(true),
+        PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.move_y(true),
+        PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.move_y(false),
         _ => {}
     }
 }
