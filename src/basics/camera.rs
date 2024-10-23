@@ -48,18 +48,30 @@ impl Camera {
         self.eye = position;
     }
 
-    pub fn move_x(&mut self, pos: bool) {
-        self.eye.x += if pos { 0.1 } else { -0.1 };
-        self.target.x += if pos { 0.1 } else { -0.1 };
+    pub fn move_x(&mut self, plus: bool) {
+        self.eye.x += if plus { 0.1 } else { -0.1 };
+        self.target.x += if plus { 0.1 } else { -0.1 };
     }
 
-    pub fn move_y(&mut self, pos: bool) {
-        self.eye.y += if pos { 0.1 } else { -0.1 };
-        self.target.y += if pos { 0.1 } else { -0.1 };
+    pub fn move_y(&mut self, plus: bool) {
+        self.eye.y += if plus { 0.1 } else { -0.1 };
+        self.target.y += if plus { 0.1 } else { -0.1 };
     }
 
-    pub fn move_z(&mut self, pos: bool) {
-        self.eye.z += if pos { 0.1 } else { -0.1 };
-        self.target.z += if pos { 0.1 } else { -0.1 };
+    pub fn move_z(&mut self, plus: bool) {
+        self.eye.z += if plus { 0.1 } else { -0.1 };
+        self.target.z += if plus { 0.1 } else { -0.1 };
+    }
+
+    pub fn orbit_x(&mut self, plus: bool) {
+        self.eye.x += if plus { 0.1 } else { -0.1 };
+    }
+
+    pub fn orbit_y(&mut self, plus: bool) {
+        self.eye.y += if plus { 0.1 } else { -0.1 };
+    }
+
+    pub fn orbit_z(&mut self, plus: bool) {
+        self.eye.z += if plus { 0.1 } else { -0.1 };
     }
 }
