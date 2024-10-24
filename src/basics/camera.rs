@@ -1,6 +1,8 @@
 use glam::{Mat4, Vec3};
 use winit::dpi::PhysicalSize;
 
+const DIST: f32 = 0.01;
+
 pub struct Camera {
     pub eye: Vec3,
     pub target: Vec3,
@@ -49,18 +51,18 @@ impl Camera {
     }
 
     pub fn move_x(&mut self, plus: bool) {
-        self.eye.x += if plus { 0.1 } else { -0.1 };
-        self.target.x += if plus { 0.1 } else { -0.1 };
+        self.eye.x += if plus { DIST } else { -DIST };
+        self.target.x += if plus { DIST } else { -DIST };
     }
 
     pub fn move_y(&mut self, plus: bool) {
-        self.eye.y += if plus { 0.1 } else { -0.1 };
-        self.target.y += if plus { 0.1 } else { -0.1 };
+        self.eye.y += if plus { DIST } else { -DIST };
+        self.target.y += if plus { DIST } else { -DIST };
     }
 
     pub fn move_z(&mut self, plus: bool) {
-        self.eye.z += if plus { 0.1 } else { -0.1 };
-        self.target.z += if plus { 0.1 } else { -0.1 };
+        self.eye.z += if plus { DIST } else { -DIST };
+        self.target.z += if plus { DIST } else { -DIST };
     }
 
     pub fn orbit_x(&mut self, plus: bool) {
