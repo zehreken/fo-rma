@@ -36,7 +36,7 @@ impl<'a> App<'a> {
 
         let primitives: Vec<Box<dyn Primitive>> = vec![
             // Box::new(Triangle::new(&renderer.device)),
-            // Box::new(Quad::new(&renderer.device)),
+            Box::new(Quad::new(&renderer.device)),
             Box::new(Cube::new(&renderer.device)),
         ];
 

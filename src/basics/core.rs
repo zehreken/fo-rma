@@ -1,4 +1,11 @@
 use glam::{Mat4, Quat, Vec3};
+use wgpu::{BindGroup, Buffer, RenderPipeline};
+
+pub struct PipelineData {
+    pub render_pipeline: RenderPipeline,
+    pub uniform_buffer: Buffer,
+    pub uniform_bind_group: BindGroup,
+}
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]

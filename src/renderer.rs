@@ -3,23 +3,23 @@ use std::{mem, num::NonZeroU64};
 use glam::vec3;
 use wgpu::{
     util::DeviceExt, BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp,
-    Operations, Queue, RenderPass, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline,
-    StoreOp, Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat,
-    TextureView, TextureViewDescriptor,
+    Operations, Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp,
+    Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
+    TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
 use crate::{
     basics::{
         camera::{self, Camera},
-        core::{LightUniform, Uniforms, Vertex},
+        core::{LightUniform, PipelineData, Uniforms, Vertex},
         light::Light,
         primitive::Primitive,
     },
     gui::Gui,
 };
 
-const MAX_PRIMITIVES: usize = 1;
+const MAX_PRIMITIVES: usize = 2;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -37,9 +37,7 @@ pub struct Renderer<'a> {
     light_bind_group: BindGroup,
     depth_texture: TextureView,
     render_pipeline: RenderPipeline,
-    debug_render_pipeline: RenderPipeline,
-    debug_uniform_buffer: Buffer,
-    debug_uniform_bind_group: BindGroup,
+    debug_pipeline_data: PipelineData,
 }
 
 impl<'a> Renderer<'a> {
@@ -148,108 +146,8 @@ impl<'a> Renderer<'a> {
 
         // =============
         // Debug
-        let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("debug_shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/debug.wgsl").into()),
-        });
-        let debug_uniform_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: Some(
-                            NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap(),
-                        ),
-                    },
-                    count: None,
-                }],
-                label: Some("debug_uniform_bind_group_layout"),
-            });
-        let debug_render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("debug_render_pipeline_layout"),
-                bind_group_layouts: &[&debug_uniform_bind_group_layout],
-                push_constant_ranges: &[],
-            });
-        let debug_render_pipeline =
-            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-                label: Some("debug_render_pipeline"),
-                layout: Some(&debug_render_pipeline_layout),
-                vertex: wgpu::VertexState {
-                    module: &debug_shader,
-                    entry_point: "vs_main",
-                    buffers: &[wgpu::VertexBufferLayout {
-                        array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-                        step_mode: wgpu::VertexStepMode::Vertex,
-                        attributes: &[
-                            wgpu::VertexAttribute {
-                                offset: 0,
-                                shader_location: 0,
-                                format: wgpu::VertexFormat::Float32x3,
-                            },
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                                shader_location: 1,
-                                format: wgpu::VertexFormat::Float32x3,
-                            },
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
-                                shader_location: 2,
-                                format: wgpu::VertexFormat::Float32x3,
-                            },
-                        ],
-                    }],
-                },
-                fragment: Some(wgpu::FragmentState {
-                    module: &debug_shader,
-                    entry_point: "fs_main",
-                    targets: &[Some(wgpu::ColorTargetState {
-                        format: surface_config.format,
-                        blend: Some(wgpu::BlendState::REPLACE),
-                        write_mask: wgpu::ColorWrites::ALL,
-                    })],
-                }),
-                primitive: wgpu::PrimitiveState {
-                    topology: wgpu::PrimitiveTopology::TriangleList,
-                    strip_index_format: None,
-                    front_face: wgpu::FrontFace::Ccw,
-                    cull_mode: Some(wgpu::Face::Back),
-                    polygon_mode: wgpu::PolygonMode::Line,
-                    unclipped_depth: false,
-                    conservative: false,
-                },
-                depth_stencil: Some(wgpu::DepthStencilState {
-                    format: wgpu::TextureFormat::Depth32Float,
-                    depth_write_enabled: true,
-                    depth_compare: wgpu::CompareFunction::Less,
-                    stencil: wgpu::StencilState::default(),
-                    bias: wgpu::DepthBiasState::default(),
-                }),
-                multisample: wgpu::MultisampleState {
-                    count: 1,
-                    mask: !0,
-                    alpha_to_coverage_enabled: false,
-                },
-                multiview: None,
-            });
+        let debug_pipeline_data = create_debug_pipeline_data(&device, &surface_config);
 
-        let debug_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("debug_uniform_buffer"),
-            size: std::mem::size_of::<Uniforms>() as wgpu::BufferAddress,
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
-        let debug_uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("debug_uniform_bind_group"),
-            layout: &debug_uniform_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: debug_uniform_buffer.as_entire_binding(),
-            }],
-        });
         // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
         let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -340,9 +238,7 @@ impl<'a> Renderer<'a> {
             light_bind_group,
             depth_texture,
             render_pipeline,
-            debug_render_pipeline,
-            debug_uniform_buffer,
-            debug_uniform_bind_group,
+            debug_pipeline_data,
         }
     }
 
@@ -469,7 +365,7 @@ impl<'a> Renderer<'a> {
                 occlusion_query_set: None,
             });
 
-            debug_render_pass.set_pipeline(&self.debug_render_pipeline);
+            debug_render_pass.set_pipeline(&self.debug_pipeline_data.render_pipeline);
 
             // Update debug uniforms
             let mut debug_uniforms = Uniforms::new();
@@ -481,12 +377,12 @@ impl<'a> Renderer<'a> {
             debug_uniforms.normal3 = primitives[0].normal_matrix().z_axis.extend(0.0).to_array();
 
             self.queue.write_buffer(
-                &self.debug_uniform_buffer,
+                &self.debug_pipeline_data.uniform_buffer,
                 0,
                 bytemuck::cast_slice(&[debug_uniforms]),
             );
 
-            debug_render_pass.set_bind_group(0, &self.debug_uniform_bind_group, &[]);
+            debug_render_pass.set_bind_group(0, &self.debug_pipeline_data.uniform_bind_group, &[]);
 
             // Draw debug mesh (assuming you have a debug_mesh field in your Renderer)
             // self.light.debug_mesh.draw(&mut debug_render_pass);
@@ -602,4 +498,117 @@ fn create_depth_texture(
     };
     let texture = device.create_texture(&desc);
     texture.create_view(&wgpu::TextureViewDescriptor::default())
+}
+
+fn create_debug_pipeline_data(
+    device: &Device,
+    surface_config: &SurfaceConfiguration,
+) -> PipelineData {
+    let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some("debug_shader"),
+        source: wgpu::ShaderSource::Wgsl(include_str!("shaders/debug.wgsl").into()),
+    });
+    let debug_uniform_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: Some(
+                        NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap(),
+                    ),
+                },
+                count: None,
+            }],
+            label: Some("debug_uniform_bind_group_layout"),
+        });
+    let debug_render_pipeline_layout =
+        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("debug_render_pipeline_layout"),
+            bind_group_layouts: &[&debug_uniform_bind_group_layout],
+            push_constant_ranges: &[],
+        });
+    let debug_render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: Some("debug_render_pipeline"),
+        layout: Some(&debug_render_pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: &debug_shader,
+            entry_point: "vs_main",
+            buffers: &[wgpu::VertexBufferLayout {
+                array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+                step_mode: wgpu::VertexStepMode::Vertex,
+                attributes: &[
+                    wgpu::VertexAttribute {
+                        offset: 0,
+                        shader_location: 0,
+                        format: wgpu::VertexFormat::Float32x3,
+                    },
+                    wgpu::VertexAttribute {
+                        offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                        shader_location: 1,
+                        format: wgpu::VertexFormat::Float32x3,
+                    },
+                    wgpu::VertexAttribute {
+                        offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
+                        shader_location: 2,
+                        format: wgpu::VertexFormat::Float32x3,
+                    },
+                ],
+            }],
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: &debug_shader,
+            entry_point: "fs_main",
+            targets: &[Some(wgpu::ColorTargetState {
+                format: surface_config.format,
+                blend: Some(wgpu::BlendState::REPLACE),
+                write_mask: wgpu::ColorWrites::ALL,
+            })],
+        }),
+        primitive: wgpu::PrimitiveState {
+            topology: wgpu::PrimitiveTopology::TriangleList,
+            strip_index_format: None,
+            front_face: wgpu::FrontFace::Ccw,
+            cull_mode: Some(wgpu::Face::Back),
+            polygon_mode: wgpu::PolygonMode::Line,
+            unclipped_depth: false,
+            conservative: false,
+        },
+        depth_stencil: Some(wgpu::DepthStencilState {
+            format: wgpu::TextureFormat::Depth32Float,
+            depth_write_enabled: true,
+            depth_compare: wgpu::CompareFunction::Less,
+            stencil: wgpu::StencilState::default(),
+            bias: wgpu::DepthBiasState::default(),
+        }),
+        multisample: wgpu::MultisampleState {
+            count: 1,
+            mask: !0,
+            alpha_to_coverage_enabled: false,
+        },
+        multiview: None,
+    });
+
+    let debug_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("debug_uniform_buffer"),
+        size: std::mem::size_of::<Uniforms>() as wgpu::BufferAddress,
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+    let debug_uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("debug_uniform_bind_group"),
+        layout: &debug_uniform_bind_group_layout,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: debug_uniform_buffer.as_entire_binding(),
+        }],
+    });
+
+    PipelineData {
+        render_pipeline: debug_render_pipeline,
+        uniform_buffer: debug_uniform_buffer,
+        uniform_bind_group: debug_uniform_bind_group,
+    }
 }
