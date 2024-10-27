@@ -1,13 +1,17 @@
 use glam::{EulerRot, Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 
-use super::core::{Transform, Vertex};
+use super::{
+    core::{Transform, Vertex},
+    shader_data::ShaderData,
+};
 
 pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
     fn update(&mut self, delta_time: f32);
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
+    fn shader_data(&self) -> &dyn ShaderData;
     fn transform(&mut self) -> &mut Transform;
 }
 
