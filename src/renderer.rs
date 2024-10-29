@@ -19,7 +19,7 @@ use crate::{
     gui::Gui,
 };
 
-const MAX_PRIMITIVES: usize = 2;
+const MAX_PRIMITIVES: usize = 3;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -311,6 +311,8 @@ impl<'a> Renderer<'a> {
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
+        self.light_uniform.position = self.light.transform.position.to_array();
+
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
@@ -319,8 +321,6 @@ impl<'a> Renderer<'a> {
             self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
             self.uniforms[i].signal = 1.0; //signal;
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
-
-            self.light_uniform.position = self.light.transform.position.to_array();
             // self.light_uniform.intensity = signal;
 
             self.queue.write_buffer(
