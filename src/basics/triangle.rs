@@ -48,8 +48,4 @@ impl Primitive for Triangle {
     fn transform(&mut self) -> &mut super::core::Transform {
         &mut self.state.transform
     }
-
-    fn shader_data(&self) -> &dyn super::shader_data::ShaderData {
-        todo!()
-    }
 }

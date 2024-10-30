@@ -2,7 +2,7 @@ use glam::{EulerRot, Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 
 use super::{
-    core::{Transform, Vertex},
+    core::{PipelineData, Transform, Vertex},
     shader_data::ShaderData,
 };
 
@@ -11,8 +11,8 @@ pub trait Primitive {
     fn update(&mut self, delta_time: f32);
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
-    fn shader_data(&self) -> &dyn ShaderData;
     fn transform(&mut self) -> &mut Transform;
+    // fn pipeline_data(&self) -> &PipelineData;
 }
 
 pub struct PrimitiveState {
@@ -22,6 +22,7 @@ pub struct PrimitiveState {
     pub transform: Transform,
     pub model_matrix: Mat4,
     pub normal_matrix: Mat3,
+    // pub pipeline: PipelineData,
 }
 
 impl PrimitiveState {
@@ -39,6 +40,7 @@ impl PrimitiveState {
         });
 
         let num_indices = indices.len() as u32;
+        // let pipeline_data = create_pipeline_data();
         Self {
             vertex_buffer,
             index_buffer,

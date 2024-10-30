@@ -59,10 +59,6 @@ impl Primitive for Sphere {
     fn transform(&mut self) -> &mut super::core::Transform {
         &mut self.state.transform
     }
-
-    fn shader_data(&self) -> &dyn super::shader_data::ShaderData {
-        todo!()
-    }
 }
 
 fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; VERTEX_COUNT * 6]) {
