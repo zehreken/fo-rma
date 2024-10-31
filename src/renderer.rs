@@ -547,6 +547,7 @@ fn create_pipeline_data(
         render_pipeline: render_pipeline,
         uniform_buffer: uniform_buffer,
         uniform_bind_group: uniform_bind_group,
+        light_bind_group: Some(light_bind_group),
     }
 }
 
@@ -660,5 +661,6 @@ fn create_debug_pipeline_data(
         render_pipeline: debug_render_pipeline,
         uniform_buffer: debug_uniform_buffer,
         uniform_bind_group: debug_uniform_bind_group,
+        light_bind_group: None,
     }
 }
