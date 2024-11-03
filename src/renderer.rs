@@ -12,7 +12,7 @@ use winit::{dpi::PhysicalSize, window::Window};
 use crate::{
     basics::{
         camera::{self, Camera},
-        core::{LightUniform, PipelineData, Uniforms, Vertex},
+        core::{LightData, LightUniform, PipelineData, Uniforms, Vertex},
         light::Light,
         primitive::Primitive,
     },
@@ -30,9 +30,6 @@ pub struct Renderer<'a> {
     pub camera: Camera,
     uniforms: Vec<Uniforms>,
     light: Light,
-    light_uniform: LightUniform,
-    light_buffer: Buffer,
-    light_bind_group: BindGroup,
     depth_texture: TextureView,
     pipeline_data: PipelineData,
     debug_pipeline_data: PipelineData,
@@ -123,9 +120,6 @@ impl<'a> Renderer<'a> {
             camera,
             uniforms,
             light,
-            light_uniform,
-            light_buffer,
-            light_bind_group,
             depth_texture,
             pipeline_data,
             debug_pipeline_data,
@@ -201,7 +195,8 @@ impl<'a> Renderer<'a> {
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
-        self.light_uniform.position = self.light.transform.position.to_array();
+        let light_data = self.pipeline_data.light_data.as_mut().unwrap();
+        light_data.uniform.position = self.light.transform.position.to_array();
 
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
@@ -219,16 +214,16 @@ impl<'a> Renderer<'a> {
                 bytemuck::cast_slice(&[self.uniforms[i]]),
             );
             self.queue.write_buffer(
-                &self.light_buffer,
+                &light_data.uniform_buffer,
                 0,
-                bytemuck::cast_slice(&[self.light_uniform]),
+                bytemuck::cast_slice(&[light_data.uniform]),
             );
             render_pass.set_bind_group(
                 0,
                 &self.pipeline_data.uniform_bind_group,
                 &[uniform_offset as u32],
             );
-            render_pass.set_bind_group(1, &self.light_bind_group, &[]);
+            render_pass.set_bind_group(1, &light_data.bind_group, &[]);
             primitive.draw(&mut render_pass);
         }
 
@@ -543,11 +538,17 @@ fn create_pipeline_data(
         multiview: None,
     });
 
+    let light_data = LightData {
+        uniform: light_uniform,
+        uniform_buffer: light_buffer,
+        bind_group: light_bind_group,
+    };
+
     PipelineData {
         render_pipeline: render_pipeline,
         uniform_buffer: uniform_buffer,
         uniform_bind_group: uniform_bind_group,
-        light_bind_group: Some(light_bind_group),
+        light_data: Some(light_data),
     }
 }
 
@@ -661,6 +662,6 @@ fn create_debug_pipeline_data(
         render_pipeline: debug_render_pipeline,
         uniform_buffer: debug_uniform_buffer,
         uniform_bind_group: debug_uniform_bind_group,
-        light_bind_group: None,
+        light_data: None,
     }
 }

@@ -5,7 +5,13 @@ pub struct PipelineData {
     pub render_pipeline: RenderPipeline,
     pub uniform_buffer: Buffer,
     pub uniform_bind_group: BindGroup,
-    pub light_bind_group: Option<BindGroup>,
+    pub light_data: Option<LightData>,
+}
+
+pub struct LightData {
+    pub uniform: LightUniform,
+    pub uniform_buffer: Buffer,
+    pub bind_group: BindGroup,
 }
 
 #[repr(C)]
