@@ -19,7 +19,7 @@ use crate::{
     gui::Gui,
 };
 
-const MAX_PRIMITIVES: usize = 3;
+const MAX_PRIMITIVES: usize = 1;
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -101,6 +101,7 @@ impl<'a> Renderer<'a> {
             }],
             label: Some("light_bind_group"),
         });
+        // I might need to pass this to create_render_pipeline function
 
         // =============
         // Debug
