@@ -75,7 +75,7 @@ impl AudioModel {
 
         let sample_rate = config.sample_rate.0;
 
-        let mut metronome = Metronome::new(120, sample_rate, config.channels as u32);
+        let mut metronome = Metronome::new(60, sample_rate, config.channels as u32);
         let show_beat = Arc::new(AtomicBool::new(false));
         let show_beat_clone = show_beat.clone();
 

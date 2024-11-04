@@ -156,18 +156,14 @@ impl<'a> Renderer<'a> {
                 label: Some("render_encoder"),
             });
 
+        let bg_color = Color::BLACK;
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("render_pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
                 view: &output_view,
                 resolve_target: None,
                 ops: Operations {
-                    load: LoadOp::Clear(Color {
-                        r: 0.3,
-                        g: 0.3,
-                        b: 0.3,
-                        a: 1.0,
-                    }),
+                    load: LoadOp::Clear(bg_color),
                     store: StoreOp::Store,
                 },
             })],

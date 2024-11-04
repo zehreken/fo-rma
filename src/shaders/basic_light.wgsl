@@ -47,7 +47,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let light_dir = normalize(light.position - in.world_position);
 
     // Ambient
-    let ambient_strength = 0.1;
+    let ambient_strength = 0.0;
     let ambient = vec3(1.0, 1.0, 1.0) * ambient_strength;
 
     // Diffuse
