@@ -1,3 +1,3 @@
-pub struct GlobalAudioClock {
+pub struct AudioClock {
     sample_count: AtomicU32,
 }
