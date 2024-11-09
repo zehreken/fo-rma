@@ -1553,7 +1553,6 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 [[package]]
 name = "kopek"
 version = "0.1.0"
-source = "git+https://github.com/zehreken/kopek.git#f604fa35d975327ee50e0f0ff0865383b300d0a9"
 dependencies = [
  "audrey",
  "num",
