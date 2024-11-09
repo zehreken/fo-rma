@@ -7,7 +7,7 @@
 extern crate cpal;
 extern crate ringbuf;
 
-use std::sync::{atomic::AtomicBool, Arc};
+use std::sync::Arc;
 
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
@@ -80,9 +80,7 @@ impl AudioModel {
         let sample_rate = config.sample_rate.0;
         let audio_clock = Arc::new(AudioClock::new());
 
-        let mut metronome = Metronome::new(60, sample_rate, config.channels as u32);
-        let show_beat = Arc::new(AtomicBool::new(false));
-        let show_beat_clone = show_beat.clone();
+        let metronome = Metronome::new(60, sample_rate, config.channels as u32);
 
         let clock_for_audio = Arc::clone(&audio_clock);
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
@@ -90,8 +88,6 @@ impl AudioModel {
                 if let Some(input) = consumer.pop() {
                     *sample = input;
                 }
-                // show_beat_clone.store(metronome.show_beat(), std::sync::atomic::Ordering::SeqCst);
-                // metronome.update();
                 clock_for_audio.update();
             }
         };
@@ -125,7 +121,6 @@ impl AudioModel {
             metronome,
             input_producer,
             view_consumer,
-            // show_beat,
         })
     }
 
@@ -136,15 +131,12 @@ impl AudioModel {
     }
 
     pub fn show_beat(&self) -> bool {
-        // self.show_beat.load(std::sync::atomic::Ordering::SeqCst)
         self.metronome.show_beat()
     }
 
     pub fn update(&mut self) {
         let sample_count = self.audio_clock.sample_count();
-        self.metronome.sync(sample_count);
-        self.metronome.update();
-        // let t = self.show_beat.load(std::sync::atomic::Ordering::SeqCst);
+        self.metronome.update(sample_count);
         let t = self.metronome.show_beat();
         if t {
             self.input_producer.push(Input::Start).unwrap();
