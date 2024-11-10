@@ -18,7 +18,7 @@ pub enum NoiseType {
 
 pub struct Generator {
     is_running: bool,
-    tick: f32,
+    tick: u32,
     freq: f32,
     oscillator: Oscillator,
     oscillator_type: OscillatorType,
@@ -40,7 +40,7 @@ impl Generator {
         const TEMP_OCTAVE: u8 = 2u8.pow(1);
         Ok(Generator {
             is_running: true,
-            tick: 0.0,
+            tick: 0,
             freq: C_FREQ * TEMP_OCTAVE as f32,
             oscillator: Oscillator::new(sample_rate),
             oscillator_type: OscillatorType::Sawtooth,
@@ -58,9 +58,13 @@ impl Generator {
             if !self.producer.is_full() {
                 let mut value = match self.oscillator_type {
                     OscillatorType::Sine => self.oscillator.sine(self.freq, self.tick),
-                    OscillatorType::Sawtooth => self.oscillator.sawtooth(self.freq, self.tick),
-                    OscillatorType::Square => self.oscillator.square(self.freq, self.tick),
-                    OscillatorType::Triangle => self.oscillator.triangle(self.freq, self.tick),
+                    OscillatorType::Sawtooth => {
+                        self.oscillator.sawtooth(self.freq, self.tick as f32)
+                    }
+                    OscillatorType::Square => self.oscillator.square(self.freq, self.tick as f32),
+                    OscillatorType::Triangle => {
+                        self.oscillator.triangle(self.freq, self.tick as f32)
+                    }
                 };
                 value += 0.5
                     * match self.noise_type {
@@ -80,7 +84,7 @@ impl Generator {
                 if !self.view_producer.is_full() {
                     self.view_producer.push(value).unwrap();
                 }
-                self.tick += 1.0;
+                self.tick += 1;
             }
         }
         // Input

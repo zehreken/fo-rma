@@ -1,8 +1,12 @@
-use kopek::utils;
+use kopek::{
+    oscillator::{self, Oscillator},
+    utils,
+};
 
-#[derive(Debug)]
 pub struct Sequencer {
     pub is_running: bool,
+    oscillator: Oscillator,
+    producer: HeapProducer<f32>,
     beat_index: u32,
     length: u8,
     freqs: Vec<f32>,
@@ -14,8 +18,10 @@ pub struct Sequencer {
 impl Sequencer {
     pub fn new(bpm: u16, sample_rate: u32, channel_count: u32) -> Self {
         let tick_period = (sample_rate * channel_count * 60) as f32 / bpm as f32;
+        let oscillator = Oscillator::new(sample_rate as f32);
         Self {
             is_running: false,
+            oscillator,
             beat_index: 0,
             length: 8,
             freqs: vec![
@@ -34,7 +40,6 @@ impl Sequencer {
         }
     }
 
-    // update should be called from the audio thread and while processing the samples
     pub fn update(&mut self, elapsed_samples: u32) {
         self.sample_count = elapsed_samples;
 
@@ -51,6 +56,9 @@ impl Sequencer {
     // Used to make a sound or visualize
     pub fn show_beat(&self) -> (bool, f32) {
         let i = (self.beat_index % self.length as u32) as usize;
-        (self.is_beat, self.freqs[i])
+        (
+            self.is_beat,
+            self.oscillator.sine(self.freqs[i], self.sample_count),
+        )
     }
 }
