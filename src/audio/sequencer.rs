@@ -2,6 +2,7 @@ use kopek::{
     oscillator::{self, Oscillator},
     utils,
 };
+use ringbuf::HeapProducer;
 
 pub struct Sequencer {
     pub is_running: bool,
@@ -16,12 +17,18 @@ pub struct Sequencer {
 }
 
 impl Sequencer {
-    pub fn new(bpm: u16, sample_rate: u32, channel_count: u32) -> Self {
+    pub fn new(
+        bpm: u16,
+        sample_rate: u32,
+        channel_count: u32,
+        producer: HeapProducer<f32>,
+    ) -> Self {
         let tick_period = (sample_rate * channel_count * 60) as f32 / bpm as f32;
         let oscillator = Oscillator::new(sample_rate as f32);
         Self {
             is_running: false,
             oscillator,
+            producer,
             beat_index: 0,
             length: 8,
             freqs: vec![
