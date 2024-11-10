@@ -29,7 +29,6 @@ pub struct AudioModel {
     metronome: Metronome,
     input_producer: HeapProducer<Input>,
     view_consumer: HeapConsumer<f32>,
-    // show_beat: Arc<AtomicBool>,
 }
 
 impl AudioModel {
@@ -137,8 +136,7 @@ impl AudioModel {
     pub fn update(&mut self) {
         let sample_count = self.audio_clock.sample_count();
         self.metronome.update(sample_count);
-        let t = self.metronome.show_beat();
-        if t {
+        if self.metronome.show_beat() {
             self.input_producer.push(Input::Start).unwrap();
         } else {
             self.input_producer.push(Input::Stop).unwrap();

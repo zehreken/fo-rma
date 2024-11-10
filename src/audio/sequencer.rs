@@ -1,7 +1,11 @@
-#[derive(Debug, Clone, Copy)]
+use kopek::utils;
+
+#[derive(Debug)]
 pub struct Sequencer {
     pub is_running: bool,
     beat_index: u32,
+    length: u8,
+    freqs: Vec<f32>,
     sample_count: u32,
     tick_period: f32,
     is_beat: bool,
@@ -13,6 +17,17 @@ impl Sequencer {
         Self {
             is_running: false,
             beat_index: 0,
+            length: 8,
+            freqs: vec![
+                utils::C_FREQ,
+                utils::D_FREQ,
+                utils::E_FREQ,
+                utils::F_FREQ,
+                utils::D_FREQ,
+                utils::C_FREQ,
+                utils::F_FREQ,
+                utils::E_FREQ,
+            ],
             sample_count: 0,
             tick_period,
             is_beat: false,
@@ -20,8 +35,8 @@ impl Sequencer {
     }
 
     // update should be called from the audio thread and while processing the samples
-    pub fn update(&mut self) {
-        self.sample_count += 1;
+    pub fn update(&mut self, elapsed_samples: u32) {
+        self.sample_count = elapsed_samples;
 
         let remainder = self.sample_count % self.tick_period as u32;
         self.is_beat = remainder > 0 && remainder < 8192;
@@ -34,13 +49,8 @@ impl Sequencer {
     }
 
     // Used to make a sound or visualize
-    pub fn show_beat(&self) -> bool {
-        self.is_beat
-    }
-
-    // This is to sync the metronome with the app, if the metronome is created
-    // after the app has started
-    pub fn sync(&mut self, elapsed_samples: u32) {
-        self.sample_count = elapsed_samples;
+    pub fn show_beat(&self) -> (bool, f32) {
+        let i = (self.beat_index % self.length as u32) as usize;
+        (self.is_beat, self.freqs[i])
     }
 }
