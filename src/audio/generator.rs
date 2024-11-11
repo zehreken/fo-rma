@@ -57,7 +57,7 @@ impl Generator {
         for _ in 0..1024 {
             if !self.producer.is_full() {
                 let mut value = match self.oscillator_type {
-                    OscillatorType::Sine => self.oscillator.sine(self.freq, self.tick as f32),
+                    OscillatorType::Sine => self.oscillator.sine(self.freq, self.tick),
                     OscillatorType::Sawtooth => {
                         self.oscillator.sawtooth(self.freq, self.tick as f32)
                     }
