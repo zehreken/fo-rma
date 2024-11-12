@@ -16,6 +16,8 @@ use cpal::{
 use kopek::metronome::Metronome;
 use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
 
+use crate::audio::sequencer::Sequencer;
+
 use super::{
     audio_clock::AudioClock,
     generator::{Generator, Input},
@@ -108,10 +110,15 @@ impl AudioModel {
         );
         output_stream.play().expect("Can't play output stream");
 
-        let mut generator =
-            Generator::new(producer, input_consumer, view_producer, sample_rate as f32).unwrap();
+        // let mut generator =
+        //     Generator::new(producer, input_consumer, view_producer, sample_rate as f32).unwrap();
+        // std::thread::spawn(move || loop {
+        //     generator.update();
+        // });
+
+        let sequencer = Sequencer::new(120, sample_rate, config.channels.into(), producer);
         std::thread::spawn(move || loop {
-            generator.update();
+            sequencer.update();
         });
 
         Ok(AudioModel {
