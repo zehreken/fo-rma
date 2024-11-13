@@ -53,6 +53,13 @@ impl Sequencer {
         let remainder = self.sample_count % self.tick_period as u32;
         self.is_beat = remainder > 0 && remainder < 8192;
         self.beat_index = self.sample_count / self.tick_period as u32;
+
+        for _ in 0..1024 {
+            if !self.producer.is_full() {
+                let value = self.oscillator.sine(self.freqs[0], self.sample_count);
+                self.producer.push(value).unwrap();
+            }
+        }
     }
 
     // Current number of beats played, similar to elapsed time

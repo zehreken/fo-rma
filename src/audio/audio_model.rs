@@ -29,6 +29,7 @@ pub struct AudioModel {
     output_stream: Stream,
     audio_clock: Arc<AudioClock>,
     metronome: Metronome,
+    sequencer: Sequencer,
     input_producer: HeapProducer<Input>,
     view_consumer: HeapConsumer<f32>,
 }
@@ -117,14 +118,12 @@ impl AudioModel {
         // });
 
         let sequencer = Sequencer::new(120, sample_rate, config.channels.into(), producer);
-        std::thread::spawn(move || loop {
-            sequencer.update();
-        });
 
         Ok(AudioModel {
             output_stream,
             audio_clock,
             metronome,
+            sequencer,
             input_producer,
             view_consumer,
         })
@@ -143,11 +142,12 @@ impl AudioModel {
     pub fn update(&mut self) {
         let sample_count = self.audio_clock.sample_count();
         self.metronome.update(sample_count);
-        if self.metronome.show_beat() {
-            self.input_producer.push(Input::Start).unwrap();
-        } else {
-            self.input_producer.push(Input::Stop).unwrap();
-        }
+        self.sequencer.update(sample_count);
+        // if self.metronome.show_beat() {
+        //     self.input_producer.push(Input::Start).unwrap();
+        // } else {
+        //     self.input_producer.push(Input::Stop).unwrap();
+        // }
     }
 }
 
