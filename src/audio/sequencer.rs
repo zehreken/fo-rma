@@ -53,10 +53,17 @@ impl Sequencer {
         let remainder = self.sample_count % self.tick_period as u32;
         self.is_beat = remainder > 0 && remainder < 8192;
         self.beat_index = self.sample_count / self.tick_period as u32;
+        let i = (self.beat_index % self.length as u32) as usize;
+        const TEMP_OCTAVE: u8 = 2u8.pow(4);
 
         for _ in 0..1024 {
             if !self.producer.is_full() {
-                let value = self.oscillator.sine(self.freqs[0], self.sample_count);
+                let value = if self.show_beat() {
+                    self.oscillator
+                        .sine(self.freqs[i] * TEMP_OCTAVE as f32, self.sample_count)
+                } else {
+                    0.0
+                };
                 self.producer.push(value).unwrap();
             }
         }
@@ -68,11 +75,7 @@ impl Sequencer {
     }
 
     // Used to make a sound or visualize
-    pub fn show_beat(&self) -> (bool, f32) {
-        let i = (self.beat_index % self.length as u32) as usize;
-        (
-            self.is_beat,
-            self.oscillator.sine(self.freqs[i], self.sample_count),
-        )
+    pub fn show_beat(&self) -> bool {
+        self.is_beat
     }
 }
