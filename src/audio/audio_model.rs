@@ -117,7 +117,7 @@ impl AudioModel {
         //     generator.update();
         // });
 
-        let sequencer = Sequencer::new(60, sample_rate, config.channels.into(), producer);
+        let sequencer = Sequencer::new(120, sample_rate, config.channels.into(), producer);
 
         Ok(AudioModel {
             output_stream,
@@ -140,9 +140,9 @@ impl AudioModel {
     }
 
     pub fn update(&mut self) {
-        let sample_count = self.audio_clock.sample_count();
+        let elapsed_samples = self.audio_clock.get_elapsed_samples();
         // self.metronome.update(sample_count);
-        self.sequencer.update(sample_count);
+        self.sequencer.update(elapsed_samples);
         // if self.metronome.show_beat() {
         //     self.input_producer.push(Input::Start).unwrap();
         // } else {

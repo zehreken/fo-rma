@@ -56,6 +56,8 @@ impl Sequencer {
         let i = (self.beat_index % self.length as u32) as usize;
         const TEMP_OCTAVE: u8 = 2u8.pow(6);
 
+        dbg!(elapsed_samples);
+
         for sample in 0..1024 {
             if !self.producer.is_full() {
                 let value = if self.show_beat() {
