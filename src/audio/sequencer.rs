@@ -11,7 +11,7 @@ pub struct Sequencer {
     beat_index: u32,
     length: u8,
     freqs: Vec<f32>,
-    sample_count: u32,
+    elapsed_samples: u32,
     tick_period: f32,
     is_beat: bool,
 }
@@ -41,26 +41,28 @@ impl Sequencer {
                 utils::F_FREQ,
                 utils::E_FREQ,
             ],
-            sample_count: 0,
+            elapsed_samples: 0,
             tick_period,
             is_beat: false,
         }
     }
 
     pub fn update(&mut self, elapsed_samples: u32) {
-        self.sample_count = elapsed_samples;
+        self.elapsed_samples = elapsed_samples;
 
-        let remainder = self.sample_count % self.tick_period as u32;
+        let remainder = self.elapsed_samples % self.tick_period as u32;
         self.is_beat = remainder > 0 && remainder < 8192;
-        self.beat_index = self.sample_count / self.tick_period as u32;
+        self.beat_index = self.elapsed_samples / self.tick_period as u32;
         let i = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(4);
+        const TEMP_OCTAVE: u8 = 2u8.pow(6);
 
-        for _ in 0..1024 {
+        for sample in 0..1024 {
             if !self.producer.is_full() {
                 let value = if self.show_beat() {
-                    self.oscillator
-                        .sine(self.freqs[i] * TEMP_OCTAVE as f32, self.sample_count)
+                    self.oscillator.sine(
+                        self.freqs[i] * TEMP_OCTAVE as f32,
+                        self.elapsed_samples + sample as u32,
+                    )
                 } else {
                     0.0
                 };
