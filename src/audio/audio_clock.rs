@@ -12,10 +12,10 @@ impl AudioClock {
     }
 
     pub fn update(&self) {
-        self.elapsed_samples.fetch_add(1, Ordering::Relaxed);
+        self.elapsed_samples.fetch_add(1, Ordering::Release);
     }
 
     pub fn get_elapsed_samples(&self) -> u32 {
-        self.elapsed_samples.load(Ordering::Relaxed)
+        self.elapsed_samples.load(Ordering::Acquire)
     }
 }
