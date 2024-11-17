@@ -72,7 +72,7 @@ impl AudioModel {
         //     producer.push(0.0).unwrap();
         // }
 
-        let ring = HeapRb::new(2048);
+        let ring = HeapRb::new(4096 * 2);
         let (producer, mut consumer) = ring.split();
         let input_ring = HeapRb::new(10);
         let (input_producer, input_consumer) = input_ring.split();
@@ -89,6 +89,8 @@ impl AudioModel {
             for sample in data {
                 if let Some(input) = consumer.pop() {
                     *sample = input;
+                } else {
+                    eprintln!("Rignbuffer underrun {:?}", std::time::SystemTime::now())
                 }
                 clock_for_audio.update();
             }
@@ -117,7 +119,11 @@ impl AudioModel {
         //     generator.update();
         // });
 
-        let sequencer = Sequencer::new(120, sample_rate, config.channels.into(), producer);
+        let mut sequencer = Sequencer::new(240, sample_rate, config.channels.into(), producer);
+        // std::thread::spawn(move || loop {
+        //     let elapsed_samples = audio_clock.get_elapsed_samples();
+        //     sequencer.update(elapsed_samples);
+        // });
 
         Ok(AudioModel {
             output_stream,

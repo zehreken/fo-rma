@@ -4,6 +4,8 @@ use kopek::{
 };
 use ringbuf::HeapProducer;
 
+use crate::basics::core::clamp;
+
 pub struct Sequencer {
     pub is_running: bool,
     oscillator: Oscillator,
@@ -14,6 +16,7 @@ pub struct Sequencer {
     elapsed_samples: u32,
     tick_period: f32,
     is_beat: bool,
+    ramp: f32,
 }
 
 impl Sequencer {
@@ -44,6 +47,7 @@ impl Sequencer {
             elapsed_samples: 0,
             tick_period,
             is_beat: false,
+            ramp: 0.0,
         }
     }
 
@@ -54,20 +58,22 @@ impl Sequencer {
         self.is_beat = remainder > 0 && remainder < 8192;
         self.beat_index = self.elapsed_samples / self.tick_period as u32;
         let i = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(6);
+        const TEMP_OCTAVE: u8 = 2u8.pow(5);
 
-        dbg!(elapsed_samples);
+        // dbg!(elapsed_samples);
 
-        for sample in 0..1024 {
+        for sample in 0..4096 {
             if !self.producer.is_full() {
-                let value = if self.show_beat() {
-                    self.oscillator.sine(
-                        self.freqs[i] * TEMP_OCTAVE as f32,
-                        self.elapsed_samples + sample as u32,
-                    )
-                } else {
-                    0.0
-                };
+                let mut value = self.oscillator.sine(
+                    self.freqs[i] * TEMP_OCTAVE as f32,
+                    self.elapsed_samples + sample as u32,
+                );
+                if self.is_beat && self.ramp < 1.0 {
+                    self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
+                } else if !self.is_beat && self.ramp > 0.0 {
+                    self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
+                }
+                value *= self.ramp;
                 self.producer.push(value).unwrap();
             }
         }
