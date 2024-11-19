@@ -62,16 +62,16 @@ impl Sequencer {
 
         // dbg!(elapsed_samples);
 
-        for sample in 0..4096 {
+        for sample in 0..2048 {
             if !self.producer.is_full() {
                 let mut value = self.oscillator.sine(
                     self.freqs[i] * TEMP_OCTAVE as f32,
                     self.elapsed_samples + sample as u32,
                 );
                 if self.is_beat && self.ramp < 1.0 {
-                    self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
+                    self.ramp = clamp(self.ramp + 0.01, 0.0, 1.0);
                 } else if !self.is_beat && self.ramp > 0.0 {
-                    self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
+                    self.ramp = clamp(self.ramp - 0.01, 0.0, 1.0);
                 }
                 value *= self.ramp;
                 self.producer.push(value).unwrap();
