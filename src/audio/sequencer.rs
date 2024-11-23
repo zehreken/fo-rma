@@ -13,10 +13,11 @@ pub struct Sequencer {
     beat_index: u32,
     length: u8,
     freqs: Vec<f32>,
-    elapsed_samples: u32,
+    // elapsed_samples: u32,
     tick_period: f32,
     is_beat: bool,
     ramp: f32,
+    tick: u32,
 }
 
 impl Sequencer {
@@ -44,37 +45,38 @@ impl Sequencer {
                 utils::F_FREQ,
                 utils::E_FREQ,
             ],
-            elapsed_samples: 0,
+            // elapsed_samples: 0,
             tick_period,
             is_beat: false,
             ramp: 0.0,
+            tick: 0,
         }
     }
 
     pub fn update(&mut self, elapsed_samples: u32) {
-        self.elapsed_samples = elapsed_samples;
+        // self.elapsed_samples = elapsed_samples;
 
-        let remainder = self.elapsed_samples % self.tick_period as u32;
+        let remainder = elapsed_samples % self.tick_period as u32;
         self.is_beat = remainder > 0 && remainder < 8192;
-        self.beat_index = self.elapsed_samples / self.tick_period as u32;
+        self.beat_index = elapsed_samples / self.tick_period as u32;
         let i = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(5);
+        const TEMP_OCTAVE: u8 = 2u8.pow(3);
 
-        // dbg!(elapsed_samples);
+        // println!("e: {}", elapsed_samples);
 
-        for sample in 0..2048 {
+        for _ in 0..4096 * 2 {
             if !self.producer.is_full() {
-                let mut value = self.oscillator.sine(
-                    self.freqs[i] * TEMP_OCTAVE as f32,
-                    self.elapsed_samples + sample as u32,
-                );
+                let mut value = self
+                    .oscillator
+                    .sine(self.freqs[i] * TEMP_OCTAVE as f32, self.tick);
                 if self.is_beat && self.ramp < 1.0 {
-                    self.ramp = clamp(self.ramp + 0.01, 0.0, 1.0);
+                    self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
                 } else if !self.is_beat && self.ramp > 0.0 {
-                    self.ramp = clamp(self.ramp - 0.01, 0.0, 1.0);
+                    self.ramp = clamp(self.ramp - 0.00001, 0.0, 1.0);
                 }
                 value *= self.ramp;
                 self.producer.push(value).unwrap();
+                self.tick += 1;
             }
         }
     }
