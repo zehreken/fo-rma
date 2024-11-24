@@ -22,15 +22,15 @@ impl Test {
 
     fn draw(&mut self, ctx: &Context, fps: f32) {
         egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
-                ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::RED));
-                ui.menu_button("File", |ui| {
-                    if ui.button("About...").clicked() {
-                        self.is_window_open = true;
-                        ui.close_menu();
-                    }
-                });
-            });
+            ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::RED));
+            // egui::menu::bar(ui, |ui| {
+            // ui.menu_button("File", |ui| {
+            //     if ui.button("About...").clicked() {
+            //         self.is_window_open = true;
+            //         ui.close_menu();
+            //     }
+            // });
+            // });
         });
 
         egui::Window::new("Hello, winit-wgpu-egui")

@@ -105,11 +105,7 @@ impl AudioModel {
         //     generator.update();
         // });
 
-        let mut sequencer = Sequencer::new(60, sample_rate, config.channels.into(), producer);
-        // std::thread::spawn(move || loop {
-        //     let elapsed_samples = audio_clock.get_elapsed_samples();
-        //     sequencer.update(elapsed_samples);
-        // });
+        let sequencer = Sequencer::new(120, sample_rate, output_config.channels.into(), producer);
 
         Ok(AudioModel {
             output_stream,
