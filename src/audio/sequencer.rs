@@ -37,13 +37,13 @@ impl Sequencer {
             length: 8,
             freqs: vec![
                 utils::C_FREQ,
+                utils::G_FREQ,
+                utils::A_FREQ,
+                utils::G_FREQ,
+                utils::F_FREQ,
+                utils::E_FREQ,
+                utils::D_FREQ,
                 utils::C_FREQ,
-                utils::G_FREQ,
-                utils::G_FREQ,
-                utils::A_FREQ,
-                utils::A_FREQ,
-                utils::G_FREQ,
-                utils::G_FREQ,
             ],
             // elapsed_samples: 0,
             tick_period,
@@ -70,7 +70,7 @@ impl Sequencer {
                     .oscillator
                     .sine(self.freqs[i] * TEMP_OCTAVE as f32, self.tick);
                 if self.is_beat && self.ramp < 1.0 {
-                    self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
+                    self.ramp = clamp(self.ramp + 0.0001, 0.0, 1.0);
                 } else if !self.is_beat && self.ramp > 0.0 {
                     self.ramp = clamp(self.ramp - 0.00001, 0.0, 1.0);
                 }
