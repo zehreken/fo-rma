@@ -70,7 +70,7 @@ impl Sequencer {
                     .oscillator
                     .sine(self.freqs[i] * TEMP_OCTAVE as f32, self.tick);
                 if self.is_beat && self.ramp < 1.0 {
-                    self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
+                    self.ramp = clamp(self.ramp + 0.0001, 0.0, 1.0);
                 } else if !self.is_beat && self.ramp > 0.0 {
                     self.ramp = clamp(self.ramp - 0.00001, 0.0, 1.0);
                 }
