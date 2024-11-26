@@ -12,8 +12,8 @@ pub struct Sequencer {
     producer: HeapProducer<f32>,
     beat_index: u32,
     length: u8,
+    freq: f32,
     freqs: Vec<f32>,
-    // elapsed_samples: u32,
     tick_period: f32,
     is_beat: bool,
     ramp: f32,
@@ -29,23 +29,24 @@ impl Sequencer {
     ) -> Self {
         let tick_period = (sample_rate * channel_count * 60) as f32 / bpm as f32;
         let oscillator = Oscillator::new(sample_rate as f32);
+        let freqs = vec![
+            utils::C_FREQ,
+            utils::G_FREQ,
+            utils::A_FREQ,
+            utils::G_FREQ,
+            utils::F_FREQ,
+            utils::E_FREQ,
+            utils::D_FREQ,
+            utils::C_FREQ,
+        ];
         Self {
             is_running: false,
             oscillator,
             producer,
             beat_index: 0,
             length: 8,
-            freqs: vec![
-                utils::C_FREQ,
-                utils::G_FREQ,
-                utils::A_FREQ,
-                utils::G_FREQ,
-                utils::F_FREQ,
-                utils::E_FREQ,
-                utils::D_FREQ,
-                utils::C_FREQ,
-            ],
-            // elapsed_samples: 0,
+            freq: freqs[0],
+            freqs,
             tick_period,
             is_beat: false,
             ramp: 0.0,
@@ -54,21 +55,16 @@ impl Sequencer {
     }
 
     pub fn update(&mut self, elapsed_samples: u32) {
-        // self.elapsed_samples = elapsed_samples;
-
         let remainder = elapsed_samples % self.tick_period as u32;
         self.is_beat = remainder > 0 && remainder < 8192;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let i = (self.beat_index % self.length as u32) as usize;
         const TEMP_OCTAVE: u8 = 2u8.pow(3);
 
-        // println!("e: {}", elapsed_samples);
-
+        self.freq = self.freqs[i] * TEMP_OCTAVE as f32;
         for _ in 0..4096 * 2 {
             if !self.producer.is_full() {
-                let mut value = self
-                    .oscillator
-                    .sine(self.freqs[i] * TEMP_OCTAVE as f32, self.tick);
+                let mut value = self.oscillator.sine(self.freq, self.tick);
                 if self.is_beat && self.ramp < 1.0 {
                     self.ramp = clamp(self.ramp + 0.0001, 0.0, 1.0);
                 } else if !self.is_beat && self.ramp > 0.0 {
