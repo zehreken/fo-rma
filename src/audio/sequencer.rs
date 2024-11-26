@@ -60,14 +60,19 @@ impl Sequencer {
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
         const TEMP_OCTAVE: u8 = 2u8.pow(3);
+        let freq_diff: f32 = if step_index == 0 {
+            0.0
+        } else {
+            // Reach next freq in 50 samples
+            self.freqs[step_index] - self.freqs[step_index - 1] / 50.0
+        };
 
         for _ in 0..4096 * 2 {
             if !self.producer.is_full() {
                 // Ramp between steps
                 self.freq = self.freqs[step_index] * TEMP_OCTAVE as f32;
-                if step_index > 0 && self.freq != self.freqs[step_index] {
-                    self.freq += (self.freqs[step_index] - self.freqs[step_index - 1]) / 50.0;
-                    // Reach next freq in 50 samples
+                if self.freq != self.freqs[step_index] {
+                    self.freq += freq_diff;
                 }
                 // Ramp between volumes
                 let mut value = self.oscillator.sine(self.freq, self.tick);
