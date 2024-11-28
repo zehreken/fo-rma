@@ -52,7 +52,7 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
         // camera ============
         let camera = camera::Camera::new(
-            vec3(-2.0, 3.0, 2.0),
+            vec3(-0.0, 0.0, 2.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -156,7 +156,12 @@ impl<'a> Renderer<'a> {
                 label: Some("render_encoder"),
             });
 
-        let bg_color = Color::BLACK;
+        let bg_color = Color {
+            r: 0.263,
+            g: 0.208,
+            b: 0.655,
+            a: 1.0,
+        };
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("render_pass"),
             color_attachments: &[Some(RenderPassColorAttachment {

@@ -70,12 +70,14 @@ impl Sequencer {
         for _ in 0..4096 * 2 {
             if !self.producer.is_full() {
                 // Ramp between steps
-                self.freq = self.freqs[step_index] * TEMP_OCTAVE as f32;
-                if self.freq != self.freqs[step_index] {
-                    self.freq += freq_diff;
-                }
+                // if self.freq != self.freqs[step_index] {
+                //     self.freq += freq_diff;
+                // }
+                self.freq = self.freqs[step_index];
                 // Ramp between volumes
-                let mut value = self.oscillator.sine(self.freq, self.tick);
+                let mut value = self
+                    .oscillator
+                    .sine(self.freq * TEMP_OCTAVE as f32, self.tick);
                 if self.is_beat && self.ramp < 1.0 {
                     self.ramp = clamp(self.ramp + 0.0001, 0.0, 1.0);
                 } else if !self.is_beat && self.ramp > 0.0 {
