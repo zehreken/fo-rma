@@ -17,9 +17,11 @@ use crate::{
         primitive::Primitive,
     },
     gui::Gui,
+    utils,
 };
 
 const MAX_PRIMITIVES: usize = 1;
+const BG_COLOR: [f64; 3] = [0.263, 0.208, 0.655];
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -156,12 +158,14 @@ impl<'a> Renderer<'a> {
                 label: Some("render_encoder"),
             });
 
+        let c_bg_color = utils::srgb_to_linear(BG_COLOR, utils::GAMMA);
         let bg_color = Color {
-            r: 0.263,
-            g: 0.208,
-            b: 0.655,
+            r: c_bg_color[0],
+            g: c_bg_color[1],
+            b: c_bg_color[2],
             a: 1.0,
         };
+
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("render_pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
@@ -470,8 +474,8 @@ fn create_pipeline_data(
     });
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("shader"),
-        // source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
-        source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic_light.wgsl").into()),
+        source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
+        // source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic_light.wgsl").into()),
     });
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
