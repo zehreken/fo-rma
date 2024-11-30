@@ -1,16 +1,20 @@
-pub const GAMMA: f32 = 2.2;
+use num_traits::float::Float;
+use std::ops::Div;
+
+pub const GAMMA: f64 = 2.2;
 
 /// Applies gamma correction to a color (linear -> sRGB)
-pub fn gamma_correction(color: [f32; 3], gamma: f32) -> [f32; 3] {
+pub fn linear_to_srgb<T: Float + Div<T>>(color: [T; 3], gamma: T) -> [T; 3] {
+    let inv_gamma = T::from(1.0).unwrap() / gamma;
     [
-        color[0].powf(1.0 / gamma),
-        color[1].powf(1.0 / gamma),
-        color[2].powf(1.0 / gamma),
+        color[0].powf(inv_gamma),
+        color[1].powf(inv_gamma),
+        color[2].powf(inv_gamma),
     ]
 }
 
 /// Applies inverse gamma correction to a color (sRGB -> linear)
-pub fn inverse_gamma_correction(color: [f32; 3], gamma: f32) -> [f32; 3] {
+pub fn srgb_to_linear<T: Float>(color: [T; 3], gamma: T) -> [T; 3] {
     [
         color[0].powf(gamma),
         color[1].powf(gamma),
