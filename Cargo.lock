@@ -1106,6 +1106,7 @@ dependencies = [
  "image",
  "kopek",
  "log",
+ "num-traits",
  "pollster",
  "puffin",
  "rand",
