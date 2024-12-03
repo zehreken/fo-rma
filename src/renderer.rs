@@ -2,10 +2,9 @@ use std::{mem, num::NonZeroU64};
 
 use glam::vec3;
 use wgpu::{
-    util::DeviceExt, BindGroup, Buffer, Color, CommandEncoderDescriptor, Device, LoadOp,
-    Operations, Queue, RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp,
-    Surface, SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
-    TextureViewDescriptor,
+    util::DeviceExt, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
+    RenderPassColorAttachment, RenderPassDescriptor, StoreOp, Surface, SurfaceCapabilities,
+    SurfaceConfiguration, SurfaceError, TextureFormat, TextureView, TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -472,9 +471,12 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
+    let shader = include_str!("shaders/color.wgsl");
+    let shader_utils = include_str!("shaders/utils.wgsl");
+    let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic.wgsl").into()),
+        source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         // source: wgpu::ShaderSource::Wgsl(include_str!("shaders/basic_light.wgsl").into()),
     });
 
