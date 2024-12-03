@@ -1,3 +1,5 @@
+// Does not use model_view_projection
+// Renders the object in clip space
 struct VertexInput {
     @location(0) position: vec3<f32>,
     @location(1) color: vec3<f32>,
