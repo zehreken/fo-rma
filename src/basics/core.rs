@@ -34,6 +34,30 @@ impl Vertex {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct ColorUniform {
+    pub view_proj: [[f32; 4]; 4],
+    pub model: [[f32; 4]; 4],
+    pub color1: [f32; 4],
+    pub color2: [f32; 4],
+    pub color3: [f32; 4],
+    pub signal: f32,
+}
+
+impl ColorUniform {
+    pub fn new() -> Self {
+        Self {
+            view_proj: Mat4::IDENTITY.to_cols_array_2d(),
+            model: Mat4::IDENTITY.to_cols_array_2d(),
+            color1: [0.0; 4],
+            color2: [0.0; 4],
+            color3: [0.0; 4],
+            signal: 0.0,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Uniforms {
     pub view_proj: [[f32; 4]; 4],
     pub model: [[f32; 4]; 4],

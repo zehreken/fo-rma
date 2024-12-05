@@ -1,7 +1,9 @@
 struct Uniforms {
     view_proj: mat4x4<f32>,
     model: mat4x4<f32>,
-    _padding: vec3<f32>,
+    color1: vec4<f32>,
+    color2: vec4<f32>,
+    color3: vec4<f32>,
     signal: f32,
 };
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -14,8 +16,10 @@ struct VertexInput {
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
-    @location(0) color: vec3<f32>,
-    @location(1) signal: f32,
+    @location(0) color1: vec4<f32>,
+    @location(1) color2: vec4<f32>,
+    @location(2) color3: vec4<f32>,
+    @location(3) signal: f32,
 };
 
 // Vertex shader
@@ -24,8 +28,10 @@ fn vs_main(
     model: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.color = model.color;
     out.clip_position = uniforms.view_proj * uniforms.model * vec4<f32>(model.position, 1.0);
+    out.color1 = uniforms.color1;
+    out.color2 = uniforms.color2;
+    out.color3 = uniforms.color3;
     out.signal = uniforms.signal;
     return out;
 }
@@ -35,9 +41,9 @@ fn vs_main(
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let resolution = vec2<f32>(1080.0, 1080.0);
     let uv = in.clip_position.xy / resolution - 0.5;
-    let red = srgb_to_linear(vec3<f32>(1.0, 0.498, 0.243));
-    let white = srgb_to_linear(vec3<f32>(1.0, 0.965, 0.914));
-    let blue = srgb_to_linear(vec3<f32>(0.502, 0.769, 0.914));
+    let red = srgb_to_linear(in.color1.rgb);
+    let white = srgb_to_linear(in.color2.rgb);
+    let blue = srgb_to_linear(in.color3.rgb);
     var color = mix(red, blue, step(0.0, uv.y));
 
     let pi = 3.1415;
@@ -45,10 +51,11 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let amp = 1.0 / 30.0;
 
     // Calculate y-pos out of x-pos
-    var y = sin(uv.x * pi * freq) * amp;
+    // var y = sin(uv.x * pi * freq) * amp;// * in.signal;
+    var y = uv.y + 0.5;
 
     // Define a uniform thickness threshold
-    let thickness = 25.0;
+    let thickness = 20.0;
     let thicknessThreshold = thickness / resolution.y; // Scale thickness to screen space
 
     // Calculate the perpendicular distance to the sine wave
@@ -62,6 +69,14 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
         color = white;
     } else {
         color = color; // Keep the original background color
+    }
+
+    if (y < 0.4) {
+        color = red;
+    } else if (y < 0.6) {
+        color = white;
+    } else {
+        color = blue;
     }
     // color = mix(white, color, blendFactor);
 

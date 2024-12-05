@@ -11,16 +11,16 @@ use winit::{dpi::PhysicalSize, window::Window};
 use crate::{
     basics::{
         camera::{self, Camera},
-        core::{LightData, LightUniform, PipelineData, Uniforms, Vertex},
+        core::{ColorUniform, LightData, LightUniform, PipelineData, Uniforms, Vertex},
         light::Light,
         primitive::Primitive,
     },
     gui::Gui,
-    utils,
+    utils::{self, ToVec4},
 };
 
 const MAX_PRIMITIVES: usize = 1;
-const BG_COLOR: [f64; 3] = [0.263, 0.208, 0.655];
+const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
@@ -29,7 +29,7 @@ pub struct Renderer<'a> {
     surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
-    uniforms: Vec<Uniforms>,
+    uniforms: Vec<ColorUniform>,
     light: Light,
     depth_texture: TextureView,
     pipeline_data: PipelineData,
@@ -53,7 +53,7 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
         // camera ============
         let camera = camera::Camera::new(
-            vec3(-0.0, 0.0, 2.0),
+            vec3(0.0, 0.0, 2.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -62,7 +62,7 @@ impl<'a> Renderer<'a> {
         );
         let gui = Gui::new(&window, &device, texture_format);
         // Initialize uniforms vector
-        let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
+        let uniforms = vec![ColorUniform::new(); MAX_PRIMITIVES];
         // ===================
         // Light uniform
         let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
@@ -159,9 +159,9 @@ impl<'a> Renderer<'a> {
 
         let c_bg_color = utils::srgb_to_linear(BG_COLOR, utils::GAMMA);
         let bg_color = Color {
-            r: c_bg_color[0],
-            g: c_bg_color[1],
-            b: c_bg_color[2],
+            r: c_bg_color[0] as f64,
+            g: c_bg_color[1] as f64,
+            b: c_bg_color[2] as f64,
             a: 1.0,
         };
 
@@ -206,10 +206,13 @@ impl<'a> Renderer<'a> {
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
-            self.uniforms[i].normal1 = primitive.normal_matrix().x_axis.extend(0.0).to_array();
-            self.uniforms[i].normal2 = primitive.normal_matrix().y_axis.extend(0.0).to_array();
-            self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
-            self.uniforms[i].signal = 1.0; //signal;
+            self.uniforms[i].color1 = utils::CCP.palette[1].to_vec4(1.0);
+            self.uniforms[i].color2 = utils::CCP.palette[2].to_vec4(1.0);
+            self.uniforms[i].color3 = utils::CCP.palette[3].to_vec4(1.0);
+            // self.uniforms[i].normal1 = primitive.normal_matrix().x_axis.extend(0.0).to_array();
+            // self.uniforms[i].normal2 = primitive.normal_matrix().y_axis.extend(0.0).to_array();
+            // self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
+            self.uniforms[i].signal = signal;
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
             // self.light_uniform.intensity = signal;
 

@@ -18,6 +18,7 @@ pub struct Sequencer {
     is_beat: bool,
     ramp: f32,
     tick: u32,
+    signal: f32,
 }
 
 impl Sequencer {
@@ -31,13 +32,20 @@ impl Sequencer {
         let oscillator = Oscillator::new(sample_rate as f32);
         let freqs = vec![
             utils::C_FREQ,
-            utils::G_FREQ,
-            utils::A_FREQ,
-            utils::G_FREQ,
-            utils::F_FREQ,
-            utils::E_FREQ,
-            utils::D_FREQ,
             utils::C_FREQ,
+            utils::C_FREQ,
+            utils::C_FREQ,
+            utils::C_FREQ,
+            utils::C_FREQ,
+            utils::C_FREQ,
+            utils::C_FREQ,
+            // utils::G_FREQ,
+            // utils::A_FREQ,
+            // utils::G_FREQ,
+            // utils::F_FREQ,
+            // utils::E_FREQ,
+            // utils::D_FREQ,
+            // utils::C_FREQ,
         ];
         Self {
             is_running: false,
@@ -51,6 +59,7 @@ impl Sequencer {
             is_beat: false,
             ramp: 0.0,
             tick: 0,
+            signal: 0.0,
         }
     }
 
@@ -59,7 +68,7 @@ impl Sequencer {
         self.is_beat = remainder > 0 && remainder < 8192;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(3);
+        const TEMP_OCTAVE: u8 = 2u8.pow(2);
         let freq_diff: f32 = if step_index == 0 {
             0.0
         } else {
@@ -67,6 +76,7 @@ impl Sequencer {
             self.freqs[step_index] - self.freqs[step_index - 1] / 50.0
         };
 
+        let mut value = 0.0;
         for _ in 0..4096 * 2 {
             if !self.producer.is_full() {
                 // Ramp between steps
@@ -75,7 +85,7 @@ impl Sequencer {
                 // }
                 self.freq = self.freqs[step_index];
                 // Ramp between volumes
-                let mut value = self
+                value = self
                     .oscillator
                     .sine(self.freq * TEMP_OCTAVE as f32, self.tick);
                 if self.is_beat && self.ramp < 1.0 {
@@ -88,6 +98,7 @@ impl Sequencer {
                 self.tick += 1;
             }
         }
+        self.signal = value; // Assign the last value to signal
     }
 
     // Current number of beats played, similar to elapsed time
@@ -98,5 +109,9 @@ impl Sequencer {
     // Used to make a sound or visualize
     pub fn show_beat(&self) -> bool {
         self.is_beat
+    }
+
+    pub fn get_signal(&self) -> f32 {
+        self.signal
     }
 }

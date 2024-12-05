@@ -1,3 +1,5 @@
+use crate::utils;
+
 use super::{
     core::Vertex,
     primitive::{Primitive, PrimitiveState},
@@ -6,9 +8,9 @@ use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
-    Vertex { position: [ 0.0,  0.5,  0.0], color: [1.0, 0.498, 0.243], normal: [0.0, 0.0, 1.0] },
-    Vertex { position: [-0.5, -0.5,  0.0], color: [0.502, 0.769, 0.914], normal: [0.0, 0.0, 1.0] },
-    Vertex { position: [ 0.5, -0.5,  0.0], color: [1.0, 0.965, 0.914], normal: [0.0, 0.0, 1.0] },
+    Vertex { position: [ 0.0,  0.5,  0.0], color: utils::CCP.palette[1], normal: [0.0, 0.0, 1.0] },
+    Vertex { position: [-0.5, -0.5,  0.0], color: utils::CCP.palette[2], normal: [0.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5, -0.5,  0.0], color: utils::CCP.palette[3], normal: [0.0, 0.0, 1.0] },
 ];
 
 // Double faced triangle

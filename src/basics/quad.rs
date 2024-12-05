@@ -39,16 +39,16 @@ impl Primitive for Quad {
 
     fn update(&mut self, delta_time: f32) {
         // self.state.update(delta_time);
-        let mut rotation = self.state.transform.rotation.to_euler(glam::EulerRot::XYZ);
-        rotation.2 += delta_time * 0.1;
-        self.state.transform.rotation =
-            Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
+        // let mut rotation = self.state.transform.rotation.to_euler(glam::EulerRot::XYZ);
+        // rotation.2 += delta_time * 0.1;
+        // self.state.transform.rotation =
+        //     Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
 
-        self.state.model_matrix = Mat4::from_scale_rotation_translation(
-            self.state.transform.scale,
-            self.state.transform.rotation,
-            self.state.transform.position,
-        )
+        // self.state.model_matrix = Mat4::from_scale_rotation_translation(
+        //     self.state.transform.scale,
+        //     self.state.transform.rotation,
+        //     self.state.transform.position,
+        // )
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {

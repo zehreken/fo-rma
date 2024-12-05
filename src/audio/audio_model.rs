@@ -31,7 +31,7 @@ pub struct AudioModel {
     metronome: Metronome,
     sequencer: Sequencer,
     input_producer: HeapProducer<Input>,
-    view_consumer: HeapConsumer<f32>,
+    // view_consumer: HeapConsumer<f32>,
 }
 
 impl AudioModel {
@@ -62,8 +62,8 @@ impl AudioModel {
         let (producer, mut consumer) = ring.split();
         let input_ring = HeapRb::new(10);
         let (input_producer, input_consumer) = input_ring.split();
-        let view_ring = HeapRb::new(100000);
-        let (view_producer, view_consumer) = view_ring.split();
+        // let view_ring = HeapRb::new(100000);
+        // let (view_producer, view_consumer) = view_ring.split();
 
         let sample_rate = output_config.sample_rate.0;
         let audio_clock = Arc::new(AudioClock::new());
@@ -113,14 +113,15 @@ impl AudioModel {
             metronome,
             sequencer,
             input_producer,
-            view_consumer,
+            // view_consumer,
         })
     }
 
     pub fn get_signal(&mut self) -> f32 {
-        let signal = self.view_consumer.pop().unwrap_or(0.0);
-        self.view_consumer.clear();
-        signal
+        // let signal = self.view_consumer.pop().unwrap_or(0.0);
+        // self.view_consumer.clear();
+        // signal
+        self.sequencer.get_signal()
     }
 
     pub fn show_beat(&self) -> bool {
