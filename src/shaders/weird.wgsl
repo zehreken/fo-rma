@@ -41,18 +41,18 @@ fn vs_main(
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let resolution = vec2<f32>(1080.0, 1080.0);
     let uv = in.clip_position.xy / resolution - 0.5;
-    let red = srgb_to_linear(in.color1.rgb);
-    let white = srgb_to_linear(in.color2.rgb);
-    let blue = srgb_to_linear(in.color3.rgb);
-    var color = mix(red, blue, step(0.0, uv.y));
+    let top = srgb_to_linear(in.color1.rgb);
+    let middle = srgb_to_linear(in.color2.rgb);
+    let bottom = srgb_to_linear(in.color3.rgb);
+    var color = mix(top, bottom, step(0.0, uv.y));
 
     let pi = 3.1415;
     let freq = 10.0;
     let amp = 1.0 / 30.0;
 
     // Calculate y-pos out of x-pos
-    // var y = sin(uv.x * pi * freq) * amp;// * in.signal;
-    var y = uv.y + 0.5;
+    var y = sin((uv.x + in.signal / 10.0) * pi * freq) * amp;
+    // var y = uv.y + 0.5;
 
     // Define a uniform thickness threshold
     let thickness = 20.0;
@@ -62,22 +62,15 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let distToWave = abs(uv.y - y) / sqrt(1.0 + pow(cos(uv.x * pi * freq) * pi * freq * amp, 2.0));
 
     // Blend factor based on the distance
-    // let blendFactor = clamp(distToWave / thicknessThreshold, 0.0, 1.0);
+    let blendFactor = clamp(distToWave / thicknessThreshold, 0.0, 1.0);
 
     // Sharp edges: If within the threshold, set the color directly
     if (distToWave < thicknessThreshold) {
-        color = white;
+        color = middle;
     } else {
         color = color; // Keep the original background color
     }
 
-    if (y < 0.4) {
-        color = red;
-    } else if (y < 0.6) {
-        color = white;
-    } else {
-        color = blue;
-    }
     // color = mix(white, color, blendFactor);
 
     return vec4<f32>(color, 1.0);

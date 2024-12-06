@@ -139,11 +139,14 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
 
             app.audio_model.update();
 
-            let frame_duration = last_frame_time.elapsed();
-            if frame_duration < FRAME_TIME {
-                std::thread::sleep(FRAME_TIME - frame_duration);
+            #[cfg(not(target_os = "macos"))]
+            {
+                let frame_duration = last_frame_time.elapsed();
+                if frame_duration < FRAME_TIME {
+                    std::thread::sleep(FRAME_TIME - frame_duration);
+                }
+                last_frame_time = Instant::now();
             }
-            last_frame_time = Instant::now();
 
             app.window.request_redraw();
         }
