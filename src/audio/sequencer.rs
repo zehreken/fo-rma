@@ -32,20 +32,13 @@ impl Sequencer {
         let oscillator = Oscillator::new(sample_rate as f32);
         let freqs = vec![
             utils::C_FREQ,
+            utils::G_FREQ,
+            utils::A_FREQ,
+            utils::G_FREQ,
+            utils::F_FREQ,
+            utils::E_FREQ,
+            utils::D_FREQ,
             utils::C_FREQ,
-            utils::C_FREQ,
-            utils::C_FREQ,
-            utils::C_FREQ,
-            utils::C_FREQ,
-            utils::C_FREQ,
-            utils::C_FREQ,
-            // utils::G_FREQ,
-            // utils::A_FREQ,
-            // utils::G_FREQ,
-            // utils::F_FREQ,
-            // utils::E_FREQ,
-            // utils::D_FREQ,
-            // utils::C_FREQ,
         ];
         Self {
             is_running: false,
@@ -68,7 +61,7 @@ impl Sequencer {
         self.is_beat = remainder > 0 && remainder < 8192;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(2);
+        const TEMP_OCTAVE: u8 = 2u8.pow(3);
         let freq_diff: f32 = if step_index == 0 {
             0.0
         } else {
