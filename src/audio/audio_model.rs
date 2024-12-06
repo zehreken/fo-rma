@@ -76,7 +76,7 @@ impl AudioModel {
                 if let Some(input) = consumer.pop() {
                     *sample = input;
                 } else {
-                    eprintln!("Ringbuffer underrun {:?}", std::time::SystemTime::now())
+                    // eprintln!("Ringbuffer underrun {:?}", std::time::SystemTime::now()
                 }
                 clock_for_audio.update();
             }

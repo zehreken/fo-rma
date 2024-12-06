@@ -28,6 +28,7 @@ impl Sequencer {
         channel_count: u32,
         producer: HeapProducer<f32>,
     ) -> Self {
+        println!("Sequencer: {bpm}, {sample_rate}, {channel_count}");
         let tick_period = (sample_rate * channel_count * 60) as f32 / bpm as f32;
         let oscillator = Oscillator::new(sample_rate as f32);
         let freqs = vec![
