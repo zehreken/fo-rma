@@ -8,7 +8,7 @@ use super::{
     primitive::{Primitive, PrimitiveState},
 };
 
-const RADIUS: f32 = 0.01;
+const RADIUS: f32 = 0.5;
 const STACK_COUNT: usize = 8;
 const STACK_STEP: f32 = PI / STACK_COUNT as f32;
 const SECTOR_COUNT: usize = 12;
@@ -37,7 +37,8 @@ impl Primitive for Sphere {
 
     fn update(&mut self, delta_time: f32) {
         let mut rotation = self.state.transform.rotation.to_euler(glam::EulerRot::XYZ);
-        rotation.0 += delta_time * 0.1;
+        rotation.0 = PI / 2.0;
+        rotation.2 += delta_time * 0.1;
         self.state.transform.rotation =
             Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
 
