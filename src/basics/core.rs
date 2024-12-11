@@ -20,6 +20,7 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub color: [f32; 3],
     pub normal: [f32; 3],
+    pub uv: [f32; 2],
 }
 
 impl Vertex {
@@ -28,6 +29,7 @@ impl Vertex {
             position: [0.0; 3],
             color: [0.0; 3],
             normal: [0.0; 3],
+            uv: [0.0; 2],
         }
     }
 }

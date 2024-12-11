@@ -82,7 +82,7 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; VERTEX_COU
                 position: [x, y, z],
                 color: [1.0, 1.0, 1.0],
                 normal: [s, t, 0.0],
-                // uv: Vec2 { x: s, y: t },
+                uv: [s, t],
             });
         }
     }

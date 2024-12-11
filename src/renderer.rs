@@ -474,7 +474,7 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
-    let shader = include_str!("shaders/weird.wgsl");
+    let shader = include_str!("shaders/wave_world.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -512,6 +512,11 @@ fn create_pipeline_data(
                         offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
                         shader_location: 2,
                         format: wgpu::VertexFormat::Float32x3,
+                    },
+                    wgpu::VertexAttribute {
+                        offset: std::mem::size_of::<[f32; 9]>() as wgpu::BufferAddress,
+                        shader_location: 3,
+                        format: wgpu::VertexFormat::Float32x2,
                     },
                 ],
             }],
