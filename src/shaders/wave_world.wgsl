@@ -56,14 +56,14 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 
     let pi = 3.1415;
     let freq = 10.0;
-    let amp = 1.0 / 30.0;
+    let amp = 1.0 / 10.0;
 
     // Calculate y-pos out of x-pos
     var y = sin((uv.x + in.signal / 10.0) * pi * freq) * amp + 0.5;
     // var y = uv.y + 0.5;
 
     // Define a uniform thickness threshold
-    let thickness = 20.0;
+    let thickness = 10.0;
     let thicknessThreshold = thickness / resolution.y; // Scale thickness to screen space
 
     // Calculate the perpendicular distance to the sine wave

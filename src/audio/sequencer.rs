@@ -30,18 +30,26 @@ impl Sequencer {
         producer: HeapProducer<f32>,
     ) -> Self {
         let tick_period = (sample_rate * channel_count * 60) as f32 / bpm as f32;
-        let beat_period = tick_period / 1.0;
+        let beat_period = tick_period / 4.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
         let oscillator = Oscillator::new(sample_rate as f32);
         let freqs = vec![
-            // utils::C_FREQ,
-            // utils::G_FREQ,
+            utils::C_FREQ,
+            utils::C_FREQ,
+            utils::G_FREQ,
+            utils::G_FREQ,
             utils::A_FREQ,
-            // utils::G_FREQ,
-            // utils::F_FREQ,
-            // utils::E_FREQ,
-            // utils::D_FREQ,
-            // utils::C_FREQ,
+            utils::A_FREQ,
+            utils::G_FREQ,
+            utils::REST,
+            utils::F_FREQ,
+            utils::F_FREQ,
+            utils::E_FREQ,
+            utils::E_FREQ,
+            utils::D_FREQ,
+            utils::D_FREQ,
+            utils::C_FREQ,
+            utils::REST,
         ];
         Self {
             is_running: false,
@@ -83,7 +91,7 @@ impl Sequencer {
                 self.freq = self.freqs[step_index];
                 value = self
                     .oscillator
-                    .sine(self.freq * TEMP_OCTAVE as f32, self.tick);
+                    .square(self.freq * TEMP_OCTAVE as f32, self.tick);
 
                 // Ramp between volumes
                 if self.is_beat && self.ramp < 1.0 {
