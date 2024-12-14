@@ -98,4 +98,13 @@ pub const CP4: ColorPalette<f32, 4> = ColorPalette {
     ],
 };
 
-pub const CCP: ColorPalette<f32, 4> = CP4;
+pub const CP5: ColorPalette<f32, 4> = ColorPalette {
+    palette: [
+        [0.737, 0.925, 0.878],
+        [0.212, 0.933, 0.878],
+        [0.965, 0.322, 0.627],
+        [0.298, 0.322, 0.439],
+    ],
+};
+
+pub const CCP: ColorPalette<f32, 4> = CP5;

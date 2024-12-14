@@ -474,7 +474,7 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
-    let shader = include_str!("shaders/wave_world.wgsl");
+    let shader = include_str!("shaders/signal_glow.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
