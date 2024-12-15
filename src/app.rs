@@ -26,6 +26,7 @@ pub struct App<'a> {
     renderer: renderer::Renderer<'a>,
     primitives: Vec<Box<dyn Primitive>>,
     audio_model: AudioModel,
+    signal_peak: f32,
 }
 
 impl<'a> App<'a> {
@@ -49,6 +50,7 @@ impl<'a> App<'a> {
             renderer,
             primitives,
             audio_model,
+            signal_peak: 0.0,
         }
     }
 
@@ -122,6 +124,9 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             rolling_frame_times.push_back(delta_time);
             let fps = calculate_fps(&rolling_frame_times);
             let signal = app.audio_model.get_signal();
+            if signal > app.signal_peak {
+                app.signal_peak = signal;
+            }
             for primitive in &mut app.primitives {
                 primitive.update(if app.audio_model.show_beat() {
                     delta_time * 20.0
@@ -135,8 +140,9 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 elapsed,
                 delta_time,
                 fps,
-                signal,
+                app.signal_peak,
             );
+            app.signal_peak -= 0.1;
 
             app.audio_model.update();
 
