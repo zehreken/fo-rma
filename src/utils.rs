@@ -100,11 +100,20 @@ pub const CP4: ColorPalette<f32, 4> = ColorPalette {
 
 pub const CP5: ColorPalette<f32, 4> = ColorPalette {
     palette: [
-        [0.737, 0.925, 0.878],
+        [0.298, 0.322, 0.439],
         [0.212, 0.933, 0.878],
         [0.965, 0.322, 0.627],
-        [0.298, 0.322, 0.439],
+        [0.737, 0.925, 0.878],
     ],
 };
 
-pub const CCP: ColorPalette<f32, 4> = CP5;
+pub const CP6: ColorPalette<f32, 4> = ColorPalette {
+    palette: [
+        [0.20, 0.21, 0.32],
+        [0.46, 0.73, 0.28],
+        [0.98, 0.82, 0.17],
+        [0.86, 0.12, 0.28],
+    ],
+};
+
+pub const CCP: ColorPalette<f32, 4> = CP6;
