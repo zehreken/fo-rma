@@ -4,7 +4,7 @@ use kopek::{
 };
 use ringbuf::HeapProducer;
 
-use crate::basics::core::clamp;
+use crate::{audio::songs, basics::core::clamp};
 
 pub struct Sequencer {
     pub is_running: bool,
@@ -13,7 +13,7 @@ pub struct Sequencer {
     beat_index: u32,
     length: u8,
     freq: f32,
-    freqs: Vec<f32>,
+    sequence: [f32; 32],
     tick_period: f32,
     beat_period: f32,
     is_beat: bool,
@@ -33,32 +33,16 @@ impl Sequencer {
         let beat_period = tick_period / 4.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
         let oscillator = Oscillator::new(sample_rate as f32);
-        let freqs = vec![
-            utils::C_FREQ,
-            utils::C_FREQ,
-            utils::G_FREQ,
-            utils::G_FREQ,
-            utils::A_FREQ,
-            utils::A_FREQ,
-            utils::G_FREQ,
-            utils::REST,
-            utils::F_FREQ,
-            utils::F_FREQ,
-            utils::E_FREQ,
-            utils::E_FREQ,
-            utils::D_FREQ,
-            utils::D_FREQ,
-            utils::C_FREQ,
-            utils::REST,
-        ];
+        let sequence = songs::jingle_bells;
+
         Self {
             is_running: false,
             oscillator,
             producer,
             beat_index: 0,
-            length: freqs.len() as u8,
-            freq: freqs[0],
-            freqs,
+            length: sequence.len() as u8,
+            freq: sequence[0],
+            sequence,
             tick_period,
             beat_period,
             is_beat: false,
@@ -78,7 +62,7 @@ impl Sequencer {
             0.0
         } else {
             // Reach next freq in 50 samples
-            self.freqs[step_index] - self.freqs[step_index - 1] / 50.0
+            self.sequence[step_index] - self.sequence[step_index - 1] / 50.0
         };
 
         let mut value = 0.0;
@@ -88,10 +72,10 @@ impl Sequencer {
                 // if self.freq != self.freqs[step_index] {
                 //     self.freq += freq_diff;
                 // }
-                self.freq = self.freqs[step_index];
+                self.freq = self.sequence[step_index];
                 value = self
                     .oscillator
-                    .square(self.freq * TEMP_OCTAVE as f32, self.tick);
+                    .sine(self.freq * TEMP_OCTAVE as f32, self.tick);
 
                 // Ramp between volumes
                 if self.is_beat && self.ramp < 1.0 {
@@ -99,6 +83,7 @@ impl Sequencer {
                 } else if !self.is_beat && self.ramp > 0.0 {
                     self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
                 }
+
                 value *= self.ramp;
                 // value *= if self.is_beat { 1.0 } else { 0.0 };
                 self.producer.push(value).unwrap();
