@@ -81,7 +81,7 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; VERTEX_COU
             let t = i as f32 / STACK_COUNT as f32;
             vertices.push(Vertex {
                 position: [x, y, z],
-                color: [1.0, 1.0, 1.0],
+                color: [x, y, z],
                 normal: [s, t, 0.0],
                 uv: [s, t],
             });
