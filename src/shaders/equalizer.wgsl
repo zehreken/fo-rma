@@ -51,7 +51,10 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     var base = vec3(0.1, 0.1, 0.1);
     var color = mix(middle, bottom, step(uv.y, 0.5));
     color = mix(top, color, step(uv.y, 0.75));
-    color = mix(base, color, step(uv.y, in.signal));
+
+    let step_size = 0.125;
+    let quantized_signal = floor(in.signal / step_size + 0.5) * step_size;
+    color = mix(base, color, step(uv.y, quantized_signal));
 
     return vec4<f32>(color, 1.0);
 }

@@ -142,7 +142,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 fps,
                 app.signal_peak,
             );
-            app.signal_peak -= 0.1;
+            app.signal_peak -= 0.05;
 
             app.audio_model.update();
 
