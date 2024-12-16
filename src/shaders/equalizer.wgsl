@@ -49,8 +49,8 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let top = srgb_to_linear(in.color3.rgb);
 
     var base = vec3(0.1, 0.1, 0.1);
-    var color = mix(bottom, middle, step(uv.y, 0.5));
-    color = mix(top, color, step(uv.y, 0.7));
+    var color = mix(middle, bottom, step(uv.y, 0.5));
+    color = mix(top, color, step(uv.y, 0.75));
     color = mix(base, color, step(uv.y, in.signal));
 
     return vec4<f32>(color, 1.0);
