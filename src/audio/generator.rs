@@ -59,7 +59,7 @@ impl Generator {
                 let mut value = match self.oscillator_type {
                     OscillatorType::Sine => self.oscillator.sine(self.freq, self.tick),
                     OscillatorType::Sawtooth => self.oscillator.sawtooth(self.freq, self.tick),
-                    OscillatorType::Square => self.oscillator.square(self.freq, self.tick),
+                    OscillatorType::Square => self.oscillator.square(self.freq, self.tick, 0.5),
                     OscillatorType::Triangle => self.oscillator.triangle(self.freq, self.tick),
                 };
                 value += 0.5
