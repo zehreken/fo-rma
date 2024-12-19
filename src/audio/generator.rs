@@ -3,7 +3,7 @@ use ringbuf::{HeapConsumer, HeapProducer};
 
 use crate::basics::core::clamp;
 
-pub enum OscillatorType {
+pub enum WaveType {
     Sine,
     Sawtooth,
     Square,
@@ -21,7 +21,7 @@ pub struct Generator {
     tick: u32,
     freq: f32,
     oscillator: Oscillator,
-    oscillator_type: OscillatorType,
+    oscillator_type: WaveType,
     noise: Noise,
     noise_type: NoiseType,
     producer: HeapProducer<f32>,
@@ -43,7 +43,7 @@ impl Generator {
             tick: 0,
             freq: C_FREQ * TEMP_OCTAVE as f32,
             oscillator: Oscillator::new(sample_rate),
-            oscillator_type: OscillatorType::Sawtooth,
+            oscillator_type: WaveType::Sawtooth,
             noise: Noise::new(),
             noise_type: NoiseType::None,
             producer,
@@ -57,10 +57,10 @@ impl Generator {
         for _ in 0..1024 {
             if !self.producer.is_full() {
                 let mut value = match self.oscillator_type {
-                    OscillatorType::Sine => self.oscillator.sine(self.freq, self.tick),
-                    OscillatorType::Sawtooth => self.oscillator.sawtooth(self.freq, self.tick),
-                    OscillatorType::Square => self.oscillator.square(self.freq, self.tick, 0.5),
-                    OscillatorType::Triangle => self.oscillator.triangle(self.freq, self.tick),
+                    WaveType::Sine => self.oscillator.sine(self.tick),
+                    WaveType::Sawtooth => self.oscillator.sawtooth(self.freq, self.tick),
+                    WaveType::Square => self.oscillator.square(self.freq, self.tick, 0.5),
+                    WaveType::Triangle => self.oscillator.triangle(self.freq, self.tick),
                 };
                 value += 0.5
                     * match self.noise_type {
@@ -91,13 +91,13 @@ impl Generator {
                 Input::ChangeFreq(freq) => self.freq = freq,
                 Input::ChangeOscillator(osc) => {
                     if osc == 0 {
-                        self.oscillator_type = OscillatorType::Sine;
+                        self.oscillator_type = WaveType::Sine;
                     } else if osc == 1 {
-                        self.oscillator_type = OscillatorType::Sawtooth;
+                        self.oscillator_type = WaveType::Sawtooth;
                     } else if osc == 2 {
-                        self.oscillator_type = OscillatorType::Square;
+                        self.oscillator_type = WaveType::Square;
                     } else if osc == 3 {
-                        self.oscillator_type = OscillatorType::Triangle;
+                        self.oscillator_type = WaveType::Triangle;
                     }
                 }
                 Input::ChangeNoise(noise) => {

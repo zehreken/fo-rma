@@ -73,9 +73,9 @@ impl Sequencer {
                 //     self.freq += freq_diff;
                 // }
                 self.freq = self.sequence[step_index];
-                value = self
-                    .oscillator
-                    .sine(self.freq * TEMP_OCTAVE as f32, self.tick);
+                self.oscillator
+                    .set_frequency(self.freq * TEMP_OCTAVE as f32);
+                value = self.oscillator.sine(self.tick);
 
                 // Ramp between volumes
                 if self.is_beat && self.ramp < 1.0 {
