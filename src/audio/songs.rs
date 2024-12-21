@@ -1,6 +1,7 @@
 use kopek::utils;
 
-pub const jingle_bells: [f32; 32] = [
+pub const jingle_bells: [f32; 64] = [
+    // Verse 1
     utils::E_FREQ,
     utils::E_FREQ,
     utils::E_FREQ,
@@ -32,6 +33,39 @@ pub const jingle_bells: [f32; 32] = [
     utils::D_FREQ,
     utils::REST,
     utils::G_FREQ,
+    utils::REST,
+    // Verse 2
+    utils::E_FREQ,
+    utils::E_FREQ,
+    utils::E_FREQ,
+    utils::REST,
+    utils::E_FREQ,
+    utils::E_FREQ,
+    utils::E_FREQ,
+    utils::REST,
+    utils::E_FREQ,
+    utils::G_FREQ,
+    utils::C_FREQ,
+    utils::D_FREQ,
+    utils::E_FREQ,
+    utils::REST,
+    utils::REST,
+    utils::REST,
+    utils::F_FREQ,
+    utils::F_FREQ,
+    utils::F_FREQ,
+    utils::REST,
+    utils::F_FREQ,
+    utils::E_FREQ,
+    utils::E_FREQ,
+    utils::REST,
+    utils::G_FREQ,
+    utils::G_FREQ,
+    utils::F_FREQ,
+    utils::D_FREQ,
+    utils::C_FREQ,
+    utils::REST,
+    utils::REST,
     utils::REST,
 ];
 
