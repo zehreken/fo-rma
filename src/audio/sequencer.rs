@@ -78,10 +78,12 @@ impl Sequencer {
                 // if self.freq != self.freqs[step_index] {
                 //     self.freq += freq_diff;
                 // }
+                let modulator = self.lfo.run(self.tick) * 0.01;
                 self.freq = self.sequence[step_index];
-                self.oscillator
-                    .set_frequency(self.freq * TEMP_OCTAVE as f32);
-                value = self.oscillator.sine(self.tick);
+                let freq = self.freq * TEMP_OCTAVE as f32 + modulator;
+                // println!("Freq: {freq} modulator: {modulator}");
+                self.vco.set_frequency(freq);
+                value = self.vco.run(self.tick);
 
                 // Ramp between volumes
                 if self.is_beat && self.ramp < 1.0 {
