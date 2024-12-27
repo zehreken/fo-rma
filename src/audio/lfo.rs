@@ -20,4 +20,8 @@ impl OscillatorType for LFO {
     fn set_wave_type(&mut self, wave_type: WaveType) {
         self.oscillator.set_wave_type(wave_type);
     }
+
+    fn run(&mut self, tick: u32) -> f32 {
+        self.oscillator.run(tick)
+    }
 }

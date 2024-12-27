@@ -1,14 +1,17 @@
-use kopek::{
-    oscillator::{self, Oscillator},
-    utils,
-};
+use kopek::oscillator::Oscillator;
 use ringbuf::HeapProducer;
 
-use crate::{audio::songs, basics::core::clamp};
+use crate::{
+    audio::{lfo, oscillator_type::OscillatorType, songs},
+    basics::core::clamp,
+};
+
+use super::{lfo::LFO, vco::VCO};
 
 pub struct Sequencer {
     pub is_running: bool,
-    oscillator: Oscillator,
+    vco: VCO,
+    lfo: LFO,
     producer: HeapProducer<f32>,
     beat_index: u32,
     length: u8,
@@ -32,12 +35,15 @@ impl Sequencer {
         let tick_period = (sample_rate * channel_count * 60) as f32 / bpm as f32;
         let beat_period = tick_period / 4.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
-        let oscillator = Oscillator::new(sample_rate as f32);
+        let vco = VCO::new(sample_rate as f32);
+        let mut lfo = LFO::new(sample_rate as f32);
+        lfo.set_frequency(5.0);
         let sequence = songs::jingle_bells;
 
         Self {
             is_running: false,
-            oscillator,
+            vco,
+            lfo,
             producer,
             beat_index: 0,
             length: sequence.len() as u8,
