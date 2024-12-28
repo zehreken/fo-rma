@@ -313,6 +313,22 @@ impl<'a> Renderer<'a> {
         self.camera.resize(size);
         self.gui.resize(size, scale_factor)
     }
+
+    pub(crate) fn save_image(&self) {
+        let width = 1080;
+        let height = 1080;
+        let mut img_buf = image::ImageBuffer::new(width, height);
+
+        for (x, y, pixel) in img_buf.enumerate_pixels_mut() {
+            *pixel = image::Rgb([
+                (1.0 * 255.0) as u8,
+                (0.0 * 255.0) as u8,
+                (0.0 * 255.0) as u8,
+            ]);
+        }
+        img_buf.save("out/basic.png").unwrap();
+        println!("Saving image");
+    }
 }
 
 fn create_instance_and_surface(
@@ -372,6 +388,26 @@ fn create_surface_config(
         desired_maximum_frame_latency: 2,
     };
     surface_config
+}
+
+fn create_high_res_texture(device: &Device, width: u32, height: u32) -> TextureView {
+    let size = wgpu::Extent3d {
+        width,
+        height,
+        depth_or_array_layers: 1,
+    };
+    let desc = wgpu::TextureDescriptor {
+        label: Some("save to disk texture"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Depth32Float,
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+        view_formats: &[],
+    };
+    let texture = device.create_texture(&desc);
+    texture.create_view(&wgpu::TextureViewDescriptor::default())
 }
 
 fn create_depth_texture(

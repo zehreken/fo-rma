@@ -206,6 +206,11 @@ fn handle_key_event(
                     elwt.exit();
                 }
             }
+            PhysicalKey::Code(KeyCode::KeyR) => {
+                if key_event.state == ElementState::Pressed && !key_event.repeat {
+                    app.renderer.save_image()
+                }
+            }
             PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
             PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
             PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
