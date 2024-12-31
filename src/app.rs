@@ -24,7 +24,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
-    primitives: Vec<Box<dyn Primitive>>,
+    pub primitives: Vec<Box<dyn Primitive>>,
     audio_model: AudioModel,
     signal_peak: f32,
 }
