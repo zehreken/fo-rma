@@ -14,7 +14,7 @@ use winit::{
 use crate::{
     audio::audio_model::AudioModel,
     basics::{cube::Cube, primitive::Primitive, quad::Quad, sphere::Sphere, triangle::Triangle},
-    renderer,
+    renderer, save_image,
 };
 
 pub struct App<'a> {
@@ -208,7 +208,7 @@ fn handle_key_event(
             }
             PhysicalKey::Code(KeyCode::KeyR) => {
                 if key_event.state == ElementState::Pressed && !key_event.repeat {
-                    app.renderer.save_image()
+                    save_image::save_image(&mut app.renderer, &app.primitives);
                 }
             }
             PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),

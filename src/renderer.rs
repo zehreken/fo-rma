@@ -4,7 +4,7 @@ use glam::vec3;
 use wgpu::{
     util::DeviceExt, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
     RenderPassColorAttachment, RenderPassDescriptor, StoreOp, Surface, SurfaceCapabilities,
-    SurfaceConfiguration, SurfaceError, TextureFormat, TextureView, TextureViewDescriptor,
+    SurfaceConfiguration, SurfaceError, Texture, TextureFormat, TextureView, TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -25,14 +25,14 @@ const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 pub struct Renderer<'a> {
     surface: Surface<'a>,
     pub device: Device,
-    queue: Queue,
-    surface_config: SurfaceConfiguration,
+    pub queue: Queue,
+    pub surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
     uniforms: Vec<ColorUniform>,
     light: Light,
-    depth_texture: TextureView,
-    pipeline_data: PipelineData,
+    pub depth_texture: TextureView,
+    pub pipeline_data: PipelineData,
     debug_pipeline_data: PipelineData,
 }
 
@@ -253,7 +253,7 @@ impl<'a> Renderer<'a> {
                 depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
                     view: &self.depth_texture,
                     depth_ops: Some(wgpu::Operations {
-                        load: wgpu::LoadOp::Load,
+                        load: wgpu::LoadOp::Clear(1.0),
                         store: wgpu::StoreOp::Store,
                     }),
                     stencil_ops: None,
@@ -312,22 +312,6 @@ impl<'a> Renderer<'a> {
         self.depth_texture = create_depth_texture(&self.device, &self.surface_config);
         self.camera.resize(size);
         self.gui.resize(size, scale_factor)
-    }
-
-    pub(crate) fn save_image(&self) {
-        let width = 1080;
-        let height = 1080;
-        let mut img_buf = image::ImageBuffer::new(width, height);
-
-        for (x, y, pixel) in img_buf.enumerate_pixels_mut() {
-            *pixel = image::Rgb([
-                (1.0 * 255.0) as u8,
-                (0.0 * 255.0) as u8,
-                (0.0 * 255.0) as u8,
-            ]);
-        }
-        img_buf.save("out/basic.png").unwrap();
-        println!("Saving image");
     }
 }
 
