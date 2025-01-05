@@ -87,3 +87,33 @@ pub const twinkle_star: [f32; 16] = [
     utils::C_FREQ,
     utils::REST,
 ];
+
+pub const billie_jean: [f32; 8] = [
+    utils::D_FREQ * 2.0,
+    utils::A_FREQ,
+    utils::C_FREQ * 2.0,
+    utils::D_FREQ * 2.0,
+    utils::C_FREQ * 2.0,
+    utils::A_FREQ,
+    utils::G_FREQ,
+    utils::A_FREQ,
+];
+
+pub const billie_jean_2: [f32; 16] = [
+    utils::D_FREQ * 4.0,
+    utils::REST,
+    utils::REST,
+    utils::E_FREQ * 4.0,
+    utils::REST,
+    utils::REST,
+    utils::REST,
+    utils::REST,
+    utils::F_FREQ * 4.0,
+    utils::REST,
+    utils::REST,
+    utils::E_FREQ * 4.0,
+    utils::REST,
+    utils::REST,
+    utils::REST,
+    utils::REST,
+];

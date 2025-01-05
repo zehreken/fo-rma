@@ -7,20 +7,21 @@
 extern crate cpal;
 extern crate ringbuf;
 
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
-use kopek::metronome::Metronome;
+use kopek::{metronome::Metronome, oscillator::WaveType, utils};
 use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
 
-use crate::audio::sequencer::Sequencer;
+use crate::audio::{oscillator_type::OscillatorType, sequencer::Sequencer, songs};
 
 use super::{
     audio_clock::AudioClock,
     generator::{Generator, Input},
+    vco::VCO,
 };
 
 const LATENCY_MS: f32 = 10.0;
@@ -29,8 +30,9 @@ pub struct AudioModel {
     output_stream: Stream,
     audio_clock: Arc<AudioClock>,
     metronome: Metronome,
-    sequencer: Sequencer,
+    sequencers: Vec<Sequencer>,
     input_producer: HeapProducer<Input>,
+    producer: HeapProducer<f32>,
     // view_consumer: HeapConsumer<f32>,
 }
 
@@ -58,8 +60,11 @@ impl AudioModel {
         let output_config: cpal::StreamConfig =
             output_device.default_output_config().unwrap().into();
 
-        let ring = HeapRb::new(4096 * 2);
-        let (producer, mut consumer) = ring.split();
+        let ring = HeapRb::new(1024);
+        let (mut producer, mut consumer) = ring.split();
+        if !producer.is_full() {
+            producer.push(0.0).unwrap();
+        }
         let input_ring = HeapRb::new(10);
         let (input_producer, input_consumer) = input_ring.split();
         // let view_ring = HeapRb::new(100000);
@@ -72,11 +77,13 @@ impl AudioModel {
 
         let clock_for_audio = Arc::clone(&audio_clock);
         let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-            for sample in data {
+            for frame in data.chunks_mut(output_config.channels as usize) {
                 if let Some(input) = consumer.pop() {
-                    *sample = input;
+                    for sample in frame {
+                        *sample = input;
+                    }
                 } else {
-                    // eprintln!("Ringbuffer underrun {:?}", std::time::SystemTime::now()
+                    eprintln!("Ringbuffer underrun {:?}", std::time::SystemTime::now())
                 }
                 clock_for_audio.update();
             }
@@ -105,14 +112,34 @@ impl AudioModel {
         //     generator.update();
         // });
 
-        let sequencer = Sequencer::new(120, sample_rate, output_config.channels.into(), producer);
+        let sequencer = Sequencer::new(
+            240,
+            sample_rate,
+            output_config.channels.into(),
+            songs::billie_jean.to_vec(),
+        );
+
+        let sequencer_2 = Sequencer::new(
+            240,
+            sample_rate,
+            output_config.channels.into(),
+            songs::billie_jean_2.to_vec(),
+        );
+        let mut sequencers = Vec::new();
+        sequencers.push(sequencer);
+        sequencers.push(sequencer_2);
+        // std::thread::spawn(move || loop {
+        //     let elapsed_samples = audio_clock.get_elapsed_samples();
+        //     sequencer.update(elapsed_samples);
+        // });
 
         Ok(AudioModel {
             output_stream,
             audio_clock,
             metronome,
-            sequencer,
+            sequencers,
             input_producer,
+            producer,
             // view_consumer,
         })
     }
@@ -121,7 +148,8 @@ impl AudioModel {
         // let signal = self.view_consumer.pop().unwrap_or(0.0);
         // self.view_consumer.clear();
         // signal
-        self.sequencer.get_signal()
+        self.sequencers[0].get_signal()
+        // 0.0
     }
 
     pub fn show_beat(&self) -> bool {
@@ -131,7 +159,14 @@ impl AudioModel {
     pub fn update(&mut self) {
         let elapsed_samples = self.audio_clock.get_elapsed_samples();
         // self.metronome.update(sample_count);
-        self.sequencer.update(elapsed_samples);
+        while !self.producer.is_full() {
+            let mut value = 0.0;
+            for s in &mut self.sequencers {
+                value += s.update(elapsed_samples);
+            }
+            value = value / self.sequencers.len() as f32;
+            self.producer.push(value).unwrap();
+        }
         // if self.metronome.show_beat() {
         //     self.input_producer.push(Input::Start).unwrap();
         // } else {

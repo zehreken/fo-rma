@@ -7,5 +7,5 @@ pub trait OscillatorType {
 
     fn set_wave_type(&mut self, wave_type: WaveType);
 
-    fn run(&mut self, tick: u32) -> f32;
+    fn run(&mut self) -> f32;
 }
