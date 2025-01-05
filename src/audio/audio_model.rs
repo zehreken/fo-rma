@@ -113,10 +113,10 @@ impl AudioModel {
         // });
 
         let sequencer = Sequencer::new(
-            240,
+            120,
             sample_rate,
             output_config.channels.into(),
-            songs::billie_jean.to_vec(),
+            vec![utils::A_FREQ],
         );
 
         let sequencer_2 = Sequencer::new(
@@ -127,7 +127,7 @@ impl AudioModel {
         );
         let mut sequencers = Vec::new();
         sequencers.push(sequencer);
-        sequencers.push(sequencer_2);
+        // sequencers.push(sequencer_2);
         // std::thread::spawn(move || loop {
         //     let elapsed_samples = audio_clock.get_elapsed_samples();
         //     sequencer.update(elapsed_samples);

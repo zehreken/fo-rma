@@ -36,10 +36,10 @@ impl<'a> App<'a> {
         // let init = vec![0.0; 60];
 
         let primitives: Vec<Box<dyn Primitive>> = vec![
-            // Box::new(Cube::new(&renderer.device)),
+            Box::new(Cube::new(&renderer.device)),
             // Box::new(Triangle::new(&renderer.device)),
             // Box::new(Quad::new(&renderer.device)),
-            Box::new(Sphere::new(&renderer.device)),
+            // Box::new(Sphere::new(&renderer.device)),
         ];
 
         let audio_model = AudioModel::new().unwrap();

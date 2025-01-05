@@ -33,7 +33,8 @@ impl Sequencer {
         let tick_period = (sample_rate * 60) as f32 / bpm as f32;
         let beat_duration = tick_period / 3.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
-        let vco = VCO::new(sample_rate as f32);
+        let mut vco = VCO::new(sample_rate as f32);
+        vco.set_wave_type(kopek::oscillator::WaveType::Sine);
         let mut lfo = LFO::new(sample_rate as f32);
         lfo.set_frequency(10.0);
 
@@ -59,7 +60,7 @@ impl Sequencer {
         self.is_beat = remainder > 0 && remainder < self.beat_period as u32;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(3);
+        const TEMP_OCTAVE: u8 = 2u8.pow(4);
         let freq_diff: f32 = if step_index == 0 {
             0.0
         } else {
@@ -75,8 +76,8 @@ impl Sequencer {
         let modulator = self.lfo.run() * 5.0;
 
         self.freq = self.sequence[step_index];
-        let freq = self.freq * TEMP_OCTAVE as f32 + modulator;
-        // println!("Freq: {freq} modulator: {modulator}");
+        let freq = self.freq * TEMP_OCTAVE as f32; // + modulator;
+                                                   // println!("Freq: {freq} modulator: {modulator}");
         self.vco.set_frequency(freq);
         value = self.vco.run();
 
