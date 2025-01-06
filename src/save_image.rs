@@ -5,12 +5,13 @@ use crate::{basics::primitive::Primitive, renderer::Renderer, utils};
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
 pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>) {
-    let width = 1024;
-    let height = 1024;
+    let width = 1080;
+    let height = 1080;
 
     let bytes_per_pixel = 4; // For Rgba8Unorm (4 bytes per pixel)
-    let unaligned_bytes_per_row = width * bytes_per_pixel;
-    let aligned_bytes_per_row = ((unaligned_bytes_per_row + 255) / 256) * 256; // Align to 256
+                             // let unaligned_bytes_per_row = width * bytes_per_pixel;
+                             // let aligned_bytes_per_row = ((unaligned_bytes_per_row + 255) / 256) * 256; // Align to 256
+    let aligned_bytes_per_row = ((width * bytes_per_pixel + 255) & !255) as u32;
 
     let (high_res_texture, high_res_view) = crate::save_image::create_high_res_texture(
         &renderer.device,
@@ -76,7 +77,7 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     renderer.queue.submit(Some(encoder.finish()));
 
     // Read the high res texture and save it to a file
-    let buffer_size = (width * height * 4) as wgpu::BufferAddress;
+    let buffer_size = (aligned_bytes_per_row * height) as wgpu::BufferAddress;
     let buffer = renderer.device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("texture_buffer"),
         size: buffer_size,
@@ -127,7 +128,20 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
 
     // Use an image library to save the data
     use image::{ImageBuffer, Rgba};
-    let buffer: ImageBuffer<Rgba<u8>, _> = ImageBuffer::from_raw(width, height, data).unwrap();
+
+    let mut tightly_packed_data = Vec::new();
+
+    for y in 0..height {
+        let start = (y * aligned_bytes_per_row) as usize;
+        let end = start + (width * 4) as usize; // Assuming 4 bytes per pixel (RGBA8)
+        tightly_packed_data.extend_from_slice(&data[start..end]);
+    }
+
+    // Create the image buffer with tightly packed pixel data
+    let buffer: ImageBuffer<Rgba<u8>, _> =
+        ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
+
+    // Save the image
     buffer.save("out/basic.png").unwrap();
 
     // buffer.unmap(); // This is a later version of wgpu
