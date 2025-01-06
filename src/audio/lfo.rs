@@ -1,6 +1,5 @@
-use kopek::oscillator::{Oscillator, WaveType};
-
 use super::oscillator_type::OscillatorType;
+use kopek::oscillator::{Oscillator, WaveType};
 
 pub struct LFO {
     oscillator: Oscillator,

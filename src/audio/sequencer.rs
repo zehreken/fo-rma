@@ -1,11 +1,5 @@
-use ringbuf::HeapProducer;
-
-use crate::{
-    audio::{lfo, oscillator_type::OscillatorType, songs},
-    basics::core::clamp,
-};
-
 use super::{lfo::LFO, vco::VCO};
+use crate::{audio::oscillator_type::OscillatorType, basics::core::clamp};
 
 pub struct Sequencer {
     pub is_running: bool,
@@ -19,7 +13,6 @@ pub struct Sequencer {
     beat_period: f32,
     is_beat: bool,
     ramp: f32,
-    signal: f32,
 }
 
 impl Sequencer {
@@ -49,7 +42,6 @@ impl Sequencer {
             beat_period: beat_duration,
             is_beat: false,
             ramp: 0.0,
-            signal: 0.0,
         }
     }
 
@@ -74,8 +66,8 @@ impl Sequencer {
         let modulator = self.lfo.run() * 5.0;
 
         self.freq = self.sequence[step_index];
-        let freq = self.freq * TEMP_OCTAVE as f32; // + modulator;
-                                                   // println!("Freq: {freq} modulator: {modulator}");
+        let freq = self.freq * TEMP_OCTAVE as f32 + modulator;
+        // println!("Freq: {freq} modulator: {modulator}");
         self.vco.set_frequency(freq);
         value = self.vco.run();
 
@@ -88,8 +80,6 @@ impl Sequencer {
 
         value *= self.ramp;
 
-        self.signal = value; // Assign the last value to signal
-
         value
     }
 
@@ -101,9 +91,5 @@ impl Sequencer {
     // Used to make a sound or visualize
     pub fn show_beat(&self) -> bool {
         self.is_beat
-    }
-
-    pub fn get_signal(&self) -> f32 {
-        self.signal
     }
 }

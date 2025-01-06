@@ -33,7 +33,8 @@ pub struct AudioModel {
     sequencers: Vec<Sequencer>,
     input_producer: HeapProducer<Input>,
     producer: HeapProducer<f32>,
-    // view_consumer: HeapConsumer<f32>,
+    signal: f32, // for visuals
+                 // view_consumer: HeapConsumer<f32>,
 }
 
 impl AudioModel {
@@ -140,16 +141,13 @@ impl AudioModel {
             sequencers,
             input_producer,
             producer,
+            signal: 0.0,
             // view_consumer,
         })
     }
 
     pub fn get_signal(&mut self) -> f32 {
-        // let signal = self.view_consumer.pop().unwrap_or(0.0);
-        // self.view_consumer.clear();
-        // signal
-        self.sequencers[0].get_signal()
-        // 0.0
+        self.signal
     }
 
     pub fn show_beat(&self) -> bool {
@@ -166,6 +164,7 @@ impl AudioModel {
             }
             value = value / self.sequencers.len() as f32;
             self.producer.push(value).unwrap();
+            self.signal = value;
         }
         // if self.metronome.show_beat() {
         //     self.input_producer.push(Input::Start).unwrap();
