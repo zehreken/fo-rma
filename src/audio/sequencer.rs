@@ -19,7 +19,6 @@ pub struct Sequencer {
     beat_period: f32,
     is_beat: bool,
     ramp: f32,
-    tick: u32,
     signal: f32,
 }
 
@@ -50,7 +49,6 @@ impl Sequencer {
             beat_period: beat_duration,
             is_beat: false,
             ramp: 0.0,
-            tick: 0,
             signal: 0.0,
         }
     }
@@ -90,7 +88,6 @@ impl Sequencer {
 
         value *= self.ramp;
 
-        self.tick += 1;
         self.signal = value; // Assign the last value to signal
 
         value
