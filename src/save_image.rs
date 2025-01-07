@@ -1,3 +1,4 @@
+use rand::Rng;
 use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
 
 use crate::{basics::primitive::Primitive, renderer::Renderer, utils};
@@ -133,8 +134,31 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
 
     for y in 0..height {
         let start = (y * aligned_bytes_per_row) as usize;
-        let end = start + (width * 4) as usize; // Assuming 4 bytes per pixel (RGBA8)
-        tightly_packed_data.extend_from_slice(&data[start..end]);
+        let end = start + (width * bytes_per_pixel) as usize; // Assuming 4 bytes per pixel (RGBA8)
+
+        // add some noise
+        for x in 0..width {
+            let pixel_start = start + (x * bytes_per_pixel) as usize;
+            let pixel_end = pixel_start + bytes_per_pixel as usize;
+            let mut pixel = data[pixel_start..pixel_end].to_vec();
+
+            let mut rng = rand::thread_rng();
+            if renderer.surface_config.format == wgpu::TextureFormat::Bgra8Unorm
+                || renderer.surface_config.format == wgpu::TextureFormat::Bgra8UnormSrgb
+            {
+                let temp = pixel[0];
+                pixel[0] = pixel[2];
+                pixel[2] = temp;
+            }
+            for channel in 0..3 {
+                // skip alpha channel
+                pixel[channel] = pixel[channel].saturating_add(rng.gen_range(0..50));
+            }
+
+            tightly_packed_data.extend_from_slice(&pixel);
+        }
+        // ==============
+        // tightly_packed_data.extend_from_slice(&data[start..end]);
     }
 
     // Create the image buffer with tightly packed pixel data
