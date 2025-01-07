@@ -113,6 +113,8 @@ impl<'a> Renderer<'a> {
         // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
 
+        println!("Surface format: {:?}", surface_config.format);
+
         Self {
             surface,
             device,
