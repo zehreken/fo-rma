@@ -166,7 +166,11 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
         ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
 
     // Save the image
-    buffer.save("out/basic.png").unwrap();
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    buffer.save(format!("out/basic-{timestamp}.png")).unwrap();
 
     // buffer.unmap(); // This is a later version of wgpu
 
