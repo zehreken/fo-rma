@@ -33,7 +33,7 @@ pub struct Renderer<'a> {
     light: Light,
     pub depth_texture: TextureView,
     pub pipeline_data: PipelineData,
-    debug_pipeline_data: PipelineData,
+    pub debug_pipeline_data: PipelineData,
 }
 
 impl<'a> Renderer<'a> {
@@ -476,7 +476,7 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
-    let shader = include_str!("shaders/equalizer.wgsl");
+    let shader = include_str!("shaders/shader.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {

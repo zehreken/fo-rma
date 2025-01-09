@@ -75,6 +75,34 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     }
 
     drop(render_pass);
+
+    let mut debug_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        label: Some("debug_render_pass"),
+        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+            view: &high_res_view,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Load,
+                store: wgpu::StoreOp::Store,
+            },
+        })],
+        depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+            view: &renderer.depth_texture,
+            depth_ops: Some(wgpu::Operations {
+                load: wgpu::LoadOp::Clear(1.0),
+                store: wgpu::StoreOp::Store,
+            }),
+            stencil_ops: None,
+        }),
+        timestamp_writes: None,
+        occlusion_query_set: None,
+    });
+
+    debug_render_pass.set_pipeline(&renderer.debug_pipeline_data.render_pipeline);
+    debug_render_pass.set_bind_group(0, &renderer.debug_pipeline_data.uniform_bind_group, &[]);
+    primitives[0].draw(&mut debug_render_pass);
+    drop(debug_render_pass);
+
     renderer.queue.submit(Some(encoder.finish()));
 
     // Read the high res texture and save it to a file
