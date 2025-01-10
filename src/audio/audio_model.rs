@@ -124,7 +124,7 @@ impl AudioModel {
             240,
             sample_rate,
             output_config.channels.into(),
-            songs::billie_jean_2.to_vec(),
+            songs::BILLIE_JEAN_2.to_vec(),
         );
         let mut sequencers = Vec::new();
         sequencers.push(sequencer);

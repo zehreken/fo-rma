@@ -1,6 +1,6 @@
 use kopek::utils;
 
-pub const jingle_bells: [f32; 64] = [
+pub const JINGLE_BELLS: [f32; 64] = [
     // Verse 1
     utils::E_FREQ,
     utils::E_FREQ,
@@ -69,7 +69,7 @@ pub const jingle_bells: [f32; 64] = [
     utils::REST,
 ];
 
-pub const twinkle_star: [f32; 16] = [
+pub const TWINKLE_STAR: [f32; 16] = [
     utils::C_FREQ,
     utils::C_FREQ,
     utils::G_FREQ,
@@ -88,7 +88,7 @@ pub const twinkle_star: [f32; 16] = [
     utils::REST,
 ];
 
-pub const billie_jean: [f32; 8] = [
+pub const BILLIE_JEAN: [f32; 8] = [
     utils::D_FREQ * 2.0,
     utils::A_FREQ,
     utils::C_FREQ * 2.0,
@@ -99,7 +99,7 @@ pub const billie_jean: [f32; 8] = [
     utils::A_FREQ,
 ];
 
-pub const billie_jean_2: [f32; 16] = [
+pub const BILLIE_JEAN_2: [f32; 16] = [
     utils::D_FREQ * 4.0,
     utils::REST,
     utils::REST,
