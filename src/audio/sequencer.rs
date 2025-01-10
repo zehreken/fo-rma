@@ -1,3 +1,5 @@
+use kopek::oscillator::WaveType;
+
 use super::{lfo::LFO, vco::VCO};
 use crate::{audio::oscillator_type::OscillatorType, basics::core::clamp};
 
@@ -91,5 +93,21 @@ impl Sequencer {
     // Used to make a sound or visualize
     pub fn show_beat(&self) -> bool {
         self.is_beat
+    }
+
+    pub fn set_vco_frequency(&mut self, frequency: f32) {
+        self.vco.set_frequency(frequency);
+    }
+
+    pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
+        self.vco.set_wave_type(wave_type);
+    }
+
+    pub fn set_lfo_frequency(&mut self, frequency: f32) {
+        self.lfo.set_frequency(frequency);
+    }
+
+    pub fn set_lfo__wave_type(&mut self, wave_type: WaveType) {
+        self.lfo.set_wave_type(wave_type);
     }
 }
