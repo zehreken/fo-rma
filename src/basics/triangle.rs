@@ -36,7 +36,7 @@ impl Primitive for Triangle {
     }
 
     fn update(&mut self, delta_time: f32) {
-        // self.state.update(delta_time);
+        self.state.update(delta_time);
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {

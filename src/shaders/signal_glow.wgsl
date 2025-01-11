@@ -45,12 +45,12 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let top = srgb_to_linear(in.color1.rgb);
     let bottom = srgb_to_linear(in.color2.rgb);
 
-    var color = top * (in.signal.x + 0.3);
-    if (uv.y < in.signal.x) {
-        color = bottom * (in.signal.x + 0.3);
+    var color = top * (in.signal + 0.3);
+    if (uv.y < in.signal) {
+        color = bottom * (in.signal + 0.3);
     }
 
-    color = mix(top, bottom, step(uv.y, in.signal.x));
+    color = mix(top, bottom, step(uv.y, in.signal));
 
     return vec4<f32>(color, 1.0);
 }
