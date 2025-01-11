@@ -7,22 +7,15 @@
 extern crate cpal;
 extern crate ringbuf;
 
-use std::{sync::Arc, time::Instant};
-
+use super::{audio_clock::AudioClock, generator::Input};
+use crate::audio::{sequencer::Sequencer, songs};
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
-use kopek::{metronome::Metronome, oscillator::WaveType, utils};
-use ringbuf::{HeapConsumer, HeapProducer, HeapRb};
-
-use crate::audio::{oscillator_type::OscillatorType, sequencer::Sequencer, songs};
-
-use super::{
-    audio_clock::AudioClock,
-    generator::{Generator, Input},
-    vco::VCO,
-};
+use kopek::{metronome::Metronome, utils};
+use ringbuf::{HeapProducer, HeapRb};
+use std::sync::Arc;
 
 const LATENCY_MS: f32 = 10.0;
 

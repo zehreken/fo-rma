@@ -174,9 +174,7 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
             if renderer.surface_config.format == wgpu::TextureFormat::Bgra8Unorm
                 || renderer.surface_config.format == wgpu::TextureFormat::Bgra8UnormSrgb
             {
-                let temp = pixel[0];
-                pixel[0] = pixel[2];
-                pixel[2] = temp;
+                pixel.swap(0, 2);
             }
             for channel in 0..3 {
                 // skip alpha channel

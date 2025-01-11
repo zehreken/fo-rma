@@ -107,7 +107,7 @@ impl Sequencer {
         self.lfo.set_frequency(frequency);
     }
 
-    pub fn set_lfo__wave_type(&mut self, wave_type: WaveType) {
+    pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
         self.lfo.set_wave_type(wave_type);
     }
 }
