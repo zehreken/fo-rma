@@ -14,6 +14,7 @@ pub struct Sequencer {
     tick_period: f32,
     beat_period: f32,
     is_beat: bool,
+    volume: f32,
     ramp: f32,
 }
 
@@ -43,6 +44,7 @@ impl Sequencer {
             tick_period,
             beat_period: beat_duration,
             is_beat: false,
+            volume: 0.1,
             ramp: 0.0,
         }
     }
@@ -80,7 +82,8 @@ impl Sequencer {
             self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
         }
 
-        value *= self.ramp;
+        // value *= self.ramp;
+        value *= self.volume;
 
         value
     }
