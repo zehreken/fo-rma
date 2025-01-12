@@ -9,9 +9,6 @@ use wgpu::{CommandEncoder, Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
-pub mod gui_sequencer;
-pub mod top_bar;
-
 struct Test {
     is_window_open: bool,
 }
@@ -135,7 +132,6 @@ impl Gui {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
             self.view.draw(egui_ctx, fps);
-            gui_sequencer::draw(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);
