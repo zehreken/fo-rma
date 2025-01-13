@@ -6,8 +6,8 @@ use crate::{basics::primitive::Primitive, renderer::Renderer, utils};
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
 pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>) {
-    let width = 1080;
-    let height = 1080;
+    let width = renderer.surface_config.width;
+    let height = renderer.surface_config.height;
 
     let bytes_per_pixel = 4; // For Rgba8Unorm (4 bytes per pixel)
                              // let unaligned_bytes_per_row = width * bytes_per_pixel;
