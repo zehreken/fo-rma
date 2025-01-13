@@ -1,10 +1,11 @@
-use egui::{Color32, RichText, ViewportId};
+use egui::ViewportId;
 use egui_wgpu::wgpu::TextureFormat;
 use egui_wgpu::{Renderer, ScreenDescriptor};
 use egui_winit::{
     egui::{self, ClippedPrimitive, Context, TexturesDelta},
     State,
 };
+use top_bar::TopBar;
 use wgpu::{CommandEncoder, Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
@@ -12,67 +13,14 @@ use winit::window::Window;
 pub mod gui_sequencer;
 pub mod top_bar;
 
-struct Test {
-    is_window_open: bool,
-}
-
-impl Test {
-    fn new() -> Self {
-        Self {
-            is_window_open: false,
-        }
-    }
-
-    fn draw(&mut self, ctx: &Context, fps: f32) {
-        egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
-                ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::GREEN));
-                // ui.menu_button("File", |ui| {
-                //     if ui.button("About...").clicked() {
-                //         self.is_window_open = true;
-                //         ui.close_menu();
-                //     }
-                // });
-            });
-        });
-
-        egui::Window::new("Hello, winit-wgpu-egui")
-            .open(&mut self.is_window_open)
-            .show(ctx, |ui| {
-                ui.label(
-                    "This is the most basic example of how to use winit, wgpu and egui together.",
-                );
-                ui.label("Mandatory heart: ♥");
-
-                ui.separator();
-
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x /= 2.0;
-                    ui.label("Learn more about wgpu at");
-                    ui.hyperlink("https://docs.rs/winit");
-                });
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x /= 2.0;
-                    ui.label("Learn more about winit at");
-                    ui.hyperlink("https://docs.rs/wgpu");
-                });
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x /= 2.0;
-                    ui.label("Learn more about egui at");
-                    ui.hyperlink("https://docs.rs/egui");
-                });
-            });
-    }
-}
-
 pub struct Gui {
     ctx: Context,
     state: State,
     renderer: Renderer,
     screen_descriptor: ScreenDescriptor,
-    view: Test,
     paint_jobs: Vec<ClippedPrimitive>,
     textures: TexturesDelta,
+    top_bar: TopBar,
 }
 
 impl Gui {
@@ -97,16 +45,16 @@ impl Gui {
         let renderer = Renderer::new(device, texture_format, None, 1);
         let textures = TexturesDelta::default();
 
-        let view = Test::new();
+        let top_bar = TopBar::new();
 
         Self {
             ctx: egui_ctx,
             state: egui_state,
             renderer,
             screen_descriptor,
-            view,
             paint_jobs: vec![],
             textures,
+            top_bar,
         }
     }
 
@@ -134,7 +82,7 @@ impl Gui {
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
-            self.view.draw(egui_ctx, fps);
+            self.top_bar.draw(egui_ctx, fps);
             gui_sequencer::draw(egui_ctx);
         });
 
