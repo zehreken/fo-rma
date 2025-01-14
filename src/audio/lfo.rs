@@ -12,8 +12,16 @@ impl OscillatorType for LFO {
         }
     }
 
+    fn get_frequency(&self) -> f32 {
+        self.oscillator.get_frequency()
+    }
+
     fn set_frequency(&mut self, frequency: f32) {
         self.oscillator.set_frequency(frequency);
+    }
+
+    fn get_wave_type(&self) -> WaveType {
+        self.oscillator.get_wave_type()
     }
 
     fn set_wave_type(&mut self, wave_type: WaveType) {

@@ -14,7 +14,7 @@ pub struct Sequencer {
     tick_period: f32,
     beat_period: f32,
     is_beat: bool,
-    pub volume: f32,
+    volume: f32,
     ramp: f32,
 }
 
@@ -98,12 +98,20 @@ impl Sequencer {
         self.is_beat
     }
 
+    pub fn get_vco_frequency(&self) -> f32 {
+        self.vco.get_frequency()
+    }
+
     pub fn set_vco_frequency(&mut self, frequency: f32) {
         self.vco.set_frequency(frequency);
     }
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
         self.vco.set_wave_type(wave_type);
+    }
+
+    pub fn get_lfo_frequency(&self) -> f32 {
+        self.lfo.get_frequency()
     }
 
     pub fn set_lfo_frequency(&mut self, frequency: f32) {
@@ -114,11 +122,11 @@ impl Sequencer {
         self.lfo.set_wave_type(wave_type);
     }
 
-    pub fn set_volume(&mut self, volume: f32) {
-        self.volume = volume.clamp(0.0, 1.0);
-    }
-
     pub fn get_volume(&self) -> f32 {
         self.volume
+    }
+
+    pub fn set_volume(&mut self, volume: f32) {
+        self.volume = volume.clamp(0.0, 1.0);
     }
 }

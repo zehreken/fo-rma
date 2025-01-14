@@ -1,4 +1,4 @@
-use crate::audio::sequencer::Sequencer;
+use crate::audio::{sequencer::Sequencer, vco};
 use egui::Color32;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
@@ -6,6 +6,21 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
         ctx.request_repaint();
         ui.colored_label(Color32::RED, "MAIN TAPE ⏺");
         ui.label(format!("Running: {}", sequencer.is_running));
-        ui.add(egui::Slider::new(&mut sequencer.volume, 0.0..=1.0));
+        // volume
+        let mut volume = sequencer.get_volume();
+        ui.add(egui::Slider::new(&mut volume, 0.0..=1.0));
+        sequencer.set_volume(volume);
+        // vco freq
+        let mut vco_frequency = sequencer.get_vco_frequency();
+        ui.add(egui::widgets::Slider::new(
+            &mut vco_frequency,
+            200.0..=500.0,
+        ));
+        dbg!(vco_frequency);
+        sequencer.set_vco_frequency(vco_frequency);
+        // lfo freq
+        let mut lfo_frequency = sequencer.get_lfo_frequency();
+        ui.add(egui::widgets::Slider::new(&mut lfo_frequency, 1.0..=20.0));
+        sequencer.set_lfo_frequency(lfo_frequency);
     });
 }
