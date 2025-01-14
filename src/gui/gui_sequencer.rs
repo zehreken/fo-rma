@@ -1,4 +1,4 @@
-use crate::audio::{sequencer::Sequencer, vco};
+use crate::audio::sequencer::Sequencer;
 use egui::Color32;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
@@ -14,9 +14,8 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
         let mut vco_frequency = sequencer.get_vco_frequency();
         ui.add(egui::widgets::Slider::new(
             &mut vco_frequency,
-            200.0..=500.0,
+            200.0..=20_000.0,
         ));
-        dbg!(vco_frequency);
         sequencer.set_vco_frequency(vco_frequency);
         // lfo freq
         let mut lfo_frequency = sequencer.get_lfo_frequency();
