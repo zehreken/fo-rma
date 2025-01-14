@@ -141,6 +141,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 delta_time,
                 fps,
                 app.signal_peak,
+                &mut app.audio_model.get_sequencers()[0],
             );
             app.signal_peak -= 0.05;
 

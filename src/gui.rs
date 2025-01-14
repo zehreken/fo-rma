@@ -10,6 +10,8 @@ use wgpu::{CommandEncoder, Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
+use crate::audio::sequencer::Sequencer;
+
 pub mod gui_sequencer;
 pub mod top_bar;
 
@@ -78,12 +80,13 @@ impl Gui {
         device: &Device,
         queue: &Queue,
         encoder: &mut CommandEncoder,
+        sequencer: &mut Sequencer,
         fps: f32,
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
             self.top_bar.draw(egui_ctx, fps);
-            gui_sequencer::draw(egui_ctx);
+            gui_sequencer::draw(egui_ctx, sequencer);
         });
 
         self.textures.append(output.textures_delta);

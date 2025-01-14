@@ -9,6 +9,7 @@ use wgpu::{
 use winit::{dpi::PhysicalSize, window::Window};
 
 use crate::{
+    audio::sequencer::Sequencer,
     basics::{
         camera::{self, Camera},
         core::{ColorUniform, LightData, LightUniform, PipelineData, Uniforms, Vertex},
@@ -138,6 +139,7 @@ impl<'a> Renderer<'a> {
         delta_time: f32,
         fps: f32,
         signal: f32,
+        sequencer: &mut Sequencer,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
@@ -298,6 +300,7 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &mut encoder,
+            sequencer,
             fps,
         );
         // =====================

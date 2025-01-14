@@ -14,7 +14,7 @@ pub struct Sequencer {
     tick_period: f32,
     beat_period: f32,
     is_beat: bool,
-    volume: f32,
+    pub volume: f32,
     ramp: f32,
 }
 
@@ -112,5 +112,13 @@ impl Sequencer {
 
     pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
         self.lfo.set_wave_type(wave_type);
+    }
+
+    pub fn set_volume(&mut self, volume: f32) {
+        self.volume = volume.clamp(0.0, 1.0);
+    }
+
+    pub fn get_volume(&self) -> f32 {
+        self.volume
     }
 }

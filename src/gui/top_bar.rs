@@ -1,13 +1,5 @@
-use egui::{Color32, RichText, ViewportId};
-use egui_wgpu::wgpu::TextureFormat;
-use egui_wgpu::{Renderer, ScreenDescriptor};
-use egui_winit::{
-    egui::{self, ClippedPrimitive, Context, TexturesDelta},
-    State,
-};
-use wgpu::{CommandEncoder, Device, Queue};
-use winit::dpi::PhysicalSize;
-use winit::window::Window;
+use egui::{Color32, RichText};
+use egui_winit::egui::{self, Context};
 
 pub struct TopBar {
     is_window_open: bool,

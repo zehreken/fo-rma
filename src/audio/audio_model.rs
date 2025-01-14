@@ -165,6 +165,10 @@ impl AudioModel {
         //     self.input_producer.push(Input::Stop).unwrap();
         // }
     }
+
+    pub fn get_sequencers(&mut self) -> &mut Vec<Sequencer> {
+        &mut self.sequencers
+    }
 }
 
 fn err_fn(err: cpal::StreamError) {
