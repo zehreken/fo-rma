@@ -54,7 +54,7 @@ impl AudioModel {
         let output_config: cpal::StreamConfig =
             output_device.default_output_config().unwrap().into();
 
-        let ring = HeapRb::new(1024);
+        let ring = HeapRb::new(1024 * 2);
         let (mut producer, mut consumer) = ring.split();
         if !producer.is_full() {
             producer.push(0.0).unwrap();
