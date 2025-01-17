@@ -1,12 +1,13 @@
 use kopek::oscillator::WaveType;
 
-use super::{lfo::LFO, vco::VCO};
-use crate::{audio::oscillator_type::OscillatorType, basics::core::clamp};
+use super::modulated_oscillator::ModulatedOscillator;
+use crate::basics::core::clamp;
 
 pub struct Sequencer {
     pub is_running: bool,
-    vco: VCO,
-    lfo: LFO,
+    oscillator: ModulatedOscillator,
+    // vco: VCO,
+    // lfo: LFO,
     beat_index: u32,
     length: u8,
     freq: f32,
@@ -28,15 +29,16 @@ impl Sequencer {
         let tick_period = (sample_rate * 60) as f32 / bpm as f32;
         let beat_duration = tick_period / 3.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
-        let mut vco = VCO::new(sample_rate as f32);
-        vco.set_wave_type(kopek::oscillator::WaveType::Sine);
-        let mut lfo = LFO::new(sample_rate as f32);
-        lfo.set_frequency(10.0);
+        // let mut vco = VCO::new(sample_rate as f32);
+        // vco.set_wave_type(kopek::oscillator::WaveType::Sine);
+        // let mut lfo = LFO::new(sample_rate as f32);
+        // lfo.set_frequency(10.0);
 
         Self {
             is_running: false,
-            vco,
-            lfo,
+            oscillator: ModulatedOscillator::new(sample_rate),
+            // vco,
+            // lfo,
             beat_index: 0,
             length: sequence.len() as u8,
             freq: sequence[0],
@@ -67,13 +69,11 @@ impl Sequencer {
         // if self.freq != self.freqs[step_index] {
         //     self.freq += freq_diff;
         // }
-        let modulator = self.lfo.run() * 5.0;
 
         self.freq = self.sequence[step_index];
-        let freq = self.freq * TEMP_OCTAVE as f32 + modulator;
-        // println!("Freq: {freq} modulator: {modulator}");
-        self.vco.set_frequency(freq);
-        value = self.vco.run();
+        self.oscillator
+            .set_frequency(self.freq * TEMP_OCTAVE as f32);
+        value = self.oscillator.run();
 
         // Ramp between volumes
         if self.is_beat && self.ramp < 1.0 {
@@ -99,27 +99,27 @@ impl Sequencer {
     }
 
     pub fn get_vco_frequency(&self) -> f32 {
-        self.vco.get_frequency()
+        self.oscillator.get_vco_frequency()
     }
 
     pub fn set_vco_frequency(&mut self, frequency: f32) {
-        self.vco.set_frequency(frequency);
+        self.oscillator.set_vco_frequency(frequency);
     }
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
-        self.vco.set_wave_type(wave_type);
+        self.oscillator.set_vco_wave_type(wave_type);
     }
 
     pub fn get_lfo_frequency(&self) -> f32 {
-        self.lfo.get_frequency()
+        self.oscillator.get_lfo_frequency()
     }
 
     pub fn set_lfo_frequency(&mut self, frequency: f32) {
-        self.lfo.set_frequency(frequency);
+        self.oscillator.set_lfo_frequency(frequency);
     }
 
     pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
-        self.lfo.set_wave_type(wave_type);
+        self.oscillator.set_lfo_wave_type(wave_type);
     }
 
     pub fn get_volume(&self) -> f32 {
