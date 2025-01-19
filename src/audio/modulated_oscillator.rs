@@ -18,7 +18,7 @@ impl ModulatedOscillator {
     }
 
     pub fn run(&mut self) -> f32 {
-        let modulation = self.lfo.run() * 5.0;
+        let modulation = self.lfo.run() * 10.0;
         let vco_frequency = self.frequency + modulation;
         self.vco.set_frequency(vco_frequency);
         let signal = self.vco.run();
@@ -32,14 +32,6 @@ impl ModulatedOscillator {
 
     pub fn set_frequency(&mut self, frequency: f32) {
         self.frequency = frequency;
-    }
-
-    pub fn get_vco_frequency(&self) -> f32 {
-        self.vco.get_frequency()
-    }
-
-    pub fn set_vco_frequency(&mut self, frequency: f32) {
-        self.vco.set_frequency(frequency);
     }
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {

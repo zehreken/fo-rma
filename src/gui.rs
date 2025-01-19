@@ -10,8 +10,10 @@ use wgpu::{CommandEncoder, Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
+use crate::audio::modulated_oscillator::ModulatedOscillator;
 use crate::audio::sequencer::Sequencer;
 
+pub mod gui_oscillator;
 pub mod gui_sequencer;
 pub mod top_bar;
 

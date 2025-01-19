@@ -71,8 +71,8 @@ impl Sequencer {
         // }
 
         self.freq = self.sequence[step_index];
-        self.oscillator
-            .set_frequency(self.freq * TEMP_OCTAVE as f32);
+        // self.oscillator
+        //     .set_frequency(self.freq * TEMP_OCTAVE as f32);
         value = self.oscillator.run();
 
         // Ramp between volumes
@@ -98,12 +98,12 @@ impl Sequencer {
         self.is_beat
     }
 
-    pub fn get_vco_frequency(&self) -> f32 {
-        self.oscillator.get_vco_frequency()
+    pub fn get_frequency(&self) -> f32 {
+        self.oscillator.get_frequency()
     }
 
-    pub fn set_vco_frequency(&mut self, frequency: f32) {
-        self.oscillator.set_vco_frequency(frequency);
+    pub fn set_frequency(&mut self, frequency: f32) {
+        self.oscillator.set_frequency(frequency);
     }
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
