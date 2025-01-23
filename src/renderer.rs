@@ -30,7 +30,7 @@ pub struct Renderer<'a> {
     pub surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
-    uniforms: Vec<ColorUniform>,
+    uniforms: Vec<Uniforms>,
     light: Light,
     pub depth_texture: TextureView,
     pub pipeline_data: PipelineData,
@@ -63,7 +63,7 @@ impl<'a> Renderer<'a> {
         );
         let gui = Gui::new(&window, &device, texture_format);
         // Initialize uniforms vector
-        let uniforms = vec![ColorUniform::new(); MAX_PRIMITIVES];
+        let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
         // ===================
         // Light uniform
         let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
@@ -210,12 +210,12 @@ impl<'a> Renderer<'a> {
         for (i, primitive) in primitives.iter().enumerate() {
             self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
             self.uniforms[i].model = primitive.model_matrix();
-            self.uniforms[i].color1 = utils::CCP.palette[1].to_vec4(1.0);
-            self.uniforms[i].color2 = utils::CCP.palette[2].to_vec4(1.0);
-            self.uniforms[i].color3 = utils::CCP.palette[3].to_vec4(1.0);
-            // self.uniforms[i].normal1 = primitive.normal_matrix().x_axis.extend(0.0).to_array();
-            // self.uniforms[i].normal2 = primitive.normal_matrix().y_axis.extend(0.0).to_array();
-            // self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
+            // self.uniforms[i].color1 = utils::CCP.palette[1].to_vec4(1.0);
+            // self.uniforms[i].color2 = utils::CCP.palette[2].to_vec4(1.0);
+            // self.uniforms[i].color3 = utils::CCP.palette[3].to_vec4(1.0);
+            self.uniforms[i].normal1 = primitive.normal_matrix().x_axis.extend(0.0).to_array();
+            self.uniforms[i].normal2 = primitive.normal_matrix().y_axis.extend(0.0).to_array();
+            self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
             self.uniforms[i].signal = signal;
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
             // self.light_uniform.intensity = signal;
@@ -479,7 +479,7 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
-    let shader = include_str!("shaders/equalizer.wgsl");
+    let shader = include_str!("shaders/basic_light.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
