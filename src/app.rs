@@ -13,7 +13,7 @@ use winit::{
 
 use crate::{
     audio::audio_model::AudioModel,
-    basics::{cube::Cube, primitive::Primitive, quad::Quad, sphere::Sphere, triangle::Triangle},
+    basics::{primitive::Primitive, quad::Quad, sphere::Sphere},
     renderer, save_image,
 };
 

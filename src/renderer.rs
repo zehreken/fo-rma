@@ -12,16 +12,16 @@ use crate::{
     audio::sequencer::Sequencer,
     basics::{
         camera::{self, Camera},
-        core::{ColorUniform, GlobalUniformData, LightData, LightUniform, Vertex},
+        core::{ColorUniform, GlobalUniformData, LightData, Vertex},
         light::Light,
         primitive::Primitive,
-        uniforms::ObjectUniform,
+        uniforms::{LightUniform, ObjectUniform},
     },
     gui::Gui,
     utils::{self, ToVec4},
 };
 
-const MAX_PRIMITIVES: usize = 1;
+// const MAX_PRIMITIVES: usize = 2;
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
 pub struct Renderer<'a> {
@@ -66,10 +66,8 @@ impl<'a> Renderer<'a> {
         let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_uniform = LightUniform {
-            position: light.transform.position.to_array(),
-            intensity: light.intensity,
-            color: light.color,
-            _padding2: 0.0,
+            position: light.transform.position.extend(0.0).to_array(),
+            color: light.color.to_vec4(light.intensity),
         };
 
         let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -107,7 +105,7 @@ impl<'a> Renderer<'a> {
         let debug_pipeline_data = create_debug_pipeline_data(&device, &surface_config);
 
         // =============
-        let pipeline_data = create_pipeline_data(&device, &surface_config);
+        let pipeline_data = create_pipeline_data(&device, &surface_config, 2);
         // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
 
@@ -201,7 +199,7 @@ impl<'a> Renderer<'a> {
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
         let light_data = self.global_uniform_data.light_data.as_mut().unwrap();
-        light_data.uniform.position = self.light.transform.position.to_array();
+        light_data.uniform.position = self.light.transform.position.extend(0.0).to_array();
 
         for (i, primitive) in primitives.iter().enumerate() {
             let object_uniform = ObjectUniform {
@@ -403,6 +401,7 @@ fn create_depth_texture(
 fn create_pipeline_data(
     device: &Device,
     surface_config: &SurfaceConfiguration, /* include shader variant */
+    primitive_count: u64,
 ) -> GlobalUniformData {
     let uniform_alignment =
         device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
@@ -410,7 +409,7 @@ fn create_pipeline_data(
     let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
     let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("uniform_buffer"),
-        size: aligned_uniform_size * MAX_PRIMITIVES as u64, // Adjust MAX_PRIMITIVES as needed
+        size: aligned_uniform_size * primitive_count,
         usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     });
@@ -443,10 +442,8 @@ fn create_pipeline_data(
     let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
     light.update_position(vec3(2.0, 0.0, 2.0));
     let light_uniform = LightUniform {
-        position: light.transform.position.to_array(),
-        intensity: light.intensity,
-        color: light.color,
-        _padding2: 0.0,
+        position: light.transform.position.extend(0.0).to_array(),
+        color: light.color.to_vec4(light.intensity),
     };
 
     let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -477,7 +474,7 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
-    let shader = include_str!("shaders/color.wgsl");
+    let shader = include_str!("shaders/basic_light.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {

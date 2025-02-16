@@ -9,7 +9,6 @@ pub trait Primitive {
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
     fn transform(&mut self) -> &mut Transform;
-    // fn pipeline_data(&self) -> &PipelineData;
 }
 
 pub struct PrimitiveState {

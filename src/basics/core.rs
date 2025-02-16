@@ -1,6 +1,8 @@
 use glam::{Mat4, Quat, Vec3};
 use wgpu::{BindGroup, Buffer, RenderPipeline};
 
+use super::uniforms::LightUniform;
+
 pub struct GlobalUniformData {
     pub render_pipeline: RenderPipeline,
     pub uniform_buffer: Buffer,
@@ -56,15 +58,6 @@ impl ColorUniform {
             signal: 0.0,
         }
     }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct LightUniform {
-    pub position: [f32; 3],
-    pub intensity: f32,
-    pub color: [f32; 3],
-    pub _padding2: f32,
 }
 
 pub struct Transform {
