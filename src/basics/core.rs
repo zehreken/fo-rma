@@ -1,7 +1,7 @@
 use glam::{Mat4, Quat, Vec3};
 use wgpu::{BindGroup, Buffer, RenderPipeline};
 
-pub struct PipelineData {
+pub struct GlobalUniformData {
     pub render_pipeline: RenderPipeline,
     pub uniform_buffer: Buffer,
     pub uniform_bind_group: BindGroup,
@@ -54,32 +54,6 @@ impl ColorUniform {
             color2: [0.0; 4],
             color3: [0.0; 4],
             signal: 0.0,
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct Uniforms {
-    pub view_proj: [[f32; 4]; 4],
-    pub model: [[f32; 4]; 4],
-    _padding: [f32; 3],
-    pub signal: f32,
-    pub normal1: [f32; 4],
-    pub normal2: [f32; 4],
-    pub normal3: [f32; 4],
-}
-
-impl Uniforms {
-    pub fn new() -> Self {
-        Self {
-            view_proj: Mat4::IDENTITY.to_cols_array_2d(),
-            model: Mat4::IDENTITY.to_cols_array_2d(),
-            signal: 0.0,
-            _padding: [0.0; 3],
-            normal1: [0.0; 4],
-            normal2: [0.0; 4],
-            normal3: [0.0; 4],
         }
     }
 }

@@ -12,9 +12,10 @@ use crate::{
     audio::sequencer::Sequencer,
     basics::{
         camera::{self, Camera},
-        core::{ColorUniform, LightData, LightUniform, PipelineData, Uniforms, Vertex},
+        core::{ColorUniform, GlobalUniformData, LightData, LightUniform, Vertex},
         light::Light,
         primitive::Primitive,
+        uniforms::ObjectUniform,
     },
     gui::Gui,
     utils::{self, ToVec4},
@@ -30,11 +31,10 @@ pub struct Renderer<'a> {
     pub surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
-    uniforms: Vec<Uniforms>,
     light: Light,
     pub depth_texture: TextureView,
-    pub pipeline_data: PipelineData,
-    pub debug_pipeline_data: PipelineData,
+    pub global_uniform_data: GlobalUniformData,
+    pub debug_uniform_data: GlobalUniformData,
 }
 
 impl<'a> Renderer<'a> {
@@ -62,9 +62,6 @@ impl<'a> Renderer<'a> {
             100.0,
         );
         let gui = Gui::new(&window, &device, texture_format);
-        // Initialize uniforms vector
-        let uniforms = vec![Uniforms::new(); MAX_PRIMITIVES];
-        // ===================
         // Light uniform
         let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
@@ -123,11 +120,10 @@ impl<'a> Renderer<'a> {
             surface_config,
             gui,
             camera,
-            uniforms,
             light,
             depth_texture,
-            pipeline_data,
-            debug_pipeline_data,
+            global_uniform_data: pipeline_data,
+            debug_uniform_data: debug_pipeline_data,
         }
     }
 
@@ -190,11 +186,11 @@ impl<'a> Renderer<'a> {
             timestamp_writes: None,
             occlusion_query_set: None,
         });
-        render_pass.set_pipeline(&self.pipeline_data.render_pipeline);
+        render_pass.set_pipeline(&self.global_uniform_data.render_pipeline);
 
         let uniform_alignment =
             self.device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
-        let uniform_size = mem::size_of::<Uniforms>() as wgpu::BufferAddress;
+        let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
         let aligned_uniform_size =
             (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
@@ -204,26 +200,27 @@ impl<'a> Renderer<'a> {
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
-        let light_data = self.pipeline_data.light_data.as_mut().unwrap();
+        let light_data = self.global_uniform_data.light_data.as_mut().unwrap();
         light_data.uniform.position = self.light.transform.position.to_array();
 
         for (i, primitive) in primitives.iter().enumerate() {
-            self.uniforms[i].view_proj = self.camera.build_view_projection_matrix();
-            self.uniforms[i].model = primitive.model_matrix();
+            let object_uniform = ObjectUniform {
+                view_proj: self.camera.build_view_projection_matrix(),
+                model: primitive.model_matrix(),
+                normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
+                normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
+                normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
+            };
             // self.uniforms[i].color1 = utils::CCP.palette[1].to_vec4(1.0);
             // self.uniforms[i].color2 = utils::CCP.palette[2].to_vec4(1.0);
             // self.uniforms[i].color3 = utils::CCP.palette[3].to_vec4(1.0);
-            self.uniforms[i].normal1 = primitive.normal_matrix().x_axis.extend(0.0).to_array();
-            self.uniforms[i].normal2 = primitive.normal_matrix().y_axis.extend(0.0).to_array();
-            self.uniforms[i].normal3 = primitive.normal_matrix().z_axis.extend(0.0).to_array();
-            self.uniforms[i].signal = signal;
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
             // self.light_uniform.intensity = signal;
 
             self.queue.write_buffer(
-                &self.pipeline_data.uniform_buffer,
+                &self.global_uniform_data.uniform_buffer,
                 uniform_offset,
-                bytemuck::cast_slice(&[self.uniforms[i]]),
+                bytemuck::cast_slice(&[object_uniform]),
             );
             self.queue.write_buffer(
                 &light_data.uniform_buffer,
@@ -232,7 +229,7 @@ impl<'a> Renderer<'a> {
             );
             render_pass.set_bind_group(
                 0,
-                &self.pipeline_data.uniform_bind_group,
+                &self.global_uniform_data.uniform_bind_group,
                 &[uniform_offset as u32],
             );
             render_pass.set_bind_group(1, &light_data.bind_group, &[]);
@@ -266,24 +263,25 @@ impl<'a> Renderer<'a> {
                 occlusion_query_set: None,
             });
 
-            debug_render_pass.set_pipeline(&self.debug_pipeline_data.render_pipeline);
+            debug_render_pass.set_pipeline(&self.debug_uniform_data.render_pipeline);
 
             // Update debug uniforms
-            let mut debug_uniforms = Uniforms::new();
-            debug_uniforms.view_proj = self.camera.build_view_projection_matrix();
-            // debug_uniforms.model = self.light.debug_mesh.model_matrix();
-            debug_uniforms.model = primitives[0].model_matrix();
-            debug_uniforms.normal1 = primitives[0].normal_matrix().x_axis.extend(0.0).to_array();
-            debug_uniforms.normal2 = primitives[0].normal_matrix().y_axis.extend(0.0).to_array();
-            debug_uniforms.normal3 = primitives[0].normal_matrix().z_axis.extend(0.0).to_array();
+            let debug_uniforms = ObjectUniform {
+                view_proj: self.camera.build_view_projection_matrix(),
+                // debug_uniforms.model = self.light.debug_mesh.model_matrix();
+                model: primitives[0].model_matrix(),
+                normal1: primitives[0].normal_matrix().x_axis.extend(0.0).to_array(),
+                normal2: primitives[0].normal_matrix().y_axis.extend(0.0).to_array(),
+                normal3: primitives[0].normal_matrix().z_axis.extend(0.0).to_array(),
+            };
 
             self.queue.write_buffer(
-                &self.debug_pipeline_data.uniform_buffer,
+                &self.debug_uniform_data.uniform_buffer,
                 0,
                 bytemuck::cast_slice(&[debug_uniforms]),
             );
 
-            debug_render_pass.set_bind_group(0, &self.debug_pipeline_data.uniform_bind_group, &[]);
+            debug_render_pass.set_bind_group(0, &self.debug_uniform_data.uniform_bind_group, &[]);
 
             // Draw debug mesh (assuming you have a debug_mesh field in your Renderer)
             // self.light.debug_mesh.draw(&mut debug_render_pass);
@@ -405,10 +403,10 @@ fn create_depth_texture(
 fn create_pipeline_data(
     device: &Device,
     surface_config: &SurfaceConfiguration, /* include shader variant */
-) -> PipelineData {
+) -> GlobalUniformData {
     let uniform_alignment =
         device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
-    let uniform_size = mem::size_of::<Uniforms>() as wgpu::BufferAddress;
+    let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
     let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
     let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("uniform_buffer"),
@@ -479,7 +477,7 @@ fn create_pipeline_data(
         }],
         label: Some("light_bind_group"),
     });
-    let shader = include_str!("shaders/basic_light.wgsl");
+    let shader = include_str!("shaders/color.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
     let shader_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -565,7 +563,7 @@ fn create_pipeline_data(
         bind_group: light_bind_group,
     };
 
-    PipelineData {
+    GlobalUniformData {
         render_pipeline: render_pipeline,
         uniform_buffer: uniform_buffer,
         uniform_bind_group: uniform_bind_group,
@@ -576,7 +574,7 @@ fn create_pipeline_data(
 fn create_debug_pipeline_data(
     device: &Device,
     surface_config: &SurfaceConfiguration,
-) -> PipelineData {
+) -> GlobalUniformData {
     let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("debug_shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("shaders/debug.wgsl").into()),
@@ -590,7 +588,7 @@ fn create_debug_pipeline_data(
                     ty: wgpu::BufferBindingType::Uniform,
                     has_dynamic_offset: false,
                     min_binding_size: Some(
-                        NonZeroU64::new(std::mem::size_of::<Uniforms>() as u64).unwrap(),
+                        NonZeroU64::new(std::mem::size_of::<ObjectUniform>() as u64).unwrap(),
                     ),
                 },
                 count: None,
@@ -666,7 +664,7 @@ fn create_debug_pipeline_data(
 
     let debug_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("debug_uniform_buffer"),
-        size: std::mem::size_of::<Uniforms>() as wgpu::BufferAddress,
+        size: std::mem::size_of::<ObjectUniform>() as wgpu::BufferAddress,
         usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     });
@@ -679,7 +677,7 @@ fn create_debug_pipeline_data(
         }],
     });
 
-    PipelineData {
+    GlobalUniformData {
         render_pipeline: debug_render_pipeline,
         uniform_buffer: debug_uniform_buffer,
         uniform_bind_group: debug_uniform_bind_group,

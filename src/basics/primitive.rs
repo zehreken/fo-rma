@@ -1,10 +1,7 @@
-use glam::{EulerRot, Mat3, Mat4, Quat, Vec3};
+use glam::{Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 
-use super::{
-    core::{PipelineData, Transform, Vertex},
-    shader_data::ShaderData,
-};
+use super::core::{Transform, Vertex};
 
 pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
