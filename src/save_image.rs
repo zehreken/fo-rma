@@ -58,19 +58,10 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     });
 
     // Set your existing pipeline and render primitives
-    render_pass.set_pipeline(&renderer.global_uniform_data.render_pipeline);
+    render_pass.set_pipeline(&renderer.render_pipeline);
     for primitive in primitives {
         render_pass.set_bind_group(0, &renderer.global_uniform_data.uniform_bind_group, &[0]);
-        render_pass.set_bind_group(
-            1,
-            &renderer
-                .global_uniform_data
-                .light_data
-                .as_ref()
-                .unwrap()
-                .bind_group,
-            &[],
-        );
+        render_pass.set_bind_group(1, &renderer.light_uniform_data.uniform_bind_group, &[]);
         primitive.draw(&mut render_pass);
     }
 
@@ -98,7 +89,7 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
         occlusion_query_set: None,
     });
 
-    debug_render_pass.set_pipeline(&renderer.debug_uniform_data.render_pipeline);
+    debug_render_pass.set_pipeline(&renderer.debug_render_pipeline);
     debug_render_pass.set_bind_group(0, &renderer.debug_uniform_data.uniform_bind_group, &[]);
     primitives[0].draw(&mut debug_render_pass);
     drop(debug_render_pass);

@@ -2,9 +2,10 @@ use std::{mem, num::NonZeroU64};
 
 use glam::vec3;
 use wgpu::{
-    util::DeviceExt, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
-    RenderPassColorAttachment, RenderPassDescriptor, StoreOp, Surface, SurfaceCapabilities,
-    SurfaceConfiguration, SurfaceError, Texture, TextureFormat, TextureView, TextureViewDescriptor,
+    BindGroupLayout, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
+    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
+    SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
+    TextureViewDescriptor,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -12,7 +13,7 @@ use crate::{
     audio::sequencer::Sequencer,
     basics::{
         camera::{self, Camera},
-        core::{ColorUniform, GlobalUniformData, LightData, Vertex},
+        core::{GenericUniformData, Vertex},
         light::Light,
         primitive::Primitive,
         uniforms::{LightUniform, ObjectUniform},
@@ -31,10 +32,13 @@ pub struct Renderer<'a> {
     pub surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
+    pub render_pipeline: RenderPipeline,
+    pub debug_render_pipeline: RenderPipeline,
     light: Light,
+    pub light_uniform_data: GenericUniformData,
     pub depth_texture: TextureView,
-    pub global_uniform_data: GlobalUniformData,
-    pub debug_uniform_data: GlobalUniformData,
+    pub global_uniform_data: GenericUniformData,
+    pub debug_uniform_data: GenericUniformData,
 }
 
 impl<'a> Renderer<'a> {
@@ -65,49 +69,24 @@ impl<'a> Renderer<'a> {
         // Light uniform
         let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
-        let light_uniform = LightUniform {
-            position: light.transform.position.extend(0.0).to_array(),
-            color: light.color.to_vec4(light.intensity),
-        };
-
-        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("light_buffer"),
-            contents: bytemuck::cast_slice(&[light_uniform]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-        let light_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                    count: None,
-                }],
-                label: None,
-            });
-
-        let light_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &light_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: light_buffer.as_entire_binding(),
-            }],
-            label: Some("light_bind_group"),
-        });
+        let light_data = create_light_data(&device);
         // I might need to pass this to create_render_pipeline function
 
         // =============
         // Debug
-        let debug_pipeline_data = create_debug_pipeline_data(&device, &surface_config);
+        let (debug_uniform_data, debug_render_pipeline) =
+            create_debug_uniform_data(&device, &surface_config);
 
         // =============
-        let pipeline_data = create_pipeline_data(&device, &surface_config, 2);
+        let global_uniform_data = create_global_uniform_data(&device, &surface_config, 2);
         // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
+        let render_pipeline = create_render_pipeline(
+            &device,
+            &surface_config,
+            &global_uniform_data.uniform_bind_group_layout,
+            &light_data.uniform_bind_group_layout,
+        );
 
         println!("Surface format: {:?}", surface_config.format);
 
@@ -118,10 +97,13 @@ impl<'a> Renderer<'a> {
             surface_config,
             gui,
             camera,
+            render_pipeline,
+            debug_render_pipeline,
             light,
+            light_uniform_data: light_data,
             depth_texture,
-            global_uniform_data: pipeline_data,
-            debug_uniform_data: debug_pipeline_data,
+            global_uniform_data,
+            debug_uniform_data,
         }
     }
 
@@ -184,7 +166,7 @@ impl<'a> Renderer<'a> {
             timestamp_writes: None,
             occlusion_query_set: None,
         });
-        render_pass.set_pipeline(&self.global_uniform_data.render_pipeline);
+        render_pass.set_pipeline(&self.render_pipeline);
 
         let uniform_alignment =
             self.device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
@@ -198,8 +180,11 @@ impl<'a> Renderer<'a> {
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
-        let light_data = self.global_uniform_data.light_data.as_mut().unwrap();
-        light_data.uniform.position = self.light.transform.position.extend(0.0).to_array();
+        let light_data = &mut self.light_uniform_data;
+        let light_uniform = LightUniform {
+            position: self.light.transform.position.extend(0.0).to_array(),
+            color: self.light.color.to_vec4(1.0),
+        };
 
         for (i, primitive) in primitives.iter().enumerate() {
             let object_uniform = ObjectUniform {
@@ -223,14 +208,14 @@ impl<'a> Renderer<'a> {
             self.queue.write_buffer(
                 &light_data.uniform_buffer,
                 0,
-                bytemuck::cast_slice(&[light_data.uniform]),
+                bytemuck::cast_slice(&[light_uniform]),
             );
             render_pass.set_bind_group(
                 0,
                 &self.global_uniform_data.uniform_bind_group,
                 &[uniform_offset as u32],
             );
-            render_pass.set_bind_group(1, &light_data.bind_group, &[]);
+            render_pass.set_bind_group(1, &light_data.uniform_bind_group, &[]);
             primitive.draw(&mut render_pass);
         }
 
@@ -261,7 +246,7 @@ impl<'a> Renderer<'a> {
                 occlusion_query_set: None,
             });
 
-            debug_render_pass.set_pipeline(&self.debug_uniform_data.render_pipeline);
+            debug_render_pass.set_pipeline(&self.debug_render_pipeline);
 
             // Update debug uniforms
             let debug_uniforms = ObjectUniform {
@@ -398,11 +383,50 @@ fn create_depth_texture(
     texture.create_view(&wgpu::TextureViewDescriptor::default())
 }
 
-fn create_pipeline_data(
+fn create_light_data(device: &Device) -> GenericUniformData {
+    let light_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("light_uniform_buffer"),
+        size: mem::size_of::<LightUniform>() as wgpu::BufferAddress,
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+
+    let light_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+            label: None,
+        });
+
+    let light_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &light_bind_group_layout,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: light_uniform_buffer.as_entire_binding(),
+        }],
+        label: Some("light_bind_group"),
+    });
+
+    GenericUniformData {
+        uniform_buffer: light_uniform_buffer,
+        uniform_bind_group: light_bind_group,
+        uniform_bind_group_layout: light_bind_group_layout,
+    }
+}
+
+fn create_global_uniform_data(
     device: &Device,
     surface_config: &SurfaceConfiguration, /* include shader variant */
     primitive_count: u64,
-) -> GlobalUniformData {
+) -> GenericUniformData {
     let uniform_alignment =
         device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
     let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
@@ -439,41 +463,20 @@ fn create_pipeline_data(
         }],
         label: Some("uniform_bind_group"),
     });
-    let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
-    light.update_position(vec3(2.0, 0.0, 2.0));
-    let light_uniform = LightUniform {
-        position: light.transform.position.extend(0.0).to_array(),
-        color: light.color.to_vec4(light.intensity),
-    };
 
-    let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("light_buffer"),
-        contents: bytemuck::cast_slice(&[light_uniform]),
-        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-    });
-    let light_bind_group_layout =
-        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-            label: None,
-        });
+    GenericUniformData {
+        uniform_buffer,
+        uniform_bind_group,
+        uniform_bind_group_layout,
+    }
+}
 
-    let light_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: &light_bind_group_layout,
-        entries: &[wgpu::BindGroupEntry {
-            binding: 0,
-            resource: light_buffer.as_entire_binding(),
-        }],
-        label: Some("light_bind_group"),
-    });
+fn create_render_pipeline(
+    device: &Device,
+    surface_config: &SurfaceConfiguration,
+    uniform_bind_group_layout: &BindGroupLayout,
+    light_bind_group_layout: &BindGroupLayout,
+) -> RenderPipeline {
     let shader = include_str!("shaders/basic_light.wgsl");
     let shader_utils = include_str!("shaders/utils.wgsl");
     let shader_combined = format!("{}\n{}", shader, shader_utils);
@@ -554,24 +557,13 @@ fn create_pipeline_data(
         multiview: None,
     });
 
-    let light_data = LightData {
-        uniform: light_uniform,
-        uniform_buffer: light_buffer,
-        bind_group: light_bind_group,
-    };
-
-    GlobalUniformData {
-        render_pipeline: render_pipeline,
-        uniform_buffer: uniform_buffer,
-        uniform_bind_group: uniform_bind_group,
-        light_data: Some(light_data),
-    }
+    render_pipeline
 }
 
-fn create_debug_pipeline_data(
+fn create_debug_uniform_data(
     device: &Device,
     surface_config: &SurfaceConfiguration,
-) -> GlobalUniformData {
+) -> (GenericUniformData, RenderPipeline) {
     let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("debug_shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("shaders/debug.wgsl").into()),
@@ -674,10 +666,12 @@ fn create_debug_pipeline_data(
         }],
     });
 
-    GlobalUniformData {
-        render_pipeline: debug_render_pipeline,
-        uniform_buffer: debug_uniform_buffer,
-        uniform_bind_group: debug_uniform_bind_group,
-        light_data: None,
-    }
+    (
+        GenericUniformData {
+            uniform_buffer: debug_uniform_buffer,
+            uniform_bind_group: debug_uniform_bind_group,
+            uniform_bind_group_layout: debug_uniform_bind_group_layout,
+        },
+        debug_render_pipeline,
+    )
 }

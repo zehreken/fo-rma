@@ -18,7 +18,7 @@ pub struct PrimitiveState {
     pub transform: Transform,
     pub model_matrix: Mat4,
     pub normal_matrix: Mat3,
-    // pub pipeline: PipelineData,
+    // pub material: Material,
 }
 
 impl PrimitiveState {
@@ -36,7 +36,9 @@ impl PrimitiveState {
         });
 
         let num_indices = indices.len() as u32;
-        // let pipeline_data = create_pipeline_data();
+        let shader_main = include_str!("../shaders/basic.wgsl");
+        // let material: Material::new(device, shader_main, "test", )
+
         Self {
             vertex_buffer,
             index_buffer,
