@@ -2,7 +2,7 @@ pub mod camera;
 pub mod core;
 pub mod cube;
 pub mod light;
-// pub mod material;
+pub mod material;
 pub mod primitive;
 pub mod quad;
 pub mod shader_data;

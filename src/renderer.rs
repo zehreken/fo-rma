@@ -67,7 +67,7 @@ impl<'a> Renderer<'a> {
         );
         let gui = Gui::new(&window, &device, texture_format);
         // Light uniform
-        let mut light = Light::new(&device, [1.0, 0.678, 0.003]);
+        let mut light = Light::new(&device, &surface_config, [1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_data = create_light_data(&device);
         // I might need to pass this to create_render_pipeline function

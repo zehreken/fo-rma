@@ -1,5 +1,5 @@
 use glam::Vec3;
-use wgpu::Device;
+use wgpu::{Device, SurfaceConfiguration};
 
 use super::{core::Transform, primitive::Primitive, sphere::Sphere};
 
@@ -11,12 +11,12 @@ pub struct Light {
 }
 
 impl Light {
-    pub fn new(device: &Device, color: [f32; 3]) -> Self {
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration, color: [f32; 3]) -> Self {
         Self {
             transform: Transform::new(),
             color,
             intensity: 1.0,
-            debug_mesh: Sphere::new(device),
+            debug_mesh: Sphere::new(device, surface_config),
         }
     }
 

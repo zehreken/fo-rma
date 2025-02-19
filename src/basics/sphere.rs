@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use glam::{EulerRot, Mat4, Quat, Vec3};
-use wgpu::Device;
+use wgpu::{Device, SurfaceConfiguration};
 
 use super::{
     core::Vertex,
@@ -20,10 +20,10 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(device: &Device) -> Self {
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         let (vertices, indices) = calculate_vertices_and_indices();
         Self {
-            state: PrimitiveState::new(device, &vertices, &indices),
+            state: PrimitiveState::new(device, surface_config, &vertices, &indices),
         }
     }
 }

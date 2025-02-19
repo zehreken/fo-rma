@@ -3,7 +3,7 @@ use super::{
     primitive::{Primitive, PrimitiveState},
 };
 use glam::{EulerRot, Mat4, Quat};
-use wgpu::{Device, RenderPass};
+use wgpu::{Device, RenderPass, SurfaceConfiguration};
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
@@ -23,9 +23,9 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn new(device: &Device) -> Self {
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         Self {
-            state: PrimitiveState::new(device, VERTICES, INDICES),
+            state: PrimitiveState::new(device, surface_config, VERTICES, INDICES),
         }
     }
 }

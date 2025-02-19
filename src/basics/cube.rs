@@ -3,7 +3,7 @@ use super::{
     primitive::{Primitive, PrimitiveState},
 };
 use glam::{Mat3, Mat4};
-use wgpu::{Device, RenderPass};
+use wgpu::{Device, RenderPass, SurfaceConfiguration};
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
@@ -54,9 +54,9 @@ pub struct Cube {
 }
 
 impl Cube {
-    pub fn new(device: &Device) -> Self {
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         Self {
-            state: PrimitiveState::new(device, VERTICES, INDICES),
+            state: PrimitiveState::new(device, surface_config, VERTICES, INDICES),
         }
     }
 }

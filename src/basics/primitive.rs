@@ -1,7 +1,10 @@
 use glam::{Mat3, Mat4, Quat, Vec3};
-use wgpu::{util::DeviceExt, Device, RenderPass};
+use wgpu::{util::DeviceExt, Device, RenderPass, SurfaceConfiguration};
 
-use super::core::{Transform, Vertex};
+use super::{
+    core::{Transform, Vertex},
+    material::Material,
+};
 
 pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
@@ -18,11 +21,16 @@ pub struct PrimitiveState {
     pub transform: Transform,
     pub model_matrix: Mat4,
     pub normal_matrix: Mat3,
-    // pub material: Material,
+    pub material: Material,
 }
 
 impl PrimitiveState {
-    pub fn new(device: &Device, vertices: &[Vertex], indices: &[u16]) -> Self {
+    pub fn new(
+        device: &Device,
+        surface_config: &SurfaceConfiguration,
+        vertices: &[Vertex],
+        indices: &[u16],
+    ) -> Self {
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("vertex_buffer"),
             contents: bytemuck::cast_slice(vertices),
@@ -37,7 +45,7 @@ impl PrimitiveState {
 
         let num_indices = indices.len() as u32;
         let shader_main = include_str!("../shaders/basic.wgsl");
-        // let material: Material::new(device, shader_main, "test", )
+        let material = Material::new(device, surface_config, shader_main, "test");
 
         Self {
             vertex_buffer,
@@ -46,6 +54,7 @@ impl PrimitiveState {
             transform: Transform::new(),
             model_matrix: Mat4::IDENTITY,
             normal_matrix: Mat3::IDENTITY,
+            material,
         }
     }
 
