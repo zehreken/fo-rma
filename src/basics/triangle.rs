@@ -1,4 +1,4 @@
-use crate::utils;
+use crate::{renderer::Renderer, utils};
 
 use super::{
     core::Vertex,
@@ -21,9 +21,9 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+    pub fn new(renderer: &Renderer) -> Self {
         Self {
-            state: PrimitiveState::new(device, surface_config, VERTICES, INDICES),
+            state: PrimitiveState::new(renderer, VERTICES, INDICES),
         }
     }
 }
@@ -49,5 +49,9 @@ impl Primitive for Triangle {
 
     fn transform(&mut self) -> &mut super::core::Transform {
         &mut self.state.transform
+    }
+
+    fn material(&self) -> &super::material::Material {
+        &self.state.material
     }
 }

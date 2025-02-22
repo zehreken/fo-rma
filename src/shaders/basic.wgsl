@@ -23,7 +23,7 @@ fn vs_main(
     model: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.color = model.color * uniforms.signal;
+    out.color = model.color; // * uniforms.signal;
     out.clip_position = uniforms.view_proj * uniforms.model * vec4<f32>(model.position, 1.0);
     return out;
 }

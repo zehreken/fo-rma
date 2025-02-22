@@ -3,6 +3,8 @@ use std::f32::consts::PI;
 use glam::{EulerRot, Mat4, Quat, Vec3};
 use wgpu::{Device, SurfaceConfiguration};
 
+use crate::renderer::Renderer;
+
 use super::{
     core::Vertex,
     primitive::{Primitive, PrimitiveState},
@@ -20,10 +22,10 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+    pub fn new(renderer: &Renderer) -> Self {
         let (vertices, indices) = calculate_vertices_and_indices();
         Self {
-            state: PrimitiveState::new(device, surface_config, &vertices, &indices),
+            state: PrimitiveState::new(renderer, &vertices, &indices),
         }
     }
 }
@@ -59,6 +61,10 @@ impl Primitive for Sphere {
 
     fn transform(&mut self) -> &mut super::core::Transform {
         &mut self.state.transform
+    }
+
+    fn material(&self) -> &super::material::Material {
+        &self.state.material
     }
 }
 

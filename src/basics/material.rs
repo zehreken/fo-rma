@@ -11,6 +11,8 @@ impl Material {
     pub fn new(
         device: &Device,
         surface_config: &SurfaceConfiguration,
+        generic_bind_group_layout: &BindGroupLayout,
+        light_bind_group_layout: &BindGroupLayout,
         shader_main: &str,
         shader_name: &str,
     ) -> Self {
@@ -28,23 +30,24 @@ impl Material {
             mapped_at_creation: false,
         });
 
-        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("material_bind_group_layout"),
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-        });
+        let material_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                label: Some("material_bind_group_layout"),
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+            });
 
         let material_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("material_bind_group"),
-            layout: &bind_group_layout,
+            layout: &material_bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
                 resource: uniform_buffer.as_entire_binding(),
@@ -54,7 +57,11 @@ impl Material {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[&bind_group_layout],
+                bind_group_layouts: &[
+                    generic_bind_group_layout,
+                    light_bind_group_layout,
+                    // &material_bind_group_layout,
+                ],
                 push_constant_ranges: &[],
             });
 

@@ -67,7 +67,7 @@ impl<'a> Renderer<'a> {
         );
         let gui = Gui::new(&window, &device, texture_format);
         // Light uniform
-        let mut light = Light::new(&device, &surface_config, [1.0, 0.678, 0.003]);
+        let mut light = Light::new([1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_data = create_light_data(&device);
         // I might need to pass this to create_render_pipeline function
@@ -166,7 +166,7 @@ impl<'a> Renderer<'a> {
             timestamp_writes: None,
             occlusion_query_set: None,
         });
-        render_pass.set_pipeline(&self.render_pipeline);
+        // render_pass.set_pipeline(&self.render_pipeline);
 
         let uniform_alignment =
             self.device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
@@ -194,6 +194,7 @@ impl<'a> Renderer<'a> {
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
+            render_pass.set_pipeline(&primitive.material().render_pipeline);
             // self.uniforms[i].color1 = utils::CCP.palette[1].to_vec4(1.0);
             // self.uniforms[i].color2 = utils::CCP.palette[2].to_vec4(1.0);
             // self.uniforms[i].color3 = utils::CCP.palette[3].to_vec4(1.0);

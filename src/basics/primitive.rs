@@ -1,6 +1,8 @@
 use glam::{Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass, SurfaceConfiguration};
 
+use crate::renderer::Renderer;
+
 use super::{
     core::{Transform, Vertex},
     material::Material,
@@ -12,6 +14,7 @@ pub trait Primitive {
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
     fn transform(&mut self) -> &mut Transform;
+    fn material(&self) -> &Material;
 }
 
 pub struct PrimitiveState {
@@ -25,27 +28,33 @@ pub struct PrimitiveState {
 }
 
 impl PrimitiveState {
-    pub fn new(
-        device: &Device,
-        surface_config: &SurfaceConfiguration,
-        vertices: &[Vertex],
-        indices: &[u16],
-    ) -> Self {
-        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("vertex_buffer"),
-            contents: bytemuck::cast_slice(vertices),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
+    pub fn new(renderer: &Renderer, vertices: &[Vertex], indices: &[u16]) -> Self {
+        let vertex_buffer = renderer
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("vertex_buffer"),
+                contents: bytemuck::cast_slice(vertices),
+                usage: wgpu::BufferUsages::VERTEX,
+            });
 
-        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("index_buffer"),
-            contents: bytemuck::cast_slice(indices),
-            usage: wgpu::BufferUsages::INDEX,
-        });
+        let index_buffer = renderer
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("index_buffer"),
+                contents: bytemuck::cast_slice(indices),
+                usage: wgpu::BufferUsages::INDEX,
+            });
 
         let num_indices = indices.len() as u32;
         let shader_main = include_str!("../shaders/basic.wgsl");
-        let material = Material::new(device, surface_config, shader_main, "test");
+        let material = Material::new(
+            &renderer.device,
+            &renderer.surface_config,
+            &renderer.global_uniform_data.uniform_bind_group_layout,
+            &renderer.light_uniform_data.uniform_bind_group_layout,
+            shader_main,
+            "test",
+        );
 
         Self {
             vertex_buffer,
