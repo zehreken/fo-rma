@@ -13,9 +13,9 @@ pub struct ObjectUniform {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct MaterialUniform {
-    pub color1: [f32; 4],
-    pub color2: [f32; 4],
-    pub color3: [f32; 4],
+    // pub color1: [f32; 4],
+    // pub color2: [f32; 4],
+    // pub color3: [f32; 4],
     pub signal: f32,
     pub _padding: [f32; 3],
 }

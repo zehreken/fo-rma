@@ -58,10 +58,12 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     });
 
     // Set your existing pipeline and render primitives
-    render_pass.set_pipeline(&renderer.render_pipeline);
+    // render_pass.set_pipeline(&renderer.render_pipeline);
     for primitive in primitives {
-        render_pass.set_bind_group(0, &renderer.global_uniform_data.uniform_bind_group, &[0]);
+        render_pass.set_pipeline(&primitive.material().render_pipeline);
+        render_pass.set_bind_group(0, &renderer.generic_uniform_data.uniform_bind_group, &[0]);
         render_pass.set_bind_group(1, &renderer.light_uniform_data.uniform_bind_group, &[]);
+        render_pass.set_bind_group(2, &primitive.material().bind_group, &[]);
         primitive.draw(&mut render_pass);
     }
 

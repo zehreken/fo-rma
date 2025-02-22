@@ -16,13 +16,12 @@ use crate::{
         core::{GenericUniformData, Vertex},
         light::Light,
         primitive::Primitive,
-        uniforms::{LightUniform, ObjectUniform},
+        uniforms::{LightUniform, MaterialUniform, ObjectUniform},
     },
     gui::Gui,
     utils::{self, ToVec4},
 };
 
-// const MAX_PRIMITIVES: usize = 2;
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
 pub struct Renderer<'a> {
@@ -32,12 +31,12 @@ pub struct Renderer<'a> {
     pub surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
-    pub render_pipeline: RenderPipeline,
+    // pub render_pipeline: RenderPipeline,
     pub debug_render_pipeline: RenderPipeline,
     light: Light,
     pub light_uniform_data: GenericUniformData,
     pub depth_texture: TextureView,
-    pub global_uniform_data: GenericUniformData,
+    pub generic_uniform_data: GenericUniformData,
     pub debug_uniform_data: GenericUniformData,
 }
 
@@ -69,7 +68,7 @@ impl<'a> Renderer<'a> {
         // Light uniform
         let mut light = Light::new([1.0, 0.678, 0.003]);
         light.update_position(vec3(2.0, 0.0, 2.0));
-        let light_data = create_light_data(&device);
+        let light_uniform_data = create_light_uniform_data(&device);
         // I might need to pass this to create_render_pipeline function
 
         // =============
@@ -78,15 +77,15 @@ impl<'a> Renderer<'a> {
             create_debug_uniform_data(&device, &surface_config);
 
         // =============
-        let global_uniform_data = create_global_uniform_data(&device, &surface_config, 2);
+        let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 2);
         // =============
         let depth_texture = create_depth_texture(&device, &surface_config);
-        let render_pipeline = create_render_pipeline(
-            &device,
-            &surface_config,
-            &global_uniform_data.uniform_bind_group_layout,
-            &light_data.uniform_bind_group_layout,
-        );
+        // let render_pipeline = create_render_pipeline(
+        //     &device,
+        //     &surface_config,
+        //     &generic_uniform_data.uniform_bind_group_layout,
+        //     &light_uniform_data.uniform_bind_group_layout,
+        // );
 
         println!("Surface format: {:?}", surface_config.format);
 
@@ -97,12 +96,12 @@ impl<'a> Renderer<'a> {
             surface_config,
             gui,
             camera,
-            render_pipeline,
+            // render_pipeline,
             debug_render_pipeline,
             light,
-            light_uniform_data: light_data,
+            light_uniform_data,
             depth_texture,
-            global_uniform_data,
+            generic_uniform_data,
             debug_uniform_data,
         }
     }
@@ -195,14 +194,15 @@ impl<'a> Renderer<'a> {
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
             render_pass.set_pipeline(&primitive.material().render_pipeline);
-            // self.uniforms[i].color1 = utils::CCP.palette[1].to_vec4(1.0);
-            // self.uniforms[i].color2 = utils::CCP.palette[2].to_vec4(1.0);
-            // self.uniforms[i].color3 = utils::CCP.palette[3].to_vec4(1.0);
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
-            // self.light_uniform.intensity = signal;
+
+            let material_uniform = MaterialUniform {
+                signal,
+                _padding: [0.0; 3],
+            };
 
             self.queue.write_buffer(
-                &self.global_uniform_data.uniform_buffer,
+                &self.generic_uniform_data.uniform_buffer,
                 uniform_offset,
                 bytemuck::cast_slice(&[object_uniform]),
             );
@@ -211,12 +211,18 @@ impl<'a> Renderer<'a> {
                 0,
                 bytemuck::cast_slice(&[light_uniform]),
             );
+            self.queue.write_buffer(
+                &primitive.material().uniform_buffer,
+                0,
+                bytemuck::cast_slice(&[material_uniform]),
+            );
             render_pass.set_bind_group(
                 0,
-                &self.global_uniform_data.uniform_bind_group,
+                &self.generic_uniform_data.uniform_bind_group,
                 &[uniform_offset as u32],
             );
             render_pass.set_bind_group(1, &light_data.uniform_bind_group, &[]);
+            render_pass.set_bind_group(2, &primitive.material().bind_group, &[]);
             primitive.draw(&mut render_pass);
         }
 
@@ -384,7 +390,7 @@ fn create_depth_texture(
     texture.create_view(&wgpu::TextureViewDescriptor::default())
 }
 
-fn create_light_data(device: &Device) -> GenericUniformData {
+fn create_light_uniform_data(device: &Device) -> GenericUniformData {
     let light_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("light_uniform_buffer"),
         size: mem::size_of::<LightUniform>() as wgpu::BufferAddress,
@@ -423,7 +429,7 @@ fn create_light_data(device: &Device) -> GenericUniformData {
     }
 }
 
-fn create_global_uniform_data(
+fn create_generic_uniform_data(
     device: &Device,
     surface_config: &SurfaceConfiguration, /* include shader variant */
     primitive_count: u64,

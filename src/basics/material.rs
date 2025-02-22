@@ -1,4 +1,5 @@
 use super::{core::Vertex, uniforms::MaterialUniform};
+use std::num::NonZeroU64;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
 pub struct Material {
@@ -39,7 +40,9 @@ impl Material {
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
-                        min_binding_size: None,
+                        min_binding_size: Some(
+                            NonZeroU64::new(std::mem::size_of::<MaterialUniform>() as u64).unwrap(),
+                        ),
                     },
                     count: None,
                 }],
@@ -60,7 +63,7 @@ impl Material {
                 bind_group_layouts: &[
                     generic_bind_group_layout,
                     light_bind_group_layout,
-                    // &material_bind_group_layout,
+                    &material_bind_group_layout,
                 ],
                 push_constant_ranges: &[],
             });
@@ -93,7 +96,7 @@ impl Material {
                         wgpu::VertexAttribute {
                             offset: std::mem::size_of::<[f32; 9]>() as wgpu::BufferAddress,
                             shader_location: 3,
-                            format: wgpu::VertexFormat::Float32x3,
+                            format: wgpu::VertexFormat::Float32x2,
                         },
                     ],
                 }],

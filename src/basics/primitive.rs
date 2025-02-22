@@ -46,11 +46,11 @@ impl PrimitiveState {
             });
 
         let num_indices = indices.len() as u32;
-        let shader_main = include_str!("../shaders/basic.wgsl");
+        let shader_main = include_str!("../shaders/basic_light.wgsl");
         let material = Material::new(
             &renderer.device,
             &renderer.surface_config,
-            &renderer.global_uniform_data.uniform_bind_group_layout,
+            &renderer.generic_uniform_data.uniform_bind_group_layout,
             &renderer.light_uniform_data.uniform_bind_group_layout,
             shader_main,
             "test",
