@@ -1,7 +1,13 @@
+use std::mem;
+
 use rand::Rng;
 use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
 
-use crate::{basics::primitive::Primitive, renderer::Renderer, utils};
+use crate::{
+    basics::{primitive::Primitive, uniforms::ObjectUniform},
+    renderer::Renderer,
+    utils,
+};
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
@@ -57,11 +63,20 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
         occlusion_query_set: None,
     });
 
+    let uniform_alignment =
+        renderer.device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
+    let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
+    let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
+
     // Set your existing pipeline and render primitives
-    // render_pass.set_pipeline(&renderer.render_pipeline);
-    for primitive in primitives {
+    for (i, primitive) in primitives.iter().enumerate() {
+        let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
         render_pass.set_pipeline(&primitive.material().render_pipeline);
-        render_pass.set_bind_group(0, &renderer.generic_uniform_data.uniform_bind_group, &[0]);
+        render_pass.set_bind_group(
+            0,
+            &renderer.generic_uniform_data.uniform_bind_group,
+            &[uniform_offset as u32],
+        );
         render_pass.set_bind_group(1, &renderer.light_uniform_data.uniform_bind_group, &[]);
         render_pass.set_bind_group(2, &primitive.material().bind_group, &[]);
         primitive.draw(&mut render_pass);
@@ -92,8 +107,15 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     });
 
     debug_render_pass.set_pipeline(&renderer.debug_render_pipeline);
-    debug_render_pass.set_bind_group(0, &renderer.debug_uniform_data.uniform_bind_group, &[]);
-    primitives[0].draw(&mut debug_render_pass);
+    for (i, primitive) in primitives.iter().enumerate() {
+        let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
+        debug_render_pass.set_bind_group(
+            0,
+            &renderer.debug_uniform_data.uniform_bind_group,
+            &[uniform_offset as u32],
+        );
+        primitive.draw(&mut debug_render_pass);
+    }
     drop(debug_render_pass);
 
     renderer.queue.submit(Some(encoder.finish()));

@@ -1,12 +1,23 @@
-struct Uniforms {
+struct Object {
     view_proj: mat4x4<f32>,
     model: mat4x4<f32>,
+    normal: mat3x3<f32>,
+};
+@group(0) @binding(0) var<uniform> object: Object;
+
+struct Light {
+    position: vec4<f32>,
+    color: vec4<f32>,
+};
+@group(1) @binding(0) var<uniform> ligth: Light;
+
+struct Material {
     color1: vec4<f32>,
     color2: vec4<f32>,
     color3: vec4<f32>,
     signal: f32,
-}
-@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+};
+@group(2) @binding(0) var<uniform> material: Material;
 
 struct VertexInput {
     @location(0) position: vec3<f32>,
@@ -28,14 +39,14 @@ struct VertexOutput {
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    let world_position = uniforms.model * vec4<f32>(model.position, 1.0);
-    out.clip_position = uniforms.view_proj * world_position;
+    let world_position = object.model * vec4<f32>(model.position, 1.0);
+    out.clip_position = object.view_proj * world_position;
     out.world_position = world_position.xyz / world_position.w;
-    out.color1 = uniforms.color1;
-    out.color2 = uniforms.color2;
-    out.color3 = uniforms.color3;
+    out.color1 = material.color1;
+    out.color2 = material.color2;
+    out.color3 = material.color3;
     out.uv = model.uv;
-    out.signal = uniforms.signal;
+    out.signal = material.signal;
 
     return out;
 }

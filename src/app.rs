@@ -13,7 +13,7 @@ use winit::{
 
 use crate::{
     audio::audio_model::AudioModel,
-    basics::{primitive::Primitive, quad::Quad, sphere::Sphere},
+    basics::{cube::Cube, primitive::Primitive, quad::Quad, sphere::Sphere, triangle::Triangle},
     renderer, save_image,
 };
 
@@ -36,10 +36,10 @@ impl<'a> App<'a> {
         // let init = vec![0.0; 60];
 
         let primitives: Vec<Box<dyn Primitive>> = vec![
-            // Box::new(Cube::new(&renderer.device)),
-            // Box::new(Triangle::new(&renderer.device)),
-            Box::new(Quad::new(&renderer)),
+            // Box::new(Cube::new(&renderer)),
+            // Box::new(Triangle::new(&renderer)),
             Box::new(Sphere::new(&renderer)),
+            Box::new(Quad::new(&renderer)),
         ];
 
         let audio_model = AudioModel::new().unwrap();
