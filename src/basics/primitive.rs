@@ -46,7 +46,7 @@ impl PrimitiveState {
             });
 
         let num_indices = indices.len() as u32;
-        let shader_main = include_str!("../shaders/equalizer.wgsl");
+        let shader_main = include_str!("../shaders/basic_light.wgsl");
         let material = Material::new(
             &renderer.device,
             &renderer.surface_config,

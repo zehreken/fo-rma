@@ -66,7 +66,8 @@ impl<'a> Renderer<'a> {
         );
         let gui = Gui::new(&window, &device, texture_format);
         // Light uniform
-        let mut light = Light::new([1.0, 0.678, 0.003]);
+        // let mut light = Light::new([1.0, 0.678, 0.003]);
+        let mut light = Light::new([1.0, 1.0, 1.0]);
         light.update_position(vec3(2.0, 0.0, 2.0));
         let light_uniform_data = create_light_uniform_data(&device);
         // I might need to pass this to create_render_pipeline function
@@ -198,12 +199,11 @@ impl<'a> Renderer<'a> {
             render_pass.set_pipeline(&primitive.material().render_pipeline);
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
-            let material_uniform = EqualizerUniform {
-                color1: utils::CCP.palette[0].to_vec4(1.0),
-                color2: utils::CCP.palette[1].to_vec4(1.0),
-                color3: utils::CCP.palette[2].to_vec4(1.0),
-                signal,
-                _padding: [0.0; 3],
+            let material_uniform = MaterialUniform {
+                // color1: utils::CCP.palette[0].to_vec4(1.0),
+                // color2: utils::CCP.palette[1].to_vec4(1.0),
+                // color3: utils::CCP.palette[2].to_vec4(1.0),
+                color: utils::CCP.palette[1].to_vec4(signal),
             };
 
             self.queue.write_buffer(
@@ -499,9 +499,13 @@ fn create_debug_uniform_data(
         device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
     let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
     let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
+
+    let shader_debug = include_str!("shaders/debug.wgsl");
+    let shader_utils = include_str!("shaders/utils.wgsl");
+    let shader_combined = format!("{}\n{}", shader_debug, shader_utils);
     let debug_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("debug_shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("shaders/debug.wgsl").into()),
+        source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
     });
 
     let debug_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

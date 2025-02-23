@@ -4,7 +4,7 @@ use super::{
     core::Vertex,
     primitive::{Primitive, PrimitiveState},
 };
-use glam::{EulerRot, Mat4, Quat};
+use glam::{vec3, EulerRot, Mat3, Mat4, Quat};
 use wgpu::{Device, RenderPass, SurfaceConfiguration};
 
 #[rustfmt::skip]

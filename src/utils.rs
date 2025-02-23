@@ -39,6 +39,14 @@ pub fn srgb_to_linear<T: Float>(color: [T; 3], gamma: T) -> [T; 3] {
     }
 }
 
+pub fn force_srgb_to_linear<T: Float>(color: [T; 3], gamma: T) -> [T; 3] {
+    [
+        color[0].powf(gamma),
+        color[1].powf(gamma),
+        color[2].powf(gamma),
+    ]
+}
+
 pub trait ToVec4 {
     fn to_vec4(self, fill: f32) -> [f32; 4];
 }
@@ -125,4 +133,13 @@ pub const CP7: ColorPalette<f32, 4> = ColorPalette {
     ],
 };
 
-pub const CCP: ColorPalette<f32, 4> = CP7;
+pub const CP8: ColorPalette<f32, 4> = ColorPalette {
+    palette: [
+        [0.1, 0.1, 0.1],
+        [0.2, 0.2, 0.2],
+        [0.3, 0.3, 0.3],
+        [0.4, 0.4, 0.4],
+    ],
+};
+
+pub const CCP: ColorPalette<f32, 4> = CP8;

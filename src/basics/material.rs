@@ -29,7 +29,7 @@ impl Material {
 
         let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("material_uniform_buffer"),
-            size: std::mem::size_of::<EqualizerUniform>() as wgpu::BufferAddress,
+            size: std::mem::size_of::<MaterialUniform>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
@@ -44,8 +44,7 @@ impl Material {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
                         min_binding_size: Some(
-                            NonZeroU64::new(std::mem::size_of::<EqualizerUniform>() as u64)
-                                .unwrap(),
+                            NonZeroU64::new(std::mem::size_of::<MaterialUniform>() as u64).unwrap(),
                         ),
                     },
                     count: None,

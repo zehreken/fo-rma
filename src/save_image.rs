@@ -33,7 +33,7 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
             label: Some("high_res_encoder"),
         });
 
-    let c_bg_color = utils::srgb_to_linear(BG_COLOR, utils::GAMMA);
+    let c_bg_color = utils::force_srgb_to_linear(BG_COLOR, utils::GAMMA);
     let bg_color = Color {
         r: c_bg_color[0] as f64,
         g: c_bg_color[1] as f64,

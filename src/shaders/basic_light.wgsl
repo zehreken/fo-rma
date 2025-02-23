@@ -12,7 +12,7 @@ struct Light {
 @group(1) @binding(0) var<uniform> light: Light;
 
 struct Material {
-    signal: f32,
+    color: vec4<f32> // a is for signal
 }
 @group(2) @binding(0) var<uniform> material: Material;
 
@@ -20,6 +20,7 @@ struct VertexInput {
     @location(0) position: vec3<f32>,
     @location(1) color: vec3<f32>,
     @location(2) normal: vec3<f32>,
+    @location(3) uv: vec2<f32>,
 };
 
 struct VertexOutput {
@@ -33,8 +34,8 @@ struct VertexOutput {
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    out.color = model.color * material.signal;  // Apply signal to color
-    // out.color = model.color;
+    // out.color = material.color * material.color.a;  // Apply signal to color
+    out.color = material.color.rgb;
     let world_position = (object.model * vec4<f32>(model.position, 1.0)).xyz;
     out.world_position = world_position;
     out.world_normal = object.normal * model.normal;
@@ -49,7 +50,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let light_dir = normalize(light.position.xyz - in.world_position);
 
     // Ambient
-    let ambient_strength = 0.0;
+    let ambient_strength = 0.1;
     let ambient = vec3(1.0, 1.0, 1.0) * ambient_strength;
 
     // Diffuse

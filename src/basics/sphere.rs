@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use glam::{EulerRot, Mat4, Quat, Vec3};
+use glam::{EulerRot, Mat3, Mat4, Quat, Vec3};
 use wgpu::{Device, SurfaceConfiguration};
 
 use crate::renderer::Renderer;
@@ -48,7 +48,9 @@ impl Primitive for Sphere {
             self.state.transform.scale,
             self.state.transform.rotation,
             self.state.transform.position,
-        )
+        );
+
+        self.state.normal_matrix = Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
@@ -87,8 +89,8 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; VERTEX_COU
             let t = i as f32 / STACK_COUNT as f32;
             vertices.push(Vertex {
                 position: [x, y, z],
-                color: [x, y, z],
-                normal: [s, t, 0.0],
+                color: [0.1, 0.1, 0.1],
+                normal: [x / RADIUS, y / RADIUS, z / RADIUS],
                 uv: [s, t],
             });
         }
