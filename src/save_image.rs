@@ -191,9 +191,11 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
             {
                 pixel.swap(0, 2);
             }
+            let rnd = rng.gen_range(0..20);
             for channel in 0..3 {
                 // skip alpha channel
-                pixel[channel] = pixel[channel].saturating_add(rng.gen_range(0..50));
+                // pixel[channel] = pixel[channel].saturating_add(rng.gen_range(0..50));
+                pixel[channel] = pixel[channel].saturating_add(rnd);
             }
 
             tightly_packed_data.extend_from_slice(&pixel);
