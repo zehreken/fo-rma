@@ -39,7 +39,7 @@ impl<'a> App<'a> {
             // Box::new(Cube::new(&renderer)),
             // Box::new(Triangle::new(&renderer)),
             Box::new(Sphere::new(&renderer)),
-            // Box::new(Quad::new(&renderer)),
+            Box::new(Quad::new(&renderer)),
         ];
 
         let audio_model = AudioModel::new().unwrap();
