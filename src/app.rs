@@ -1,20 +1,14 @@
+use crate::{audio::audio_model::AudioModel, basics::level::Level, renderer, save_image};
 use std::{
     collections::VecDeque,
     time::{Duration, Instant},
 };
-
 use winit::{
     dpi::{PhysicalSize, Size},
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::{EventLoop, EventLoopWindowTarget},
     keyboard::{KeyCode, ModifiersState, PhysicalKey},
     window::{Window, WindowBuilder},
-};
-
-use crate::{
-    audio::audio_model::AudioModel,
-    basics::{cube::Cube, primitive::Primitive, quad::Quad, sphere::Sphere, triangle::Triangle},
-    renderer, save_image,
 };
 
 pub struct App<'a> {
@@ -24,7 +18,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
-    pub primitives: Vec<Box<dyn Primitive>>,
+    pub level: Level,
     audio_model: AudioModel,
     signal_peak: f32,
 }
@@ -35,12 +29,7 @@ impl<'a> App<'a> {
         let renderer = renderer::Renderer::new(window).await;
         // let init = vec![0.0; 60];
 
-        let primitives: Vec<Box<dyn Primitive>> = vec![
-            // Box::new(Cube::new(&renderer)),
-            // Box::new(Triangle::new(&renderer)),
-            Box::new(Sphere::new(&renderer)),
-            Box::new(Quad::new(&renderer)),
-        ];
+        let level = Level::new(&renderer);
 
         let audio_model = AudioModel::new().unwrap();
 
@@ -48,7 +37,7 @@ impl<'a> App<'a> {
             size,
             window: &window,
             renderer,
-            primitives,
+            level,
             audio_model,
             signal_peak: 0.0,
         }
@@ -127,16 +116,10 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             if signal > app.signal_peak {
                 app.signal_peak = signal;
             }
-            for primitive in &mut app.primitives {
-                primitive.update(if app.audio_model.show_beat() {
-                    delta_time * 20.0
-                } else {
-                    delta_time
-                });
-            }
+            app.level.update(delta_time);
             let _ = app.renderer.render(
                 &app.window,
-                &app.primitives,
+                &app.level,
                 elapsed,
                 delta_time,
                 fps,
@@ -209,7 +192,7 @@ fn handle_key_event(
             }
             PhysicalKey::Code(KeyCode::KeyR) => {
                 if key_event.state == ElementState::Pressed && !key_event.repeat {
-                    save_image::save_image(&mut app.renderer, &app.primitives);
+                    save_image::save_image(&mut app.renderer, &app.level);
                 }
             }
             PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),

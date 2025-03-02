@@ -1,26 +1,23 @@
-use std::{mem, num::NonZeroU64};
-
-use glam::vec3;
-use wgpu::{
-    BindGroupLayout, Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue,
-    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, StoreOp, Surface,
-    SurfaceCapabilities, SurfaceConfiguration, SurfaceError, TextureFormat, TextureView,
-    TextureViewDescriptor,
-};
-use winit::{dpi::PhysicalSize, window::Window};
-
 use crate::{
     audio::sequencer::Sequencer,
     basics::{
         camera::{self, Camera},
         core::{GenericUniformData, Vertex},
+        level::Level,
         light::Light,
-        primitive::Primitive,
-        uniforms::{EqualizerUniform, LightUniform, MaterialUniform, ObjectUniform},
+        uniforms::{LightUniform, ObjectUniform},
     },
     gui::Gui,
     utils::{self, ToVec4},
 };
+use glam::vec3;
+use std::{mem, num::NonZeroU64};
+use wgpu::{
+    Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
+    RenderPassDescriptor, RenderPipeline, StoreOp, Surface, SurfaceCapabilities,
+    SurfaceConfiguration, SurfaceError, TextureFormat, TextureView, TextureViewDescriptor,
+};
+use winit::{dpi::PhysicalSize, window::Window};
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
@@ -31,7 +28,6 @@ pub struct Renderer<'a> {
     pub surface_config: SurfaceConfiguration,
     pub gui: Gui,
     pub camera: Camera,
-    // pub render_pipeline: RenderPipeline,
     pub debug_render_pipeline: RenderPipeline,
     light: Light,
     pub light_uniform_data: GenericUniformData,
@@ -112,7 +108,7 @@ impl<'a> Renderer<'a> {
     pub fn render(
         &mut self,
         window: &Window,
-        primitives: &Vec<Box<dyn Primitive>>,
+        level: &Level,
         elapsed: f32,
         delta_time: f32,
         fps: f32,
@@ -188,7 +184,7 @@ impl<'a> Renderer<'a> {
             color: self.light.color.to_vec4(1.0),
         };
 
-        for (i, primitive) in primitives.iter().enumerate() {
+        for (i, primitive) in level.primitives.iter().enumerate() {
             let object_uniform = ObjectUniform {
                 view_proj: self.camera.build_view_projection_matrix(),
                 model: primitive.model_matrix(),
@@ -198,13 +194,6 @@ impl<'a> Renderer<'a> {
             };
             render_pass.set_pipeline(&primitive.material().render_pipeline);
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
-
-            let material_uniform = MaterialUniform {
-                // color1: utils::CCP.palette[0].to_vec4(1.0),
-                // color2: utils::CCP.palette[1].to_vec4(1.0),
-                // color3: utils::CCP.palette[2].to_vec4(1.0),
-                color: utils::CCP.palette[1].to_vec4(signal),
-            };
 
             self.queue.write_buffer(
                 &self.generic_uniform_data.uniform_buffer,
@@ -219,7 +208,7 @@ impl<'a> Renderer<'a> {
             self.queue.write_buffer(
                 &primitive.material().uniform_buffer,
                 0,
-                bytemuck::cast_slice(&[material_uniform]),
+                &primitive.material().uniform.as_bytes(),
             );
             render_pass.set_bind_group(
                 0,
@@ -261,7 +250,7 @@ impl<'a> Renderer<'a> {
             debug_render_pass.set_pipeline(&self.debug_render_pipeline);
 
             // Update debug uniforms
-            for (i, primitive) in primitives.iter().enumerate() {
+            for (i, primitive) in level.primitives.iter().enumerate() {
                 let debug_uniform = ObjectUniform {
                     view_proj: self.camera.build_view_projection_matrix(),
                     // debug_uniforms.model = self.light.debug_mesh.model_matrix();

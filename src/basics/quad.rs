@@ -1,11 +1,11 @@
-use crate::renderer::Renderer;
-
 use super::{
     core::Vertex,
+    material::Material,
     primitive::{Primitive, PrimitiveState},
 };
+use crate::renderer::Renderer;
 use glam::{vec3, EulerRot, Mat3, Mat4, Quat};
-use wgpu::{Device, RenderPass, SurfaceConfiguration};
+use wgpu::RenderPass;
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
@@ -25,9 +25,9 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn new(renderer: &Renderer) -> Self {
+    pub fn new(renderer: &Renderer, material: Material) -> Self {
         Self {
-            state: PrimitiveState::new(renderer, VERTICES, INDICES),
+            state: PrimitiveState::new(renderer, VERTICES, INDICES, material),
         }
     }
 }

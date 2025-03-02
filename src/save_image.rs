@@ -1,17 +1,15 @@
-use std::mem;
-
-use rand::Rng;
-use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
-
 use crate::{
-    basics::{primitive::Primitive, uniforms::ObjectUniform},
+    basics::{level::Level, uniforms::ObjectUniform},
     renderer::Renderer,
     utils,
 };
+use rand::Rng;
+use std::mem;
+use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
-pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>) {
+pub fn save_image(renderer: &mut Renderer, level: &Level) {
     let width = renderer.surface_config.width;
     let height = renderer.surface_config.height;
 
@@ -69,7 +67,7 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
     // Set your existing pipeline and render primitives
-    for (i, primitive) in primitives.iter().enumerate() {
+    for (i, primitive) in level.primitives.iter().enumerate() {
         let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
         render_pass.set_pipeline(&primitive.material().render_pipeline);
         render_pass.set_bind_group(
@@ -107,7 +105,7 @@ pub fn save_image(renderer: &mut Renderer, primitives: &Vec<Box<dyn Primitive>>)
     });
 
     debug_render_pass.set_pipeline(&renderer.debug_render_pipeline);
-    for (i, primitive) in primitives.iter().enumerate() {
+    for (i, primitive) in level.primitives.iter().enumerate() {
         let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
         debug_render_pass.set_bind_group(
             0,

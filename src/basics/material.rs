@@ -1,11 +1,9 @@
-use super::{
-    core::Vertex,
-    uniforms::{EqualizerUniform, MaterialUniform},
-};
+use super::{core::Vertex, uniforms::UniformTrait};
 use std::num::NonZeroU64;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
 pub struct Material {
+    pub uniform: Box<dyn UniformTrait>,
     pub uniform_buffer: Buffer,
     pub bind_group: BindGroup,
     pub render_pipeline: RenderPipeline,
@@ -19,6 +17,7 @@ impl Material {
         light_bind_group_layout: &BindGroupLayout,
         shader_main: &str,
         shader_name: &str,
+        uniform: Box<dyn UniformTrait>,
     ) -> Self {
         let shader_utils = include_str!("../shaders/utils.wgsl");
         let shader_combined = format!("{}\n{}", shader_main, shader_utils);
@@ -29,7 +28,7 @@ impl Material {
 
         let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("material_uniform_buffer"),
-            size: std::mem::size_of::<MaterialUniform>() as wgpu::BufferAddress,
+            size: uniform.get_size() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
@@ -43,9 +42,7 @@ impl Material {
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
-                        min_binding_size: Some(
-                            NonZeroU64::new(std::mem::size_of::<MaterialUniform>() as u64).unwrap(),
-                        ),
+                        min_binding_size: Some(NonZeroU64::new(uniform.get_size() as u64).unwrap()),
                     },
                     count: None,
                 }],
@@ -138,6 +135,7 @@ impl Material {
         });
 
         Self {
+            uniform,
             uniform_buffer,
             bind_group: material_bind_group,
             render_pipeline,

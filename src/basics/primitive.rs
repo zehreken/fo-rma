@@ -1,12 +1,10 @@
-use glam::{Mat3, Mat4, Quat, Vec3};
-use wgpu::{util::DeviceExt, Device, RenderPass, SurfaceConfiguration};
-
-use crate::renderer::Renderer;
-
 use super::{
     core::{Transform, Vertex},
     material::Material,
 };
+use crate::renderer::Renderer;
+use glam::{Mat3, Mat4, Quat, Vec3};
+use wgpu::{util::DeviceExt, RenderPass};
 
 pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
@@ -28,7 +26,12 @@ pub struct PrimitiveState {
 }
 
 impl PrimitiveState {
-    pub fn new(renderer: &Renderer, vertices: &[Vertex], indices: &[u16]) -> Self {
+    pub fn new(
+        renderer: &Renderer,
+        vertices: &[Vertex],
+        indices: &[u16],
+        material: Material,
+    ) -> Self {
         let vertex_buffer = renderer
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -46,15 +49,6 @@ impl PrimitiveState {
             });
 
         let num_indices = indices.len() as u32;
-        let shader_main = include_str!("../shaders/basic_light.wgsl");
-        let material = Material::new(
-            &renderer.device,
-            &renderer.surface_config,
-            &renderer.generic_uniform_data.uniform_bind_group_layout,
-            &renderer.light_uniform_data.uniform_bind_group_layout,
-            shader_main,
-            "test",
-        );
 
         Self {
             vertex_buffer,
