@@ -1,6 +1,7 @@
 pub mod camera;
 pub mod core;
 pub mod cube;
+pub mod level;
 pub mod light;
 pub mod material;
 pub mod primitive;

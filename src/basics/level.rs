@@ -1,2 +1,18 @@
-// This will hold the objects in a level in the future
-// Lights, actors, floor, particles should be here
+use crate::renderer::Renderer;
+
+use super::{primitive::Primitive, quad::Quad, sphere::Sphere};
+
+pub struct Level {
+    pub primitives: Vec<Box<dyn Primitive>>,
+}
+
+impl Level {
+    pub fn new(renderer: &Renderer) -> Self {
+        let primitives: Vec<Box<dyn Primitive>> = vec![
+            Box::new(Sphere::new(renderer)),
+            Box::new(Quad::new(renderer)),
+        ];
+
+        Self { primitives }
+    }
+}
