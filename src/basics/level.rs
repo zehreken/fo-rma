@@ -45,17 +45,7 @@ fn create_color_material(renderer: &Renderer) -> Material {
         color: utils::CCP.palette[1].to_vec4(0.5),
     });
 
-    let material = Material::new(
-        &renderer.device,
-        &renderer.surface_config,
-        &renderer.generic_uniform_data.uniform_bind_group_layout,
-        &renderer.light_uniform_data.uniform_bind_group_layout,
-        shader_main,
-        "color",
-        uniform,
-    );
-
-    material
+    create_material(renderer, shader_main, uniform)
 }
 
 fn create_equalizer_material(renderer: &Renderer) -> Material {
@@ -68,13 +58,21 @@ fn create_equalizer_material(renderer: &Renderer) -> Material {
         _padding: [0.0, 0.0, 0.0],
     });
 
+    create_material(renderer, shader_main, uniform)
+}
+
+fn create_material(
+    renderer: &Renderer,
+    shader_main: &str,
+    uniform: Box<dyn UniformTrait>,
+) -> Material {
     let material = Material::new(
         &renderer.device,
         &renderer.surface_config,
         &renderer.generic_uniform_data.uniform_bind_group_layout,
         &renderer.light_uniform_data.uniform_bind_group_layout,
         shader_main,
-        "equalizer",
+        "material",
         uniform,
     );
 
