@@ -9,7 +9,7 @@ struct Light {
     position: vec4<f32>,
     color: vec4<f32>,
 };
-@group(1) @binding(0) var<uniform> ligth: Light;
+@group(1) @binding(0) var<uniform> light: Light;
 
 struct Material {
     color1: vec4<f32>,

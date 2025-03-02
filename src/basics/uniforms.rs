@@ -61,6 +61,30 @@ impl UniformTrait for EqualizerUniform {
     }
 }
 
+#[repr(C)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct WaveWorldUniform {
+    pub color1: [f32; 4],
+    pub color2: [f32; 4],
+    pub color3: [f32; 4],
+    pub signal: f32,
+    pub _padding: [f32; 3],
+}
+
+impl UniformTrait for WaveWorldUniform {
+    fn as_bytes(&self) -> &[u8] {
+        bytemuck::cast_slice(std::slice::from_ref(self))
+    }
+
+    fn get_size(&self) -> usize {
+        std::mem::size_of::<Self>()
+    }
+
+    fn set_signal(&mut self, signal: f32) {
+        self.signal = signal;
+    }
+}
+
 pub trait UniformTrait {
     fn as_bytes(&self) -> &[u8];
 

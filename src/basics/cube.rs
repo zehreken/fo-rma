@@ -4,7 +4,7 @@ use super::{
     primitive::{Primitive, PrimitiveState},
 };
 use crate::renderer::Renderer;
-use glam::Mat3;
+use glam::{vec3, Mat3, Mat4, Quat};
 use wgpu::RenderPass;
 
 #[rustfmt::skip]
@@ -71,17 +71,22 @@ impl Primitive for Cube {
     }
 
     fn update(&mut self, delta_time: f32) {
-        self.state.update(delta_time);
-        // let mut position = self.state.transform.position;
-        // position.x += delta_time * 0.1;
-        // self.state.transform.position = position;
-        // self.state.model_matrix = Mat4::from_scale_rotation_translation(
-        //     self.state.transform.scale,
-        //     self.state.transform.rotation,
-        //     self.state.transform.position,
-        // );
+        // self.state.update(delta_time);
+        self.state.set_position(vec3(0.5, 0.1, -0.9));
+        let rotation_x = Quat::from_rotation_x(delta_time * 0.3);
+        let rotation_y = Quat::from_rotation_y(delta_time * 0.2);
+        let rotation_z = Quat::from_rotation_z(delta_time * 0.1);
 
-        // self.state.normal_matrix = Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
+        self.state.transform.rotation =
+            self.state.transform.rotation * rotation_x * rotation_y * rotation_z;
+
+        self.state.model_matrix = Mat4::from_scale_rotation_translation(
+            self.state.transform.scale,
+            self.state.transform.rotation,
+            self.state.transform.position,
+        );
+
+        self.state.normal_matrix = Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
