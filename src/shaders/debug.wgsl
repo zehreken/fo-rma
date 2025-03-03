@@ -22,7 +22,7 @@ fn vs_main(model: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main() -> @location(0) vec4<f32> {
-    var color = vec3<f32>(0.3, 0.3, 0.3);
+    var color = vec3<f32>(0.8, 0.8, 0.8);
     color = srgb_to_linear(color);
     return vec4<f32>(color.rgb, 1.0);
 }

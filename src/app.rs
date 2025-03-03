@@ -116,17 +116,17 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             if signal > app.signal_peak {
                 app.signal_peak = signal;
             }
-            app.level.update(delta_time);
+            app.level
+                .update(delta_time, app.signal_peak, app.audio_model.show_beat());
             let _ = app.renderer.render(
                 &app.window,
                 &app.level,
                 elapsed,
                 delta_time,
                 fps,
-                app.signal_peak,
                 &mut app.audio_model.get_sequencers()[0],
             );
-            app.signal_peak -= 0.05;
+            app.signal_peak = (app.signal_peak - 0.05).max(0.0);
 
             app.audio_model.update();
 

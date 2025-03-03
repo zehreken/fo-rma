@@ -54,4 +54,8 @@ impl Primitive for Triangle {
     fn material(&self) -> &super::material::Material {
         &self.state.material
     }
+
+    fn material_mut(&mut self) -> &mut super::material::Material {
+        &mut self.state.material
+    }
 }

@@ -30,14 +30,14 @@ impl Level {
         Self { primitives }
     }
 
-    pub fn update(&mut self, delta_time: f32) {
+    pub fn update(&mut self, delta_time: f32, signal: f32, show_beat: bool) {
         for primitive in &mut self.primitives {
-            // primitive.update(if app.audio_model.show_beat() {
-            //     delta_time * 20.0
-            // } else {
-            //     delta_time
-            // });
-            primitive.update(delta_time);
+            primitive.material_mut().uniform.set_signal(signal);
+            primitive.update(if show_beat {
+                delta_time * 20.0
+            } else {
+                delta_time
+            });
         }
     }
 }
@@ -45,7 +45,7 @@ impl Level {
 fn create_color_material(renderer: &Renderer) -> Material {
     let shader_main = include_str!("../shaders/basic_light.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
-        color: utils::CCP.palette[1].to_vec4(0.5),
+        color: utils::CP1.palette[3].to_vec4(1.0),
     });
 
     create_material(renderer, shader_main, uniform, "color")
@@ -54,9 +54,9 @@ fn create_color_material(renderer: &Renderer) -> Material {
 fn create_equalizer_material(renderer: &Renderer) -> Material {
     let shader_main = include_str!("../shaders/equalizer.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(EqualizerUniform {
-        color1: utils::CP4.palette[0].to_vec4(1.0),
-        color2: utils::CP4.palette[1].to_vec4(1.0),
-        color3: utils::CP4.palette[2].to_vec4(1.0),
+        color1: utils::CP6.palette[0].to_vec4(1.0),
+        color2: utils::CP6.palette[1].to_vec4(1.0),
+        color3: utils::CP6.palette[2].to_vec4(1.0),
         signal: 0.7,
         _padding: [0.0, 0.0, 0.0],
     });
@@ -67,9 +67,9 @@ fn create_equalizer_material(renderer: &Renderer) -> Material {
 fn create_wave_world_material(renderer: &Renderer) -> Material {
     let shader_main = include_str!("../shaders/wave_world.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(WaveWorldUniform {
-        color1: utils::CP3.palette[0].to_vec4(1.0),
-        color2: utils::CP3.palette[1].to_vec4(1.0),
-        color3: utils::CP3.palette[2].to_vec4(1.0),
+        color1: utils::CP2.palette[0].to_vec4(1.0),
+        color2: utils::CP2.palette[1].to_vec4(1.0),
+        color3: utils::CP2.palette[2].to_vec4(1.0),
         signal: 0.5,
         _padding: [0.0, 0.0, 0.0],
     });

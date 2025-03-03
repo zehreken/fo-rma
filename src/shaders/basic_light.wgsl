@@ -25,7 +25,7 @@ struct VertexInput {
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
-    @location(0) color: vec3<f32>,
+    @location(0) color: vec4<f32>,
     @location(1) world_position: vec3<f32>,
     @location(2) world_normal: vec3<f32>,
 };
@@ -35,7 +35,7 @@ struct VertexOutput {
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
     // out.color = material.color * material.color.a;  // Apply signal to color
-    out.color = material.color.rgb;
+    out.color = material.color;
     let world_position = (object.model * vec4<f32>(model.position, 1.0)).xyz;
     out.world_position = world_position;
     out.world_normal = object.normal * model.normal;
@@ -55,10 +55,10 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 
     // Diffuse
     let diff = max(dot(normal, light_dir), 0.0);
-    let diffuse = light.color.rgb * diff * light.color.a * 2.0;
+    let diffuse = light.color.rgb * diff * light.color.a * clamp(in.color.a, 0.0, in.color.a) * 2.0;
 
     // Combine lighting with vertex color (which includes signal)
-    let result = (ambient + diffuse) * in.color;
+    let result = (ambient + diffuse) * in.color.rgb;
 
     // Debugging: Uncomment one of these to visualize different aspects
     // return vec4<f32>((light_dir + 1.0) / 2.0, 1.0);  // Visualize light direction

@@ -13,6 +13,7 @@ pub trait Primitive {
     fn normal_matrix(&self) -> Mat3;
     fn transform(&mut self) -> &mut Transform;
     fn material(&self) -> &Material;
+    fn material_mut(&mut self) -> &mut Material;
 }
 
 pub struct PrimitiveState {

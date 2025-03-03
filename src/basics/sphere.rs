@@ -65,6 +65,10 @@ impl Primitive for Sphere {
     fn material(&self) -> &super::material::Material {
         &self.state.material
     }
+
+    fn material_mut(&mut self) -> &mut super::material::Material {
+        &mut self.state.material
+    }
 }
 
 fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; VERTEX_COUNT * 6]) {

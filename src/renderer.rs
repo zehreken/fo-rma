@@ -112,7 +112,6 @@ impl<'a> Renderer<'a> {
         elapsed: f32,
         delta_time: f32,
         fps: f32,
-        signal: f32,
         sequencer: &mut Sequencer,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
