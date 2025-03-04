@@ -3,6 +3,8 @@ use crate::{
     renderer::Renderer,
     utils,
 };
+use image::Pixel;
+use num_traits::ops::bytes;
 use rand::Rng;
 use std::mem;
 use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
@@ -14,8 +16,6 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
     let height = renderer.surface_config.height;
 
     let bytes_per_pixel = 4; // For Rgba8Unorm (4 bytes per pixel)
-                             // let unaligned_bytes_per_row = width * bytes_per_pixel;
-                             // let aligned_bytes_per_row = ((unaligned_bytes_per_row + 255) / 256) * 256; // Align to 256
     let aligned_bytes_per_row = ((width * bytes_per_pixel + 255) & !255) as u32;
 
     let (high_res_texture, high_res_view) = crate::save_image::create_high_res_texture(
@@ -168,39 +168,21 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
 
     let data = buffer_slice.get_mapped_range();
 
+    // Fix Bgra to Rgba conversion
+    let bgra_to_rgba = renderer.surface_config.format == wgpu::TextureFormat::Bgra8Unorm
+        || renderer.surface_config.format == wgpu::TextureFormat::Bgra8UnormSrgb;
+
     // Use an image library to save the data
     use image::{ImageBuffer, Rgba};
 
-    let mut tightly_packed_data = Vec::new();
-
-    for y in 0..height {
-        let start = (y * aligned_bytes_per_row) as usize;
-        let end = start + (width * bytes_per_pixel) as usize; // Assuming 4 bytes per pixel (RGBA8)
-
-        // add some noise
-        for x in 0..width {
-            let pixel_start = start + (x * bytes_per_pixel) as usize;
-            let pixel_end = pixel_start + bytes_per_pixel as usize;
-            let mut pixel = data[pixel_start..pixel_end].to_vec();
-
-            let mut rng = rand::thread_rng();
-            if renderer.surface_config.format == wgpu::TextureFormat::Bgra8Unorm
-                || renderer.surface_config.format == wgpu::TextureFormat::Bgra8UnormSrgb
-            {
-                pixel.swap(0, 2);
-            }
-            let rnd = rng.gen_range(0..20);
-            for channel in 0..3 {
-                // skip alpha channel
-                // pixel[channel] = pixel[channel].saturating_add(rng.gen_range(0..50));
-                pixel[channel] = pixel[channel].saturating_add(rnd);
-            }
-
-            tightly_packed_data.extend_from_slice(&pixel);
-        }
-        // ==============
-        // tightly_packed_data.extend_from_slice(&data[start..end]);
-    }
+    let tightly_packed_data = pixelated(
+        &data,
+        width,
+        height,
+        bytes_per_pixel,
+        aligned_bytes_per_row,
+        bgra_to_rgba,
+    );
 
     // Create the image buffer with tightly packed pixel data
     let buffer: ImageBuffer<Rgba<u8>, _> =
@@ -211,11 +193,143 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    buffer.save(format!("out/basic-{timestamp}.png")).unwrap();
+    let image_path = format!("out/basic-{timestamp}.png");
+    buffer.save(&image_path).unwrap();
 
     // buffer.unmap(); // This is a later version of wgpu
 
-    println!("Saving image");
+    println!("Saving image {}", image_path);
+}
+
+fn unprocessed(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    bytes_per_pixel: u32,
+    aligned_bytes_per_row: u32,
+    bgra_to_rgba: bool,
+) -> Vec<u8> {
+    let mut tightly_packed_data = Vec::new();
+    for y in 0..height {
+        let start = (y * aligned_bytes_per_row) as usize;
+        let end = start + (width * bytes_per_pixel) as usize; // Assuming 4 bytes per pixel (RGBA8)
+
+        for x in 0..width {
+            let pixel_start = start + (x * bytes_per_pixel) as usize;
+            let pixel_end = pixel_start + bytes_per_pixel as usize;
+            let mut pixel = data[pixel_start..pixel_end].to_vec();
+            if bgra_to_rgba {
+                pixel.swap(0, 2);
+            }
+
+            tightly_packed_data.extend_from_slice(&pixel);
+        }
+    }
+
+    tightly_packed_data
+}
+
+fn random_noise(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    bytes_per_pixel: u32,
+    aligned_bytes_per_row: u32,
+    bgra_to_rbga: bool,
+) -> Vec<u8> {
+    let mut tightly_packed_data = Vec::new();
+    for y in 0..height {
+        let start = (y * aligned_bytes_per_row) as usize;
+
+        for x in 0..width {
+            let pixel_start = start + (x * bytes_per_pixel) as usize;
+            let pixel_end = pixel_start + bytes_per_pixel as usize;
+            let mut pixel = data[pixel_start..pixel_end].to_vec();
+
+            if bgra_to_rbga {
+                pixel.swap(0, 2);
+            }
+            let mut rng = rand::thread_rng();
+            for channel in 0..3 {
+                // skip alpha channel
+                pixel[channel] = pixel[channel].saturating_add(rng.gen_range(0..50));
+            }
+
+            tightly_packed_data.extend_from_slice(&pixel);
+        }
+    }
+
+    tightly_packed_data
+}
+
+fn monochrome_noise(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    bytes_per_pixel: u32,
+    aligned_bytes_per_row: u32,
+    bgra_to_rbga: bool,
+) -> Vec<u8> {
+    let mut tightly_packed_data = Vec::new();
+    for y in 0..height {
+        let start = (y * aligned_bytes_per_row) as usize;
+
+        for x in 0..width {
+            let pixel_start = start + (x * bytes_per_pixel) as usize;
+            let pixel_end = pixel_start + bytes_per_pixel as usize;
+            let mut pixel = data[pixel_start..pixel_end].to_vec();
+
+            if bgra_to_rbga {
+                pixel.swap(0, 2);
+            }
+
+            let mut rng = rand::thread_rng();
+            let rnd = rng.gen_range(0..20);
+            for channel in 0..3 {
+                pixel[channel] = pixel[channel].saturating_add(rnd);
+            }
+
+            tightly_packed_data.extend_from_slice(&pixel);
+        }
+    }
+
+    tightly_packed_data
+}
+
+fn pixelated(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    bytes_per_pixel: u32,
+    aligned_bytes_per_row: u32,
+    bgra_to_rbga: bool,
+) -> Vec<u8> {
+    let mut tightly_packed_data = Vec::new();
+    const PIXEL_SIZE: usize = 20;
+    for y in (0..height).step_by(PIXEL_SIZE) {
+        let start = (y * aligned_bytes_per_row) as usize;
+        let mut pixelated_row = Vec::new();
+
+        for x in (0..width).step_by(PIXEL_SIZE) {
+            let pixel_start = start + (x * bytes_per_pixel) as usize;
+            let pixel_end = pixel_start + bytes_per_pixel as usize;
+            let mut pixel = data[pixel_start..pixel_end].to_vec();
+
+            if bgra_to_rbga {
+                pixel.swap(0, 2);
+            }
+
+            for _ in 0..PIXEL_SIZE {
+                pixelated_row.extend_from_slice(&pixel);
+            }
+        }
+
+        for _ in 0..PIXEL_SIZE {
+            tightly_packed_data.extend_from_slice(&pixelated_row);
+        }
+    }
+
+    tightly_packed_data
 }
 
 pub fn create_high_res_texture(
