@@ -1,3 +1,5 @@
+use glam::Vec3;
+
 use super::{
     cube::Cube,
     material::Material,
@@ -12,7 +14,7 @@ use crate::{
 };
 
 pub struct Level {
-    pub primitives: Vec<Box<dyn Primitive>>,
+    pub objects: Vec<Box<dyn Primitive>>,
 }
 
 impl Level {
@@ -21,17 +23,26 @@ impl Level {
         let equalizer_material = create_equalizer_material(renderer);
         let wave_world_material = create_wave_world_material(renderer);
 
-        let primitives: Vec<Box<dyn Primitive>> = vec![
-            Box::new(Sphere::new(renderer, color_material)),
-            Box::new(Quad::new(renderer, equalizer_material)),
-            Box::new(Cube::new(renderer, wave_world_material)),
-        ];
+        let mut objects: Vec<Box<dyn Primitive>> = vec![];
+        for i in 0..25 {
+            let mut sphere = Sphere::new(renderer, create_color_material(renderer));
+            let x = (-4 + i % 5 * 2) as f32;
+            let y = (-4 + i / 5 * 2) as f32;
+            sphere.state.set_position(Vec3 { x, y, z: 0.0 });
+            objects.push(Box::new(sphere));
+        }
 
-        Self { primitives }
+        // let objects: Vec<Box<dyn Primitive>> = vec![
+        //     Box::new(Sphere::new(renderer, color_material)),
+        //     Box::new(Quad::new(renderer, equalizer_material)),
+        //     Box::new(Cube::new(renderer, wave_world_material)),
+        // ];
+
+        Self { objects }
     }
 
     pub fn update(&mut self, delta_time: f32, signal: f32, show_beat: bool) {
-        for primitive in &mut self.primitives {
+        for primitive in &mut self.objects {
             primitive.material_mut().uniform.set_signal(signal);
             primitive.update(if show_beat {
                 delta_time * 20.0

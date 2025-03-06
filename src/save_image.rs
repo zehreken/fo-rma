@@ -65,7 +65,7 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
     let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
     // Set your existing pipeline and render primitives
-    for (i, primitive) in level.primitives.iter().enumerate() {
+    for (i, primitive) in level.objects.iter().enumerate() {
         let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
         render_pass.set_pipeline(&primitive.material().render_pipeline);
         render_pass.set_bind_group(
@@ -103,7 +103,7 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
     });
 
     debug_render_pass.set_pipeline(&renderer.debug_render_pipeline);
-    for (i, primitive) in level.primitives.iter().enumerate() {
+    for (i, primitive) in level.objects.iter().enumerate() {
         let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
         debug_render_pass.set_bind_group(
             0,
@@ -303,7 +303,7 @@ fn pixelated(
     bgra_to_rbga: bool,
 ) -> Vec<u8> {
     let mut tightly_packed_data = Vec::new();
-    const PIXEL_SIZE: usize = 20;
+    const PIXEL_SIZE: usize = 10;
     for y in (0..height).step_by(PIXEL_SIZE) {
         let start = (y * aligned_bytes_per_row) as usize;
         let mut pixelated_row = Vec::new();

@@ -15,7 +15,7 @@ const SECTOR_STEP: f32 = 2_f32 * PI / SECTOR_COUNT as f32;
 const VERTEX_COUNT: usize = (STACK_COUNT + 1) * (SECTOR_COUNT + 1);
 
 pub struct Sphere {
-    state: PrimitiveState,
+    pub state: PrimitiveState,
 }
 
 impl Sphere {

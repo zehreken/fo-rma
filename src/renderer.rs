@@ -70,7 +70,7 @@ impl<'a> Renderer<'a> {
 
         // =============
         // Debug
-        let primitive_count = 4;
+        let primitive_count = 25;
         let (debug_uniform_data, debug_render_pipeline) =
             create_debug_uniform_data(&device, &surface_config, primitive_count);
 
@@ -183,7 +183,7 @@ impl<'a> Renderer<'a> {
             color: self.light.color.to_vec4(1.0),
         };
 
-        for (i, primitive) in level.primitives.iter().enumerate() {
+        for (i, primitive) in level.objects.iter().enumerate() {
             let object_uniform = ObjectUniform {
                 view_proj: self.camera.build_view_projection_matrix(),
                 model: primitive.model_matrix(),
@@ -249,7 +249,7 @@ impl<'a> Renderer<'a> {
             debug_render_pass.set_pipeline(&self.debug_render_pipeline);
 
             // Update debug uniforms
-            for (i, primitive) in level.primitives.iter().enumerate() {
+            for (i, primitive) in level.objects.iter().enumerate() {
                 let debug_uniform = ObjectUniform {
                     view_proj: self.camera.build_view_projection_matrix(),
                     // debug_uniforms.model = self.light.debug_mesh.model_matrix();
