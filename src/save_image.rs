@@ -3,8 +3,6 @@ use crate::{
     renderer::Renderer,
     utils,
 };
-use image::Pixel;
-use num_traits::ops::bytes;
 use rand::Rng;
 use std::mem;
 use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
