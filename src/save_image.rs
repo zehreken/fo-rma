@@ -65,54 +65,57 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
     let aligned_uniform_size = (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
     // Set your existing pipeline and render primitives
-    for (i, primitive) in level.objects.iter().enumerate() {
+    for (i, object) in level.objects.iter().enumerate() {
         let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
-        render_pass.set_pipeline(&primitive.material().render_pipeline);
+        render_pass.set_pipeline(&object.material().render_pipeline);
         render_pass.set_bind_group(
             0,
             &renderer.generic_uniform_data.uniform_bind_group,
             &[uniform_offset as u32],
         );
         render_pass.set_bind_group(1, &renderer.light_uniform_data.uniform_bind_group, &[]);
-        render_pass.set_bind_group(2, &primitive.material().bind_group, &[]);
-        primitive.draw(&mut render_pass);
+        render_pass.set_bind_group(2, &object.material().bind_group, &[]);
+        object.draw(&mut render_pass);
     }
 
     drop(render_pass);
 
-    let mut debug_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-        label: Some("debug_render_pass"),
-        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-            view: &high_res_view,
-            resolve_target: None,
-            ops: wgpu::Operations {
-                load: wgpu::LoadOp::Load,
-                store: wgpu::StoreOp::Store,
-            },
-        })],
-        depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-            view: &renderer.depth_texture,
-            depth_ops: Some(wgpu::Operations {
-                load: wgpu::LoadOp::Clear(1.0),
-                store: wgpu::StoreOp::Store,
+    const DEBUG: bool = false;
+    if DEBUG {
+        let mut debug_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("debug_render_pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &high_res_view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Load,
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &renderer.depth_texture,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: wgpu::StoreOp::Store,
+                }),
+                stencil_ops: None,
             }),
-            stencil_ops: None,
-        }),
-        timestamp_writes: None,
-        occlusion_query_set: None,
-    });
+            timestamp_writes: None,
+            occlusion_query_set: None,
+        });
 
-    debug_render_pass.set_pipeline(&renderer.debug_render_pipeline);
-    for (i, primitive) in level.objects.iter().enumerate() {
-        let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
-        debug_render_pass.set_bind_group(
-            0,
-            &renderer.debug_uniform_data.uniform_bind_group,
-            &[uniform_offset as u32],
-        );
-        primitive.draw(&mut debug_render_pass);
+        debug_render_pass.set_pipeline(&renderer.debug_render_pipeline);
+        for (i, primitive) in level.objects.iter().enumerate() {
+            let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
+            debug_render_pass.set_bind_group(
+                0,
+                &renderer.debug_uniform_data.uniform_bind_group,
+                &[uniform_offset as u32],
+            );
+            primitive.draw(&mut debug_render_pass);
+        }
+        drop(debug_render_pass);
     }
-    drop(debug_render_pass);
 
     renderer.queue.submit(Some(encoder.finish()));
 

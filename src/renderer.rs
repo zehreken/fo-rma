@@ -222,7 +222,7 @@ impl<'a> Renderer<'a> {
         drop(render_pass); // also releases encoder
 
         // debug render pass
-        const DEBUG: bool = true;
+        const DEBUG: bool = false;
         if DEBUG {
             let mut debug_render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
                 label: Some("debug_render_pass"),
