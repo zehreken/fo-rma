@@ -1,4 +1,6 @@
-use crate::{audio::audio_model::AudioModel, basics::level::Level, renderer, save_image};
+use crate::{
+    audio::audio_model::AudioModel, basics::level::Level, p_renderer, renderer, save_image,
+};
 use std::{
     collections::VecDeque,
     time::{Duration, Instant},
@@ -18,6 +20,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
+    p_renderer: p_renderer::PRenderer<'a>,
     pub level: Level,
     audio_model: AudioModel,
     signal_peak: f32,
@@ -27,6 +30,7 @@ impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
+        let p_renderer = p_renderer::PRenderer::new(window).await;
         // let init = vec![0.0; 60];
 
         let level = Level::new(&renderer);
@@ -37,6 +41,7 @@ impl<'a> App<'a> {
             size,
             window: &window,
             renderer,
+            p_renderer,
             level,
             audio_model,
             signal_peak: 0.0,
@@ -118,14 +123,15 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             }
             app.level
                 .update(delta_time, app.signal_peak, app.audio_model.show_beat());
-            let _ = app.renderer.render(
-                &app.window,
-                &app.level,
-                elapsed,
-                delta_time,
-                fps,
-                &mut app.audio_model.get_sequencers()[0],
-            );
+            // let _ = app.renderer.render(
+            //     &app.window,
+            //     &app.level,
+            //     elapsed,
+            //     delta_time,
+            //     fps,
+            //     &mut app.audio_model.get_sequencers()[0],
+            // );
+            let _ = app.p_renderer.render(&app.window);
             app.signal_peak = (app.signal_peak - 0.05).max(0.0);
 
             app.audio_model.update();
