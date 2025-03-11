@@ -6,14 +6,14 @@ use winit::window::Window;
 
 use crate::{basics::core::Vertex, rendering_utils};
 
-pub struct PRenderer<'a> {
+pub struct Renderer<'a> {
     surface: Surface<'a>,
     device: Device,
     queue: Queue,
     render_pipeline: RenderPipeline,
 }
 
-impl<'a> PRenderer<'a> {
+impl<'a> Renderer<'a> {
     pub async fn new(window: &'a Window) -> Self {
         let size = window.inner_size();
         let (instance, surface) = rendering_utils::create_instance_and_surface(window);
@@ -96,13 +96,7 @@ impl<'a> PRenderer<'a> {
                 unclipped_depth: false,
                 conservative: false,
             },
-            depth_stencil: Some(wgpu::DepthStencilState {
-                format: wgpu::TextureFormat::Depth32Float,
-                depth_write_enabled: true,
-                depth_compare: wgpu::CompareFunction::Less,
-                stencil: wgpu::StencilState::default(),
-                bias: wgpu::DepthBiasState::default(),
-            }),
+            depth_stencil: None,
             multisample: wgpu::MultisampleState {
                 count: 1,
                 mask: !0,
