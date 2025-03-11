@@ -135,7 +135,7 @@ impl<'a> Renderer<'a> {
                 view: &output_view,
                 resolve_target: None,
                 ops: Operations {
-                    load: wgpu::LoadOp::Clear(Color::BLACK),
+                    load: wgpu::LoadOp::Clear(Color::GREEN),
                     store: wgpu::StoreOp::Store,
                 },
             })],
