@@ -3,8 +3,8 @@ use super::{
     material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use crate::{renderer::Renderer, utils};
-use wgpu::RenderPass;
+use crate::utils;
+use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
@@ -21,9 +21,9 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    pub fn new(renderer: &Renderer, material: Material) -> Self {
+    pub fn new(device: &Device, material: Material) -> Self {
         Self {
-            state: PrimitiveState::new(renderer, VERTICES, INDICES, material),
+            state: PrimitiveState::new(device, VERTICES, INDICES, material),
         }
     }
 }

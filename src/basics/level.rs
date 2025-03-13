@@ -25,7 +25,7 @@ impl Level {
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
-            let mut sphere = Sphere::new(renderer, create_color_material(renderer));
+            let mut sphere = Sphere::new(&renderer.device, create_color_material(renderer));
             let x = (-4 + i % 5 * 2) as f32;
             let y = (-4 + i / 5 * 2) as f32;
             sphere.state.set_position(Vec3 { x, y, z: 0.0 });

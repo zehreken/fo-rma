@@ -3,9 +3,8 @@ use super::{
     material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use crate::renderer::Renderer;
 use glam::{vec3, Mat3, Mat4, Quat};
-use wgpu::RenderPass;
+use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
@@ -56,9 +55,9 @@ pub struct Cube {
 }
 
 impl Cube {
-    pub fn new(renderer: &Renderer, material: Material) -> Self {
+    pub fn new(device: &Device, material: Material) -> Self {
         Self {
-            state: PrimitiveState::new(renderer, VERTICES, INDICES, material),
+            state: PrimitiveState::new(device, VERTICES, INDICES, material),
         }
     }
 }

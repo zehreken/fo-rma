@@ -19,9 +19,9 @@ pub struct App<'a> {
     // it gets dropped after it as the surface contains
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
-    renderer: renderer::Renderer<'a>,
-    p_renderer: p_renderer::PRenderer<'a>,
-    pub level: Level,
+    // renderer: renderer::Renderer<'a>,
+    renderer: p_renderer::Renderer<'a>,
+    // pub level: Level,
     audio_model: AudioModel,
     signal_peak: f32,
 }
@@ -29,20 +29,20 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
-        let renderer = renderer::Renderer::new(window).await;
-        let p_renderer = p_renderer::PRenderer::new(window).await;
+        // let renderer = renderer::Renderer::new(window).await;
+        let p_renderer = p_renderer::Renderer::new(window).await;
         // let init = vec![0.0; 60];
 
-        let level = Level::new(&renderer);
+        // let level = Level::new(&renderer);
 
         let audio_model = AudioModel::new().unwrap();
 
         Self {
             size,
             window: &window,
-            renderer,
-            p_renderer,
-            level,
+            // renderer,
+            renderer: p_renderer,
+            // level,
             audio_model,
             signal_peak: 0.0,
         }
@@ -51,7 +51,7 @@ impl<'a> App<'a> {
     fn resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.size = size;
-            self.renderer.resize(size, self.window.scale_factor());
+            // self.renderer.resize(size, self.window.scale_factor());
         }
     }
 
@@ -121,8 +121,8 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             if signal > app.signal_peak {
                 app.signal_peak = signal;
             }
-            app.level
-                .update(delta_time, app.signal_peak, app.audio_model.show_beat());
+            // app.level
+            //     .update(delta_time, app.signal_peak, app.audio_model.show_beat());
             // let _ = app.renderer.render(
             //     &app.window,
             //     &app.level,
@@ -131,7 +131,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             //     fps,
             //     &mut app.audio_model.get_sequencers()[0],
             // );
-            let _ = app.p_renderer.render(&app.window);
+            let _ = app.renderer.render(&app.window);
             app.signal_peak = (app.signal_peak - 0.05).max(0.0);
 
             app.audio_model.update();
@@ -148,7 +148,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
-            app.renderer.gui.handle_event(&app.window, &event);
+            // app.renderer.gui.handle_event(&app.window, &event);
         }
         _ => {}
     });
@@ -181,12 +181,12 @@ fn handle_key_event(
 ) {
     if modifiers.shift_key() {
         match key_event.physical_key {
-            PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.orbit_z(true),
-            PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.orbit_x(false),
-            PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.orbit_z(false),
-            PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.orbit_x(true),
-            PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.orbit_y(true),
-            PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.orbit_y(false),
+            // PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.orbit_z(true),
+            // PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.orbit_x(false),
+            // PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.orbit_z(false),
+            // PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.orbit_x(true),
+            // PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.orbit_y(true),
+            // PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.orbit_y(false),
             _ => {}
         }
     } else {
@@ -198,15 +198,15 @@ fn handle_key_event(
             }
             PhysicalKey::Code(KeyCode::KeyR) => {
                 if key_event.state == ElementState::Pressed && !key_event.repeat {
-                    save_image::save_image(&mut app.renderer, &app.level);
+                    // save_image::save_image(&mut app.renderer, &app.level);
                 }
             }
-            PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
-            PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
-            PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
-            PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.move_x(true),
-            PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.move_y(true),
-            PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.move_y(false),
+            // PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
+            // PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
+            // PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
+            // PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.move_x(true),
+            // PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.move_y(true),
+            // PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.move_y(false),
             _ => {}
         }
     }

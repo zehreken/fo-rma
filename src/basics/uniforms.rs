@@ -71,6 +71,26 @@ pub struct WaveWorldUniform {
     pub _padding: [f32; 3],
 }
 
+#[repr(C)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct ScreenQuadUniform {
+    pub signal: [f32; 4],
+}
+
+impl UniformTrait for ScreenQuadUniform {
+    fn as_bytes(&self) -> &[u8] {
+        bytemuck::cast_slice(std::slice::from_ref(self))
+    }
+
+    fn get_size(&self) -> usize {
+        std::mem::size_of::<Self>()
+    }
+
+    fn set_signal(&mut self, signal: f32) {
+        self.signal[0] = signal;
+    }
+}
+
 impl UniformTrait for WaveWorldUniform {
     fn as_bytes(&self) -> &[u8] {
         bytemuck::cast_slice(std::slice::from_ref(self))

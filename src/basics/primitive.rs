@@ -2,9 +2,8 @@ use super::{
     core::{Transform, Vertex},
     material::Material,
 };
-use crate::renderer::Renderer;
 use glam::{Mat3, Mat4, Quat, Vec3};
-use wgpu::{util::DeviceExt, RenderPass};
+use wgpu::{util::DeviceExt, Device, RenderPass};
 
 pub trait Primitive {
     fn draw<'a>(&'a self, render_pass: &mut RenderPass<'a>);
@@ -27,27 +26,18 @@ pub struct PrimitiveState {
 }
 
 impl PrimitiveState {
-    pub fn new(
-        renderer: &Renderer,
-        vertices: &[Vertex],
-        indices: &[u16],
-        material: Material,
-    ) -> Self {
-        let vertex_buffer = renderer
-            .device
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("vertex_buffer"),
-                contents: bytemuck::cast_slice(vertices),
-                usage: wgpu::BufferUsages::VERTEX,
-            });
+    pub fn new(device: &Device, vertices: &[Vertex], indices: &[u16], material: Material) -> Self {
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("vertex_buffer"),
+            contents: bytemuck::cast_slice(vertices),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
 
-        let index_buffer = renderer
-            .device
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("index_buffer"),
-                contents: bytemuck::cast_slice(indices),
-                usage: wgpu::BufferUsages::INDEX,
-            });
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("index_buffer"),
+            contents: bytemuck::cast_slice(indices),
+            usage: wgpu::BufferUsages::INDEX,
+        });
 
         let num_indices = indices.len() as u32;
 

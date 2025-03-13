@@ -3,9 +3,9 @@ use super::{
     material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use crate::renderer::Renderer;
 use glam::{EulerRot, Mat3, Mat4, Quat};
 use std::f32::consts::PI;
+use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
 const STACK_COUNT: usize = 8;
@@ -19,10 +19,10 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(renderer: &Renderer, material: Material) -> Self {
+    pub fn new(device: &Device, material: Material) -> Self {
         let (vertices, indices) = calculate_vertices_and_indices();
         Self {
-            state: PrimitiveState::new(renderer, &vertices, &indices, material),
+            state: PrimitiveState::new(device, &vertices, &indices, material),
         }
     }
 }
