@@ -1,16 +1,25 @@
+use std::num::{NonZero, NonZeroU64};
+
 use wgpu::{
     Color, Device, Operations, Queue, RenderPassColorAttachment, RenderPipeline, Surface,
-    SurfaceError,
+    SurfaceConfiguration, SurfaceError,
 };
 use winit::window::Window;
 
-use crate::{basics::core::Vertex, rendering_utils};
+use crate::{
+    basics::{
+        core::Vertex,
+        material::Material,
+        uniforms::{ScreenQuadUniform, UniformTrait},
+    },
+    rendering_utils,
+};
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
     device: Device,
     queue: Queue,
-    render_pipeline: RenderPipeline,
+    material: Material,
 }
 
 impl<'a> Renderer<'a> {
@@ -38,77 +47,13 @@ impl<'a> Renderer<'a> {
             source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         });
 
-        let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[],
-                push_constant_ranges: &[],
-            });
+        let material = create_screen_quad_material(&device, shader, &surface_config);
 
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("render_pipeline"),
-            layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: "vs_main",
-                buffers: &[wgpu::VertexBufferLayout {
-                    array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-                    step_mode: wgpu::VertexStepMode::Vertex,
-                    attributes: &[
-                        wgpu::VertexAttribute {
-                            offset: 0,
-                            shader_location: 0,
-                            format: wgpu::VertexFormat::Float32x3,
-                        },
-                        wgpu::VertexAttribute {
-                            offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                            shader_location: 1,
-                            format: wgpu::VertexFormat::Float32x3,
-                        },
-                        wgpu::VertexAttribute {
-                            offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
-                            shader_location: 2,
-                            format: wgpu::VertexFormat::Float32x3,
-                        },
-                        wgpu::VertexAttribute {
-                            offset: std::mem::size_of::<[f32; 9]>() as wgpu::BufferAddress,
-                            shader_location: 3,
-                            format: wgpu::VertexFormat::Float32x2,
-                        },
-                    ],
-                }],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: "fs_main",
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: surface_config.format,
-                    blend: Some(wgpu::BlendState::REPLACE),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
-                unclipped_depth: false,
-                conservative: false,
-            },
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-        });
         Self {
             surface,
             device,
             queue,
-            render_pipeline,
+            material,
         }
     }
 
@@ -144,12 +89,127 @@ impl<'a> Renderer<'a> {
             occlusion_query_set: None,
         });
 
-        render_pass.set_pipeline(&self.render_pipeline);
+        render_pass.set_pipeline(&self.material.render_pipeline);
 
         drop(render_pass);
 
         self.queue.submit(Some(encoder.finish()));
         output_frame.present();
         Ok(())
+    }
+}
+
+fn create_screen_quad_material(
+    device: &Device,
+    shader: wgpu::ShaderModule,
+    surface_config: &SurfaceConfiguration,
+) -> Material {
+    let uniform = Box::new(ScreenQuadUniform { signal: [0.0; 4] });
+
+    let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("screen_quad_uniform_buffer"),
+        size: uniform.get_size() as wgpu::BufferAddress,
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+
+    let material_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("screen_quad_bind_group_layout"),
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+
+                    min_binding_size: Some(NonZeroU64::new(uniform.get_size() as u64).unwrap()),
+                },
+                count: None,
+            }],
+        });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("screen_quad_bind_group"),
+        layout: &material_bind_group_layout,
+
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+
+            resource: uniform_buffer.as_entire_binding(),
+        }],
+    });
+
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: Some("screen_quad_pipeline_layout"),
+        bind_group_layouts: &[],
+        push_constant_ranges: &[],
+    });
+
+    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: Some("render_pipeline"),
+        layout: Some(&render_pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: &shader,
+            entry_point: "vs_main",
+            buffers: &[wgpu::VertexBufferLayout {
+                array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+                step_mode: wgpu::VertexStepMode::Vertex,
+                attributes: &[
+                    wgpu::VertexAttribute {
+                        offset: 0,
+                        shader_location: 0,
+                        format: wgpu::VertexFormat::Float32x3,
+                    },
+                    wgpu::VertexAttribute {
+                        offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                        shader_location: 1,
+                        format: wgpu::VertexFormat::Float32x3,
+                    },
+                    wgpu::VertexAttribute {
+                        offset: std::mem::size_of::<[f32; 6]>() as wgpu::BufferAddress,
+                        shader_location: 2,
+                        format: wgpu::VertexFormat::Float32x3,
+                    },
+                    wgpu::VertexAttribute {
+                        offset: std::mem::size_of::<[f32; 9]>() as wgpu::BufferAddress,
+                        shader_location: 3,
+                        format: wgpu::VertexFormat::Float32x2,
+                    },
+                ],
+            }],
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: &shader,
+            entry_point: "fs_main",
+            targets: &[Some(wgpu::ColorTargetState {
+                format: surface_config.format,
+                blend: Some(wgpu::BlendState::REPLACE),
+                write_mask: wgpu::ColorWrites::ALL,
+            })],
+        }),
+        primitive: wgpu::PrimitiveState {
+            topology: wgpu::PrimitiveTopology::TriangleList,
+            strip_index_format: None,
+            front_face: wgpu::FrontFace::Ccw,
+            cull_mode: Some(wgpu::Face::Back),
+            polygon_mode: wgpu::PolygonMode::Fill,
+            unclipped_depth: false,
+            conservative: false,
+        },
+        depth_stencil: None,
+        multisample: wgpu::MultisampleState {
+            count: 1,
+            mask: !0,
+            alpha_to_coverage_enabled: false,
+        },
+        multiview: None,
+    });
+
+    Material {
+        uniform,
+        uniform_buffer,
+        bind_group,
+        render_pipeline,
     }
 }
