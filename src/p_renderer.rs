@@ -8,18 +8,22 @@ use winit::window::Window;
 
 use crate::{
     basics::{
-        core::Vertex,
+        core::{GenericUniformData, Vertex},
         material::Material,
-        uniforms::{ScreenQuadUniform, UniformTrait},
+        primitive::Primitive,
+        quad::Quad,
+        uniforms::{ObjectUniform, ScreenQuadUniform, UniformTrait},
     },
-    rendering_utils,
+    rendering_utils::{self, create_generic_uniform_data},
+    utils,
 };
 
 pub struct Renderer<'a> {
     surface: Surface<'a>,
     device: Device,
     queue: Queue,
-    material: Material,
+    generic_uniform_data: GenericUniformData,
+    screen_quad: Box<dyn Primitive>,
 }
 
 impl<'a> Renderer<'a> {
@@ -47,13 +51,18 @@ impl<'a> Renderer<'a> {
             source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         });
 
-        let material = create_screen_quad_material(&device, shader, &surface_config);
+        let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 1);
+
+        let material =
+            create_screen_quad_material(&device, shader, &surface_config, &generic_uniform_data);
+        let screen_quad = Box::new(Quad::new(&device, material));
 
         Self {
             surface,
             device,
             queue,
-            material,
+            generic_uniform_data,
+            screen_quad,
         }
     }
 
@@ -89,8 +98,27 @@ impl<'a> Renderer<'a> {
             occlusion_query_set: None,
         });
 
-        render_pass.set_pipeline(&self.material.render_pipeline);
-
+        render_pass.set_pipeline(&self.screen_quad.material().render_pipeline);
+        let object_uniform = ObjectUniform {
+            view_proj: [[0.0; 4]; 4], // not used in shader
+            model: [[0.0; 4]; 4],     // not used in shader
+            normal1: [0.0; 4],        // not used in shader
+            normal2: [0.0; 4],        // not used in shader
+            normal3: [0.0; 4],        // not used in shader
+        };
+        self.queue.write_buffer(
+            &self.generic_uniform_data.uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[object_uniform]),
+        );
+        self.queue.write_buffer(
+            &self.screen_quad.material().uniform_buffer,
+            0,
+            self.screen_quad.material().uniform.as_bytes(),
+        );
+        render_pass.set_bind_group(0, &self.generic_uniform_data.uniform_bind_group, &[0]);
+        render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
+        self.screen_quad.draw(&mut render_pass);
         drop(render_pass);
 
         self.queue.submit(Some(encoder.finish()));
@@ -103,6 +131,7 @@ fn create_screen_quad_material(
     device: &Device,
     shader: wgpu::ShaderModule,
     surface_config: &SurfaceConfiguration,
+    generic_uniform_data: &GenericUniformData,
 ) -> Material {
     let uniform = Box::new(ScreenQuadUniform { signal: [0.0; 4] });
 
@@ -122,7 +151,6 @@ fn create_screen_quad_material(
                 ty: wgpu::BindingType::Buffer {
                     ty: wgpu::BufferBindingType::Uniform,
                     has_dynamic_offset: false,
-
                     min_binding_size: Some(NonZeroU64::new(uniform.get_size() as u64).unwrap()),
                 },
                 count: None,
@@ -132,17 +160,18 @@ fn create_screen_quad_material(
     let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("screen_quad_bind_group"),
         layout: &material_bind_group_layout,
-
         entries: &[wgpu::BindGroupEntry {
             binding: 0,
-
             resource: uniform_buffer.as_entire_binding(),
         }],
     });
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("screen_quad_pipeline_layout"),
-        bind_group_layouts: &[],
+        bind_group_layouts: &[
+            &generic_uniform_data.uniform_bind_group_layout,
+            &material_bind_group_layout,
+        ],
         push_constant_ranges: &[],
     });
 
