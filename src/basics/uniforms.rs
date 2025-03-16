@@ -11,6 +11,10 @@ pub struct ObjectUniform {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct TextureUniform {}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct LightUniform {
     pub position: [f32; 4], // xyz + padding
     pub color: [f32; 4],    // rgb and light intensity

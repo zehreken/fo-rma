@@ -1,12 +1,27 @@
 use super::{core::Vertex, uniforms::UniformTrait};
+use image::{ImageBuffer, Rgba};
 use std::num::NonZeroU64;
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use wgpu::{
+    BindGroup, BindGroupLayout, Buffer, Device, Extent3d, RenderPipeline, Sampler,
+    SurfaceConfiguration, Texture, TextureView,
+};
 
 pub struct Material {
     pub uniform: Box<dyn UniformTrait>,
     pub uniform_buffer: Buffer,
     pub bind_group: BindGroup,
     pub render_pipeline: RenderPipeline,
+    pub texture: Option<TextureStuff>,
+}
+
+pub struct TextureStuff {
+    pub texture: Texture,
+    pub rgba: ImageBuffer<Rgba<u8>, Vec<u8>>,
+    pub size: Extent3d,
+    pub texture_view: TextureView,
+    pub sampler: Sampler,
+    pub bind_group_layout: BindGroupLayout,
+    pub bind_group: BindGroup,
 }
 
 impl Material {
@@ -139,6 +154,7 @@ impl Material {
             uniform_buffer,
             bind_group: material_bind_group,
             render_pipeline,
+            texture: None,
         }
     }
 }

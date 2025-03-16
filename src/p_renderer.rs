@@ -1,5 +1,6 @@
 use std::num::{NonZero, NonZeroU64};
 
+use image::GenericImageView;
 use wgpu::{
     Color, Device, Operations, Queue, RenderPassColorAttachment, RenderPipeline, Surface,
     SurfaceConfiguration, SurfaceError,
@@ -9,7 +10,7 @@ use winit::window::Window;
 use crate::{
     basics::{
         core::{GenericUniformData, Vertex},
-        material::Material,
+        material::{Material, TextureStuff},
         primitive::Primitive,
         quad::Quad,
         uniforms::{ObjectUniform, ScreenQuadUniform, UniformTrait},
@@ -53,8 +54,13 @@ impl<'a> Renderer<'a> {
 
         let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 1);
 
-        let material =
-            create_screen_quad_material(&device, shader, &surface_config, &generic_uniform_data);
+        let material = create_screen_quad_material(
+            &device,
+            &queue,
+            shader,
+            &surface_config,
+            &generic_uniform_data,
+        );
         let screen_quad = Box::new(Quad::new(&device, material));
 
         Self {
@@ -118,6 +124,17 @@ impl<'a> Renderer<'a> {
         );
         render_pass.set_bind_group(0, &self.generic_uniform_data.uniform_bind_group, &[0]);
         render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
+        render_pass.set_bind_group(
+            2,
+            &self
+                .screen_quad
+                .material()
+                .texture
+                .as_ref()
+                .unwrap()
+                .bind_group,
+            &[],
+        );
         self.screen_quad.draw(&mut render_pass);
         drop(render_pass);
 
@@ -129,6 +146,7 @@ impl<'a> Renderer<'a> {
 
 fn create_screen_quad_material(
     device: &Device,
+    queue: &Queue,
     shader: wgpu::ShaderModule,
     surface_config: &SurfaceConfiguration,
     generic_uniform_data: &GenericUniformData,
@@ -166,11 +184,14 @@ fn create_screen_quad_material(
         }],
     });
 
+    let texture = create_test_texture(device, queue);
+
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("screen_quad_pipeline_layout"),
         bind_group_layouts: &[
             &generic_uniform_data.uniform_bind_group_layout,
             &material_bind_group_layout,
+            &texture.bind_group_layout,
         ],
         push_constant_ranges: &[],
     });
@@ -240,5 +261,104 @@ fn create_screen_quad_material(
         uniform_buffer,
         bind_group,
         render_pipeline,
+        texture: Some(texture),
+    }
+}
+
+fn create_test_texture(device: &Device, queue: &Queue) -> TextureStuff {
+    let bytes = include_bytes!("../basic.png");
+    let image = image::load_from_memory(bytes).unwrap();
+    let rgba = image.to_rgba8();
+
+    let size = wgpu::Extent3d {
+        width: image.dimensions().0,
+        height: image.dimensions().1,
+        depth_or_array_layers: 1,
+    };
+    let texture = device.create_texture(&wgpu::TextureDescriptor {
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8UnormSrgb,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        label: Some("test_texture"),
+        view_formats: &[],
+    });
+
+    let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Nearest,
+        mipmap_filter: wgpu::FilterMode::Nearest,
+        ..Default::default()
+    });
+
+    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    multisampled: false,
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                // This should match the filterable field of the
+                // corresponding Texture entry above.
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                count: None,
+            },
+        ],
+        label: Some("texture_bind_group_layout"),
+    });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&texture_view),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ],
+        label: Some("texture_bind_group"),
+    });
+
+    queue.write_texture(
+        wgpu::ImageCopyTexture {
+            texture: &texture,
+            mip_level: 0,
+            origin: wgpu::Origin3d::ZERO,
+            aspect: wgpu::TextureAspect::All,
+        },
+        &rgba,
+        wgpu::ImageDataLayout {
+            offset: 0,
+            bytes_per_row: Some(4 * size.width),
+            rows_per_image: Some(size.height),
+        },
+        size,
+    );
+
+    TextureStuff {
+        texture,
+        rgba,
+        size,
+        texture_view,
+        sampler,
+        bind_group_layout,
+        bind_group,
     }
 }

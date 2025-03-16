@@ -7,16 +7,24 @@ struct VertexInput {
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
+    @location(0) uv: vec2<f32>,
 };
 
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
+    out.uv = model.uv;
     out.clip_position = vec4<f32>(model.position, 1.0);
     return out;
 }
 
+@group(2) @binding(0)
+var my_texture: texture_2d<f32>;
+@group(2) @binding(1)
+var my_sampler: sampler;
+ 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+    return textureSample(my_texture, my_sampler, in.uv);
+    // return vec4<f32>(1.0, 0.0, 0.0, 1.0); // Red-Green debug visualization
 }

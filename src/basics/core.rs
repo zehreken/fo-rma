@@ -1,8 +1,6 @@
 use glam::{Quat, Vec3};
 use wgpu::{BindGroup, BindGroupLayout, Buffer};
 
-use super::uniforms::LightUniform;
-
 pub struct GenericUniformData {
     pub uniform_buffer: Buffer,
     pub uniform_bind_group: BindGroup,
