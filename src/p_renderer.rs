@@ -1,8 +1,10 @@
+use rand::Fill;
 use wgpu::{Device, Queue, Surface, SurfaceError};
 use winit::window::Window;
 
 use crate::{
-    rendering::screen_renderer::ScreenRenderer,
+    basics::level::Level,
+    rendering::{fill_renderer::FillRenderer, screen_renderer::ScreenRenderer},
     rendering_utils::{self},
 };
 
@@ -10,6 +12,7 @@ pub struct Renderer<'a> {
     surface: Surface<'a>,
     device: Device,
     queue: Queue,
+    fill_renderer: FillRenderer,
     screen_renderer: ScreenRenderer,
     // generic_uniform_data: GenericUniformData,
     // screen_quad: Box<dyn Primitive>,
@@ -32,12 +35,14 @@ impl<'a> Renderer<'a> {
             rendering_utils::create_surface_config(size, texture_format, surface_caps);
         surface.configure(&device, &surface_config);
 
+        let fill_renderer = FillRenderer::new(&device, &surface_config, size);
         let screen_renderer = ScreenRenderer::new(&device, &queue, &surface_config);
 
         Self {
             surface,
             device,
             queue,
+            fill_renderer,
             screen_renderer,
         }
     }
@@ -52,9 +57,10 @@ impl<'a> Renderer<'a> {
         let output_view = output_frame
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-
-        self.screen_renderer
-            .render(&self.device, &self.queue, &output_view);
+        self.fill_renderer
+            .render(&self.device, &self.queue, &output_view, 0.0);
+        // self.screen_renderer
+        //     .render(&self.device, &self.queue, &output_view);
 
         output_frame.present();
         Ok(())

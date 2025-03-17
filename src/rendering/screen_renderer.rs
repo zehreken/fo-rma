@@ -1,10 +1,3 @@
-use std::num::NonZeroU64;
-
-use image::GenericImageView;
-use wgpu::{
-    Color, Device, Operations, Queue, RenderPassColorAttachment, SurfaceConfiguration, TextureView,
-};
-
 use crate::{
     basics::{
         core::{GenericUniformData, Vertex},
@@ -14,6 +7,11 @@ use crate::{
         uniforms::{ObjectUniform, ScreenQuadUniform, UniformTrait},
     },
     rendering_utils::create_generic_uniform_data,
+};
+use image::GenericImageView;
+use std::num::NonZeroU64;
+use wgpu::{
+    Color, Device, Operations, Queue, RenderPassColorAttachment, SurfaceConfiguration, TextureView,
 };
 
 pub struct ScreenRenderer {

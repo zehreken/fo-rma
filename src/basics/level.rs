@@ -1,7 +1,10 @@
 use glam::Vec3;
+use wgpu::{Device, Surface, SurfaceConfiguration};
 
 use super::{
+    core::GenericUniformData,
     cube::Cube,
+    light,
     material::Material,
     primitive::Primitive,
     quad::Quad,
@@ -18,14 +21,42 @@ pub struct Level {
 }
 
 impl Level {
-    pub fn new(renderer: &Renderer) -> Self {
-        let color_material = create_color_material(renderer);
-        let equalizer_material = create_equalizer_material(renderer);
-        let wave_world_material = create_wave_world_material(renderer);
+    pub fn new(
+        device: &Device,
+        surface_config: &SurfaceConfiguration,
+        generic_uniform_data: &GenericUniformData,
+        light_uniform_data: &GenericUniformData,
+    ) -> Self {
+        let color_material = create_color_material(
+            device,
+            surface_config,
+            generic_uniform_data,
+            light_uniform_data,
+        );
+        let equalizer_material = create_equalizer_material(
+            device,
+            surface_config,
+            generic_uniform_data,
+            light_uniform_data,
+        );
+        let wave_world_material = create_wave_world_material(
+            device,
+            surface_config,
+            generic_uniform_data,
+            light_uniform_data,
+        );
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
-            let mut sphere = Sphere::new(&renderer.device, create_color_material(renderer));
+            let mut sphere = Sphere::new(
+                &device,
+                create_color_material(
+                    device,
+                    surface_config,
+                    generic_uniform_data,
+                    light_uniform_data,
+                ),
+            );
             let x = (-4 + i % 5 * 2) as f32;
             let y = (-4 + i / 5 * 2) as f32;
             sphere.state.set_position(Vec3 { x, y, z: 0.0 });
@@ -53,16 +84,34 @@ impl Level {
     }
 }
 
-fn create_color_material(renderer: &Renderer) -> Material {
+fn create_color_material(
+    device: &Device,
+    surface_config: &SurfaceConfiguration,
+    generic_uniform_data: &GenericUniformData,
+    light_uniform_data: &GenericUniformData,
+) -> Material {
     let shader_main = include_str!("../shaders/basic_light.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
         color: utils::CP1.palette[3].to_vec4(1.0),
     });
 
-    create_material(renderer, shader_main, uniform, "color")
+    create_material(
+        device,
+        surface_config,
+        generic_uniform_data,
+        light_uniform_data,
+        shader_main,
+        uniform,
+        "color",
+    )
 }
 
-fn create_equalizer_material(renderer: &Renderer) -> Material {
+fn create_equalizer_material(
+    device: &Device,
+    surface_config: &SurfaceConfiguration,
+    generic_uniform_data: &GenericUniformData,
+    light_uniform_data: &GenericUniformData,
+) -> Material {
     let shader_main = include_str!("../shaders/equalizer.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(EqualizerUniform {
         color1: utils::CP6.palette[0].to_vec4(1.0),
@@ -72,10 +121,23 @@ fn create_equalizer_material(renderer: &Renderer) -> Material {
         _padding: [0.0, 0.0, 0.0],
     });
 
-    create_material(renderer, shader_main, uniform, "equalizer")
+    create_material(
+        device,
+        surface_config,
+        generic_uniform_data,
+        light_uniform_data,
+        shader_main,
+        uniform,
+        "equalizer",
+    )
 }
 
-fn create_wave_world_material(renderer: &Renderer) -> Material {
+fn create_wave_world_material(
+    device: &Device,
+    surface_config: &SurfaceConfiguration,
+    generic_uniform_data: &GenericUniformData,
+    light_uniform_data: &GenericUniformData,
+) -> Material {
     let shader_main = include_str!("../shaders/wave_world.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(WaveWorldUniform {
         color1: utils::CP2.palette[0].to_vec4(1.0),
@@ -85,19 +147,30 @@ fn create_wave_world_material(renderer: &Renderer) -> Material {
         _padding: [0.0, 0.0, 0.0],
     });
 
-    create_material(renderer, shader_main, uniform, "wave_world")
+    create_material(
+        device,
+        surface_config,
+        generic_uniform_data,
+        light_uniform_data,
+        shader_main,
+        uniform,
+        "wave_world",
+    )
 }
 fn create_material(
-    renderer: &Renderer,
+    device: &Device,
+    surface_config: &SurfaceConfiguration,
+    generic_uniform_data: &GenericUniformData,
+    light_uniform_data: &GenericUniformData,
     shader_main: &str,
     uniform: Box<dyn UniformTrait>,
     name: &str,
 ) -> Material {
     let material = Material::new(
-        &renderer.device,
-        &renderer.surface_config,
-        &renderer.generic_uniform_data.uniform_bind_group_layout,
-        &renderer.light_uniform_data.uniform_bind_group_layout,
+        &device,
+        &surface_config,
+        &generic_uniform_data.uniform_bind_group_layout,
+        &light_uniform_data.uniform_bind_group_layout,
         shader_main,
         name,
         uniform,
