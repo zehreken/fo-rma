@@ -1,7 +1,9 @@
 use std::num::NonZeroU64;
 
 use image::GenericImageView;
-use wgpu::{Device, Queue, SurfaceConfiguration};
+use wgpu::{
+    Color, Device, Operations, Queue, RenderPassColorAttachment, SurfaceConfiguration, TextureView,
+};
 
 use crate::{
     basics::{
@@ -9,12 +11,12 @@ use crate::{
         material::{Material, TextureStuff},
         primitive::Primitive,
         quad::Quad,
-        uniforms::{ScreenQuadUniform, UniformTrait},
+        uniforms::{ObjectUniform, ScreenQuadUniform, UniformTrait},
     },
     rendering_utils::create_generic_uniform_data,
 };
 
-struct ScreenRenderer {
+pub struct ScreenRenderer {
     generic_uniform_data: GenericUniformData,
     screen_quad: Box<dyn Primitive>,
 }
@@ -44,6 +46,64 @@ impl ScreenRenderer {
             generic_uniform_data,
             screen_quad,
         }
+    }
+
+    pub fn render(&self, device: &Device, queue: &Queue, output_view: &TextureView) {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("render_encooder"),
+        });
+
+        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("render_pass"),
+            color_attachments: &[Some(RenderPassColorAttachment {
+                view: output_view,
+                resolve_target: None,
+                ops: Operations {
+                    load: wgpu::LoadOp::Clear(Color::GREEN),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
+        });
+
+        render_pass.set_pipeline(&self.screen_quad.material().render_pipeline);
+        let object_uniform = ObjectUniform {
+            view_proj: [[0.0; 4]; 4], // not used in shader
+            model: [[0.0; 4]; 4],     // not used in shader
+            normal1: [0.0; 4],        // not used in shader
+            normal2: [0.0; 4],        // not used in shader
+            normal3: [0.0; 4],        // not used in shader
+        };
+        queue.write_buffer(
+            &self.generic_uniform_data.uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[object_uniform]),
+        );
+        queue.write_buffer(
+            &self.screen_quad.material().uniform_buffer,
+            0,
+            self.screen_quad.material().uniform.as_bytes(),
+        );
+
+        render_pass.set_bind_group(0, &self.generic_uniform_data.uniform_bind_group, &[0]);
+        render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
+        render_pass.set_bind_group(
+            2,
+            &self
+                .screen_quad
+                .material()
+                .texture
+                .as_ref()
+                .unwrap()
+                .bind_group,
+            &[],
+        );
+        self.screen_quad.draw(&mut render_pass);
+        drop(render_pass);
+
+        queue.submit(Some(encoder.finish()));
     }
 }
 
@@ -265,5 +325,3 @@ fn create_test_texture(device: &Device, queue: &Queue) -> TextureStuff {
         bind_group,
     }
 }
-
-pub fn render() {}
