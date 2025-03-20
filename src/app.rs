@@ -131,7 +131,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             //     fps,
             //     &mut app.audio_model.get_sequencers()[0],
             // );
-            let _ = app.renderer.render();
+            let _ = app.renderer.render(elapsed);
             app.signal_peak = (app.signal_peak - 0.05).max(0.0);
 
             app.audio_model.update();

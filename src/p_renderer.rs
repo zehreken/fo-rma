@@ -56,7 +56,7 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render(&mut self) -> Result<(), SurfaceError> {
+    pub fn render(&mut self, elapsed: f32) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
             Err(SurfaceError::Outdated) => return Ok(()),
@@ -67,7 +67,7 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &self.offscreen_texture.texture_view,
-            0.0,
+            elapsed,
         );
         // post_processor::test(&output_view);
 
