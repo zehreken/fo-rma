@@ -16,7 +16,7 @@ pub fn save_image(renderer: &mut Renderer, level: &Level) {
     let bytes_per_pixel = 4; // For Rgba8Unorm (4 bytes per pixel)
     let aligned_bytes_per_row = ((width * bytes_per_pixel + 255) & !255) as u32;
 
-    let (high_res_texture, high_res_view) = crate::save_image::create_high_res_texture(
+    let (high_res_texture, high_res_view) = create_high_res_texture(
         &renderer.device,
         width,
         height,

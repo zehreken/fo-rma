@@ -80,7 +80,7 @@ impl FillRenderer {
         elapsed: f32,
     ) {
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
-            label: Some("render_encoder"),
+            label: Some("fill_render_encoder"),
         });
 
         let c_bg_color = utils::srgb_to_linear(BG_COLOR, utils::GAMMA);
@@ -92,7 +92,7 @@ impl FillRenderer {
         };
 
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
-            label: Some("render_pass"),
+            label: Some("fill_render_pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
                 view: &output_view,
                 resolve_target: None,

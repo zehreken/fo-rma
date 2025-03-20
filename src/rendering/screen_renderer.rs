@@ -11,16 +11,24 @@ use crate::{
 use image::GenericImageView;
 use std::num::NonZeroU64;
 use wgpu::{
-    Color, Device, Operations, Queue, RenderPassColorAttachment, SurfaceConfiguration, TextureView,
+    core::device::{self, queue},
+    BindGroup, BindGroupLayout, Color, Device, Extent3d, Operations, Queue,
+    RenderPassColorAttachment, SurfaceConfiguration, Texture, TextureView,
 };
 
 pub struct ScreenRenderer {
     generic_uniform_data: GenericUniformData,
+    dynamic_texture: DynamicTexture,
     screen_quad: Box<dyn Primitive>,
 }
 
 impl ScreenRenderer {
-    pub fn new(device: &Device, queue: &Queue, surface_config: &SurfaceConfiguration) -> Self {
+    pub fn new(
+        device: &Device,
+        queue: &Queue,
+        surface_config: &SurfaceConfiguration,
+        texture_bind_group_layout: &BindGroupLayout,
+    ) -> Self {
         let shader_utils = include_str!("../shaders/utils.wgsl");
         let shader_main = include_str!("../shaders/screen_quad.wgsl");
         let shader_combined = format!("{}\n{}", shader_main, shader_utils);
@@ -28,6 +36,31 @@ impl ScreenRenderer {
             label: Some("screen_quad_shader"),
             source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         });
+
+        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        multisampled: false,
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    // This should match the filterable field of the
+                    // corresponding Texture entry above.
+                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    count: None,
+                },
+            ],
+            label: Some("texture_bind_group_layout"),
+        });
+        let dynamic_texture = DynamicTexture::new(device, queue, 1080, 1080, &bind_group_layout);
 
         let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 1);
 
@@ -37,16 +70,24 @@ impl ScreenRenderer {
             shader,
             &surface_config,
             &generic_uniform_data,
+            &texture_bind_group_layout,
         );
         let screen_quad = Box::new(Quad::new(&device, material));
 
         Self {
             generic_uniform_data,
+            dynamic_texture,
             screen_quad,
         }
     }
 
-    pub fn render(&self, device: &Device, queue: &Queue, output_view: &TextureView) {
+    pub fn render(
+        &self,
+        device: &Device,
+        queue: &Queue,
+        output_view: &TextureView,
+        texture: &crate::p_renderer::TextureStuff,
+    ) {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("render_encooder"),
         });
@@ -66,6 +107,7 @@ impl ScreenRenderer {
             occlusion_query_set: None,
         });
 
+        // self.dynamic_texture.update(queue, texture.texture);
         render_pass.set_pipeline(&self.screen_quad.material().render_pipeline);
         let object_uniform = ObjectUniform {
             view_proj: [[0.0; 4]; 4], // not used in shader
@@ -87,17 +129,7 @@ impl ScreenRenderer {
 
         render_pass.set_bind_group(0, &self.generic_uniform_data.uniform_bind_group, &[0]);
         render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
-        render_pass.set_bind_group(
-            2,
-            &self
-                .screen_quad
-                .material()
-                .texture
-                .as_ref()
-                .unwrap()
-                .bind_group,
-            &[],
-        );
+        render_pass.set_bind_group(2, &texture.bind_group, &[]);
         self.screen_quad.draw(&mut render_pass);
         drop(render_pass);
 
@@ -111,6 +143,7 @@ fn create_screen_quad_material(
     shader: wgpu::ShaderModule,
     surface_config: &SurfaceConfiguration,
     generic_uniform_data: &GenericUniformData,
+    texture_bind_group_layout: &BindGroupLayout,
 ) -> Material {
     let uniform = Box::new(ScreenQuadUniform { signal: [0.0; 4] });
 
@@ -145,6 +178,7 @@ fn create_screen_quad_material(
         }],
     });
 
+    // Obsolete
     let texture = create_test_texture(device, queue);
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -152,13 +186,13 @@ fn create_screen_quad_material(
         bind_group_layouts: &[
             &generic_uniform_data.uniform_bind_group_layout,
             &material_bind_group_layout,
-            &texture.bind_group_layout,
+            &texture_bind_group_layout,
         ],
         push_constant_ranges: &[],
     });
 
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: Some("render_pipeline"),
+        label: Some("screen_render_pipeline"),
         layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
@@ -223,6 +257,91 @@ fn create_screen_quad_material(
         bind_group,
         render_pipeline,
         texture: Some(texture),
+    }
+}
+
+struct DynamicTexture {
+    texture: Texture,
+    texture_view: TextureView,
+    size: Extent3d,
+    bind_group: BindGroup,
+}
+
+impl DynamicTexture {
+    fn new(
+        device: &Device,
+        queue: &Queue,
+        width: u32,
+        height: u32,
+        bind_group_layout: &BindGroupLayout,
+    ) -> Self {
+        let size = wgpu::Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        };
+
+        let texture = device.create_texture(&wgpu::TextureDescriptor {
+            size,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8UnormSrgb,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            label: Some("dynamic_texture"),
+            view_formats: &[],
+        });
+
+        let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            address_mode_u: wgpu::AddressMode::ClampToEdge,
+            address_mode_v: wgpu::AddressMode::ClampToEdge,
+            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Linear,
+            mipmap_filter: wgpu::FilterMode::Linear,
+            ..Default::default()
+        });
+
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(&texture_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&sampler),
+                },
+            ],
+            label: Some("dynamic_texture_bind_group"),
+        });
+        Self {
+            texture,
+            texture_view,
+            size,
+            bind_group,
+        }
+    }
+
+    fn update(&self, queue: &Queue, image_data: &[u8]) {
+        queue.write_texture(
+            wgpu::ImageCopyTexture {
+                texture: &self.texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            image_data,
+            wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * self.size.width),
+                rows_per_image: Some(self.size.height),
+            },
+            self.size,
+        );
     }
 }
 
