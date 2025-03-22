@@ -23,9 +23,7 @@ const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 pub struct FillRenderer {
     pub camera: Camera,
     pub light: Light,
-    pub light_uniform_data: GenericUniformData,
     pub depth_texture: TextureView,
-    pub generic_uniform_data: GenericUniformData,
     level: Level,
 }
 
@@ -65,9 +63,7 @@ impl FillRenderer {
         Self {
             camera,
             light,
-            light_uniform_data,
             depth_texture,
-            generic_uniform_data,
             level,
         }
     }
@@ -78,6 +74,8 @@ impl FillRenderer {
         queue: &Queue,
         output_view: &TextureView,
         elapsed: f32,
+        generic_uniform_data: &GenericUniformData,
+        light_uniform_data: &GenericUniformData,
     ) {
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("fill_render_encoder"),
@@ -126,7 +124,7 @@ impl FillRenderer {
         self.light
             .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
 
-        let light_data = &mut self.light_uniform_data;
+        let light_data = light_uniform_data;
         let light_uniform = LightUniform {
             position: self.light.transform.position.extend(0.0).to_array(),
             color: self.light.color.to_vec4(1.0),
@@ -144,7 +142,7 @@ impl FillRenderer {
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
             queue.write_buffer(
-                &self.generic_uniform_data.uniform_buffer,
+                &generic_uniform_data.uniform_buffer,
                 uniform_offset,
                 bytemuck::cast_slice(&[object_uniform]),
             );
@@ -160,7 +158,7 @@ impl FillRenderer {
             );
             render_pass.set_bind_group(
                 0,
-                &self.generic_uniform_data.uniform_bind_group,
+                &generic_uniform_data.uniform_bind_group,
                 &[uniform_offset as u32],
             );
             render_pass.set_bind_group(1, &light_data.uniform_bind_group, &[]);

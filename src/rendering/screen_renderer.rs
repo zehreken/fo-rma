@@ -86,7 +86,7 @@ impl ScreenRenderer {
         device: &Device,
         queue: &Queue,
         output_view: &TextureView,
-        texture: &crate::p_renderer::TextureStuff,
+        texture: &crate::renderer::TextureStuff,
     ) {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("render_encooder"),

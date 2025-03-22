@@ -1,7 +1,6 @@
 use crate::{
     basics::{level::Level, uniforms::ObjectUniform},
-    renderer::Renderer,
-    utils,
+    old_renderer, utils,
 };
 use rand::Rng;
 use std::mem;
@@ -9,7 +8,7 @@ use wgpu::{Color, Device, Texture, TextureFormat, TextureView};
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
-pub fn save_image(renderer: &mut Renderer, level: &Level) {
+pub fn save_image(renderer: &mut old_renderer::Renderer, level: &Level) {
     let width = renderer.surface_config.width;
     let height = renderer.surface_config.height;
 

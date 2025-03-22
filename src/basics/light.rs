@@ -1,8 +1,5 @@
-use glam::Vec3;
-
-use crate::renderer::Renderer;
-
 use super::{core::Transform, primitive::Primitive, sphere::Sphere};
+use glam::Vec3;
 
 pub struct Light {
     pub transform: Transform,

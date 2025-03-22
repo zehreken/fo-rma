@@ -1,6 +1,4 @@
-use crate::{
-    audio::audio_model::AudioModel, basics::level::Level, p_renderer, renderer, save_image,
-};
+use crate::{audio::audio_model::AudioModel, basics::level::Level, renderer, save_image};
 use std::{
     collections::VecDeque,
     time::{Duration, Instant},
@@ -20,8 +18,8 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     // renderer: renderer::Renderer<'a>,
-    renderer: p_renderer::Renderer<'a>,
-    // pub level: Level,
+    renderer: renderer::Renderer<'a>,
+    pub level: Level,
     audio_model: AudioModel,
     signal_peak: f32,
 }
@@ -30,19 +28,23 @@ impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
         // let renderer = renderer::Renderer::new(window).await;
-        let p_renderer = p_renderer::Renderer::new(window).await;
+        let renderer = renderer::Renderer::new(window).await;
         // let init = vec![0.0; 60];
 
-        // let level = Level::new(&renderer);
+        let level = Level::new(
+            &renderer.device,
+            &renderer.surface_config,
+            &renderer.generic_uniform_data,
+            &renderer.light_uniform_data,
+        );
 
         let audio_model = AudioModel::new().unwrap();
 
         Self {
             size,
             window: &window,
-            // renderer,
-            renderer: p_renderer,
-            // level,
+            renderer,
+            level,
             audio_model,
             signal_peak: 0.0,
         }

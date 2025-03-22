@@ -11,10 +11,7 @@ use super::{
     sphere::Sphere,
     uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveWorldUniform},
 };
-use crate::{
-    renderer::Renderer,
-    utils::{self, ToVec4},
-};
+use crate::utils::{self, ToVec4};
 
 pub struct Level {
     pub objects: Vec<Box<dyn Primitive>>,
