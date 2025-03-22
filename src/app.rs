@@ -139,7 +139,6 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
                 app.window,
                 &app.level,
                 &mut app.audio_model.get_sequencers()[0],
-                elapsed,
                 fps,
             );
             app.signal_peak = (app.signal_peak - 0.05).max(0.0);
@@ -212,7 +211,7 @@ fn handle_key_event(
                         &app.renderer.device,
                         &app.renderer.queue,
                         &app.renderer.surface_config,
-                        &app.renderer.offscreen_texture,
+                        &app.renderer.render_texture,
                     );
                 }
             }

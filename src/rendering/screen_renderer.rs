@@ -82,7 +82,8 @@ impl ScreenRenderer {
         device: &Device,
         queue: &Queue,
         output_view: &TextureView,
-        texture: &crate::renderer::TextureStuff,
+        texture: &(Texture, TextureView),
+        texture_bind_group: &BindGroup,
     ) {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("render_encooder"),
@@ -125,7 +126,7 @@ impl ScreenRenderer {
 
         render_pass.set_bind_group(0, &self.generic_uniform_data.uniform_bind_group, &[0]);
         render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
-        render_pass.set_bind_group(2, &texture.bind_group, &[]);
+        render_pass.set_bind_group(2, texture_bind_group, &[]);
         self.screen_quad.draw(&mut render_pass);
         drop(render_pass);
 

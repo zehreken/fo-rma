@@ -21,7 +21,8 @@ pub struct Renderer<'a> {
     pub queue: Queue,
     pub gui: Gui,
     depth_texture: TextureView,
-    pub offscreen_texture: TextureStuff,
+    pub render_texture: (Texture, TextureView),
+    render_texture_bind_group: (BindGroupLayout, BindGroup),
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
     screen_renderer: ScreenRenderer,
@@ -51,7 +52,9 @@ impl<'a> Renderer<'a> {
 
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
-        let offscreen_texture = create_test_texture(&device, &queue, texture_format, size);
+        let render_texture = create_render_texture(&device, &texture_format, size);
+        let render_texture_bind_group =
+            create_render_texture_bind_group(&device, &render_texture.1);
 
         let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
@@ -59,7 +62,7 @@ impl<'a> Renderer<'a> {
             &device,
             &queue,
             &surface_config,
-            &offscreen_texture.bind_group_layout,
+            &render_texture_bind_group.0,
         );
 
         let generic_uniform_data =
@@ -73,7 +76,8 @@ impl<'a> Renderer<'a> {
             queue,
             gui,
             depth_texture,
-            offscreen_texture,
+            render_texture,
+            render_texture_bind_group,
             fill_renderer,
             line_renderer,
             screen_renderer,
@@ -88,7 +92,6 @@ impl<'a> Renderer<'a> {
         window: &Window,
         level: &Level,
         sequencer: &mut Sequencer,
-        elapsed: f32,
         fps: f32,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
@@ -101,7 +104,7 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &self.depth_texture,
-            &self.offscreen_texture.texture_view,
+            &self.render_texture.1,
             level,
             &self.generic_uniform_data,
             &self.light_uniform_data,
@@ -110,7 +113,7 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &self.depth_texture,
-            &self.offscreen_texture.texture_view,
+            &self.render_texture.1,
             level,
         );
         // gui
@@ -121,7 +124,7 @@ impl<'a> Renderer<'a> {
             });
         self.gui.render(
             window,
-            &self.offscreen_texture.texture_view,
+            &self.render_texture.1,
             &self.device,
             &self.queue,
             &mut encoder,
@@ -139,7 +142,8 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &output_view,
-            &self.offscreen_texture,
+            &self.render_texture,
+            &self.render_texture_bind_group.1,
         );
 
         output_frame.present();
@@ -152,18 +156,17 @@ impl<'a> Renderer<'a> {
         self.surface.configure(&self.device, &self.surface_config);
         self.depth_texture =
             rendering_utils::create_depth_texture(&self.device, &self.surface_config);
-        self.offscreen_texture =
-            create_test_texture(&self.device, &self.queue, self.texture_format, size);
+        // self.offscreen_texture =
+        //     create_test_texture(&self.device, &self.queue, self.texture_format, size);
         self.gui.resize(size, scale_factor);
     }
 }
 
-fn create_test_texture(
+fn create_render_texture(
     device: &Device,
-    queue: &Queue,
-    texture_format: TextureFormat,
+    texture_format: &TextureFormat,
     size: PhysicalSize<u32>,
-) -> TextureStuff {
+) -> (Texture, TextureView) {
     let size = wgpu::Extent3d {
         width: size.width,
         height: size.height,
@@ -175,7 +178,7 @@ fn create_test_texture(
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: texture_format,
+        format: *texture_format,
         usage: wgpu::TextureUsages::TEXTURE_BINDING
             | wgpu::TextureUsages::RENDER_ATTACHMENT
             | wgpu::TextureUsages::COPY_SRC,
@@ -183,6 +186,14 @@ fn create_test_texture(
     });
 
     let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+    (texture, texture_view)
+}
+
+fn create_render_texture_bind_group(
+    device: &Device,
+    render_texture: &TextureView,
+) -> (BindGroupLayout, BindGroup) {
     let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
         address_mode_u: wgpu::AddressMode::ClampToEdge,
         address_mode_v: wgpu::AddressMode::ClampToEdge,
@@ -223,7 +234,7 @@ fn create_test_texture(
         entries: &[
             wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::TextureView(&texture_view),
+                resource: wgpu::BindingResource::TextureView(&render_texture),
             },
             wgpu::BindGroupEntry {
                 binding: 1,
@@ -232,21 +243,5 @@ fn create_test_texture(
         ],
     });
 
-    TextureStuff {
-        texture,
-        size,
-        texture_view,
-        sampler,
-        bind_group_layout,
-        bind_group,
-    }
-}
-
-pub struct TextureStuff {
-    pub texture: Texture,
-    pub size: Extent3d,
-    pub texture_view: TextureView,
-    pub sampler: Sampler,
-    pub bind_group_layout: BindGroupLayout,
-    pub bind_group: BindGroup,
+    (bind_group_layout, bind_group)
 }

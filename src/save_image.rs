@@ -1,12 +1,11 @@
-use crate::{renderer::TextureStuff, utils};
 use rand::Rng;
-use wgpu::{Device, Queue, SurfaceConfiguration};
+use wgpu::{Device, Queue, SurfaceConfiguration, Texture, TextureView};
 
 pub fn save_image(
     device: &Device,
     queue: &Queue,
     surface_config: &SurfaceConfiguration,
-    texture: &TextureStuff,
+    texture: &(Texture, TextureView),
 ) {
     let width = surface_config.width;
     let height = surface_config.height;
@@ -30,7 +29,7 @@ pub fn save_image(
     let mut encoder = device.create_command_encoder(&command_encoder_desc);
     encoder.copy_texture_to_buffer(
         wgpu::ImageCopyTexture {
-            texture: &texture.texture,
+            texture: &texture.0,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
             aspect: wgpu::TextureAspect::All,
