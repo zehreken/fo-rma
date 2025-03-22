@@ -9,7 +9,7 @@ use crate::{
 };
 use wgpu::{
     BindGroup, BindGroupLayout, Device, Extent3d, Queue, Sampler, Surface, SurfaceConfiguration,
-    SurfaceError, Texture, TextureView,
+    SurfaceError, Texture, TextureFormat, TextureView,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 pub const PRIMITIVE_COUNT: u64 = 25;
@@ -27,6 +27,7 @@ pub struct Renderer<'a> {
     screen_renderer: ScreenRenderer,
     pub generic_uniform_data: GenericUniformData,
     pub light_uniform_data: GenericUniformData,
+    texture_format: TextureFormat,
 }
 
 impl<'a> Renderer<'a> {
@@ -50,7 +51,7 @@ impl<'a> Renderer<'a> {
 
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
-        let offscreen_texture = create_test_texture(&device, &queue, size);
+        let offscreen_texture = create_test_texture(&device, &queue, texture_format, size);
 
         let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
@@ -78,6 +79,7 @@ impl<'a> Renderer<'a> {
             screen_renderer,
             generic_uniform_data,
             light_uniform_data,
+            texture_format,
         }
     }
 
@@ -150,12 +152,18 @@ impl<'a> Renderer<'a> {
         self.surface.configure(&self.device, &self.surface_config);
         self.depth_texture =
             rendering_utils::create_depth_texture(&self.device, &self.surface_config);
-        self.offscreen_texture = create_test_texture(&self.device, &self.queue, size);
+        self.offscreen_texture =
+            create_test_texture(&self.device, &self.queue, self.texture_format, size);
         self.gui.resize(size, scale_factor);
     }
 }
 
-fn create_test_texture(device: &Device, queue: &Queue, size: PhysicalSize<u32>) -> TextureStuff {
+fn create_test_texture(
+    device: &Device,
+    queue: &Queue,
+    texture_format: TextureFormat,
+    size: PhysicalSize<u32>,
+) -> TextureStuff {
     let size = wgpu::Extent3d {
         width: size.width,
         height: size.height,
@@ -167,7 +175,7 @@ fn create_test_texture(device: &Device, queue: &Queue, size: PhysicalSize<u32>) 
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8UnormSrgb, // pass this dynamically?
+        format: texture_format,
         usage: wgpu::TextureUsages::TEXTURE_BINDING
             | wgpu::TextureUsages::RENDER_ATTACHMENT
             | wgpu::TextureUsages::COPY_SRC,
