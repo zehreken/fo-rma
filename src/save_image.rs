@@ -1,14 +1,6 @@
-use crate::{
-    basics::{level::Level, uniforms::ObjectUniform},
-    old_renderer,
-    renderer::TextureStuff,
-    utils,
-};
+use crate::{renderer::TextureStuff, utils};
 use rand::Rng;
-use std::mem;
-use wgpu::{Color, Device, Queue, SurfaceConfiguration, Texture, TextureFormat, TextureView};
-
-const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
+use wgpu::{Device, Queue, SurfaceConfiguration};
 
 pub fn save_image(
     device: &Device,
@@ -77,7 +69,7 @@ pub fn save_image(
     // Use an image library to save the data
     use image::{ImageBuffer, Rgba};
 
-    let tightly_packed_data = pixelated(
+    let tightly_packed_data = monochrome_noise(
         &data,
         width,
         height,

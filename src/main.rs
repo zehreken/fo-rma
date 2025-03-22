@@ -2,7 +2,6 @@ mod app;
 mod audio;
 mod basics;
 mod gui;
-mod old_renderer;
 mod renderer;
 mod rendering;
 mod rendering_utils;
