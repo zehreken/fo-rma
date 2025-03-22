@@ -19,7 +19,7 @@ pub struct Renderer<'a> {
     pub device: Device,
     pub surface_config: SurfaceConfiguration,
     queue: Queue,
-    gui: Gui,
+    pub gui: Gui,
     offscreen_texture: TextureStuff,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,

@@ -157,7 +157,7 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             app.window.request_redraw();
         }
         Event::WindowEvent { event, .. } => {
-            // app.renderer.gui.handle_event(&app.window, &event);
+            app.renderer.gui.handle_event(&app.window, &event);
         }
         _ => {}
     });
@@ -190,12 +190,12 @@ fn handle_key_event(
 ) {
     if modifiers.shift_key() {
         match key_event.physical_key {
-            // PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.orbit_z(true),
-            // PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.orbit_x(false),
-            // PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.orbit_z(false),
-            // PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.orbit_x(true),
-            // PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.orbit_y(true),
-            // PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.orbit_y(false),
+            PhysicalKey::Code(KeyCode::KeyW) => app.level.camera.orbit_z(true),
+            PhysicalKey::Code(KeyCode::KeyA) => app.level.camera.orbit_x(false),
+            PhysicalKey::Code(KeyCode::KeyS) => app.level.camera.orbit_z(false),
+            PhysicalKey::Code(KeyCode::KeyD) => app.level.camera.orbit_x(true),
+            PhysicalKey::Code(KeyCode::KeyQ) => app.level.camera.orbit_y(true),
+            PhysicalKey::Code(KeyCode::KeyE) => app.level.camera.orbit_y(false),
             _ => {}
         }
     } else {
@@ -210,12 +210,12 @@ fn handle_key_event(
                     // save_image::save_image(&mut app.renderer, &app.level);
                 }
             }
-            // PhysicalKey::Code(KeyCode::KeyW) => app.renderer.camera.move_z(true),
-            // PhysicalKey::Code(KeyCode::KeyA) => app.renderer.camera.move_x(false),
-            // PhysicalKey::Code(KeyCode::KeyS) => app.renderer.camera.move_z(false),
-            // PhysicalKey::Code(KeyCode::KeyD) => app.renderer.camera.move_x(true),
-            // PhysicalKey::Code(KeyCode::KeyQ) => app.renderer.camera.move_y(true),
-            // PhysicalKey::Code(KeyCode::KeyE) => app.renderer.camera.move_y(false),
+            PhysicalKey::Code(KeyCode::KeyW) => app.level.camera.move_z(true),
+            PhysicalKey::Code(KeyCode::KeyA) => app.level.camera.move_x(false),
+            PhysicalKey::Code(KeyCode::KeyS) => app.level.camera.move_z(false),
+            PhysicalKey::Code(KeyCode::KeyD) => app.level.camera.move_x(true),
+            PhysicalKey::Code(KeyCode::KeyQ) => app.level.camera.move_y(true),
+            PhysicalKey::Code(KeyCode::KeyE) => app.level.camera.move_y(false),
             _ => {}
         }
     }
