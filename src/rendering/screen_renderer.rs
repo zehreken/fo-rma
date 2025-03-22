@@ -82,7 +82,6 @@ impl ScreenRenderer {
         device: &Device,
         queue: &Queue,
         output_view: &TextureView,
-        texture: &(Texture, TextureView),
         texture_bind_group: &BindGroup,
     ) {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {

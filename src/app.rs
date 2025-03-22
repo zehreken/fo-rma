@@ -211,7 +211,7 @@ fn handle_key_event(
                         &app.renderer.device,
                         &app.renderer.queue,
                         &app.renderer.surface_config,
-                        &app.renderer.render_texture,
+                        &app.renderer.post_process_texture,
                     );
                 }
             }

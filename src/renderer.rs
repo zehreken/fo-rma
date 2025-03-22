@@ -3,13 +3,14 @@ use crate::{
     basics::{core::GenericUniformData, level::Level},
     gui::Gui,
     rendering::{
-        fill_renderer::FillRenderer, line_renderer::LineRenderer, screen_renderer::ScreenRenderer,
+        fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
+        screen_renderer::ScreenRenderer,
     },
     rendering_utils::{self},
 };
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, Extent3d, Queue, Sampler, Surface, SurfaceConfiguration,
-    SurfaceError, Texture, TextureFormat, TextureView,
+    BindGroup, BindGroupLayout, Device, Queue, Surface, SurfaceConfiguration, SurfaceError,
+    Texture, TextureFormat, TextureView,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 pub const PRIMITIVE_COUNT: u64 = 25;
@@ -23,8 +24,10 @@ pub struct Renderer<'a> {
     depth_texture: TextureView,
     pub render_texture: (Texture, TextureView),
     render_texture_bind_group: (BindGroupLayout, BindGroup),
+    pub post_process_texture: (Texture, TextureView),
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
+    post_processor: PostProcessor,
     screen_renderer: ScreenRenderer,
     pub generic_uniform_data: GenericUniformData,
     pub light_uniform_data: GenericUniformData,
@@ -53,11 +56,15 @@ impl<'a> Renderer<'a> {
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
         let render_texture = create_render_texture(&device, &texture_format, size);
+        let post_process_texture = create_post_process_texture(&device, size);
+        // Bind it to the post_processed texture, since that is the one we want to show
         let render_texture_bind_group =
-            create_render_texture_bind_group(&device, &render_texture.1);
+            create_render_texture_bind_group(&device, &post_process_texture.1);
 
         let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
+        let post_processor =
+            PostProcessor::new(&device, &post_process_texture.1, &render_texture.1);
         let screen_renderer = ScreenRenderer::new(
             &device,
             &queue,
@@ -78,8 +85,10 @@ impl<'a> Renderer<'a> {
             depth_texture,
             render_texture,
             render_texture_bind_group,
+            post_process_texture,
             fill_renderer,
             line_renderer,
+            post_processor,
             screen_renderer,
             generic_uniform_data,
             light_uniform_data,
@@ -132,8 +141,16 @@ impl<'a> Renderer<'a> {
             fps,
         );
         self.queue.submit(Some(encoder.finish()));
-        // ===
-        // post_processor::test(&output_view);
+
+        // ======
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("post_process_encoder"),
+            });
+        self.post_processor.run(&mut encoder, 1080, 1080);
+        self.queue.submit(Some(encoder.finish()));
+        // ======
 
         let output_view = output_frame
             .texture
@@ -142,7 +159,6 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &output_view,
-            &self.render_texture,
             &self.render_texture_bind_group.1,
         );
 
@@ -244,4 +260,28 @@ fn create_render_texture_bind_group(
     });
 
     (bind_group_layout, bind_group)
+}
+
+fn create_post_process_texture(device: &Device, size: PhysicalSize<u32>) -> (Texture, TextureView) {
+    let post_process_texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("post_process_texture"),
+        size: wgpu::Extent3d {
+            width: size.width,
+            height: size.height,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8Unorm, // not sRGB!
+        usage: wgpu::TextureUsages::STORAGE_BINDING
+            | wgpu::TextureUsages::TEXTURE_BINDING
+            | wgpu::TextureUsages::RENDER_ATTACHMENT
+            | wgpu::TextureUsages::COPY_SRC,
+        view_formats: &[],
+    });
+
+    let post_process_view = post_process_texture.create_view(&Default::default());
+
+    (post_process_texture, post_process_view)
 }
