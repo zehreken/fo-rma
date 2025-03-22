@@ -1,5 +1,7 @@
 use crate::{
+    audio::sequencer::Sequencer,
     basics::{core::GenericUniformData, level::Level},
+    gui::Gui,
     rendering::{
         fill_renderer::FillRenderer, line_renderer::LineRenderer, screen_renderer::ScreenRenderer,
     },
@@ -17,6 +19,7 @@ pub struct Renderer<'a> {
     pub device: Device,
     pub surface_config: SurfaceConfiguration,
     queue: Queue,
+    gui: Gui,
     offscreen_texture: TextureStuff,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
@@ -42,6 +45,7 @@ impl<'a> Renderer<'a> {
             rendering_utils::create_surface_config(size, texture_format, surface_caps);
         surface.configure(&device, &surface_config);
 
+        let gui = Gui::new(window, &device, texture_format);
         let offscreen_texture = create_test_texture(&device, &queue, size);
 
         let fill_renderer = FillRenderer::new(&device, &surface_config);
@@ -62,6 +66,7 @@ impl<'a> Renderer<'a> {
             device,
             surface_config,
             queue,
+            gui,
             offscreen_texture,
             fill_renderer,
             line_renderer,
@@ -71,7 +76,14 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render(&mut self, level: &Level, elapsed: f32) -> Result<(), SurfaceError> {
+    pub fn render(
+        &mut self,
+        window: &Window,
+        level: &Level,
+        sequencer: &mut Sequencer,
+        elapsed: f32,
+        fps: f32,
+    ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
             Err(SurfaceError::Outdated) => return Ok(()),
@@ -92,6 +104,23 @@ impl<'a> Renderer<'a> {
             &self.offscreen_texture.texture_view,
             level,
         );
+        // gui
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("gui_renderer_encoder"),
+            });
+        self.gui.render(
+            window,
+            &self.offscreen_texture.texture_view,
+            &self.device,
+            &self.queue,
+            &mut encoder,
+            sequencer,
+            fps,
+        );
+        self.queue.submit(Some(encoder.finish()));
+        // ===
         // post_processor::test(&output_view);
 
         let output_view = output_frame
