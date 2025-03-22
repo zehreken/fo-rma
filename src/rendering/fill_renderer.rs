@@ -24,7 +24,6 @@ pub struct FillRenderer {
     pub camera: Camera,
     pub light: Light,
     pub depth_texture: TextureView,
-    level: Level,
 }
 
 impl FillRenderer {
@@ -46,25 +45,14 @@ impl FillRenderer {
         // let mut light = Light::new([1.0, 0.678, 0.003]);
         let mut light = Light::new([1.0, 1.0, 1.0]);
         light.update_position(vec3(2.0, 0.0, 2.0));
-        let light_uniform_data = rendering_utils::create_light_uniform_data(&device);
         // I might need to pass this to create_render_pipeline function
-        let primitive_count = 25;
-        let generic_uniform_data =
-            rendering_utils::create_generic_uniform_data(&device, &surface_config, primitive_count);
         // =============
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
-        let level = Level::new(
-            &device,
-            &surface_config,
-            &generic_uniform_data,
-            &light_uniform_data,
-        );
         Self {
             camera,
             light,
             depth_texture,
-            level,
         }
     }
 
@@ -74,6 +62,7 @@ impl FillRenderer {
         queue: &Queue,
         output_view: &TextureView,
         elapsed: f32,
+        level: &Level,
         generic_uniform_data: &GenericUniformData,
         light_uniform_data: &GenericUniformData,
     ) {
@@ -130,7 +119,7 @@ impl FillRenderer {
             color: self.light.color.to_vec4(1.0),
         };
 
-        for (i, primitive) in self.level.objects.iter().enumerate() {
+        for (i, primitive) in level.objects.iter().enumerate() {
             let object_uniform = ObjectUniform {
                 view_proj: self.camera.build_view_projection_matrix(),
                 model: primitive.model_matrix(),

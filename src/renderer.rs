@@ -1,5 +1,5 @@
 use crate::{
-    basics::core::GenericUniformData,
+    basics::{core::GenericUniformData, level::Level},
     rendering::{fill_renderer::FillRenderer, screen_renderer::ScreenRenderer},
     rendering_utils::{self},
 };
@@ -66,7 +66,7 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render(&mut self, elapsed: f32) -> Result<(), SurfaceError> {
+    pub fn render(&mut self, level: &Level, elapsed: f32) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
             Err(SurfaceError::Outdated) => return Ok(()),
@@ -78,6 +78,7 @@ impl<'a> Renderer<'a> {
             &self.queue,
             &self.offscreen_texture.texture_view,
             elapsed,
+            level,
             &self.generic_uniform_data,
             &self.light_uniform_data,
         );
