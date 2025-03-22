@@ -18,10 +18,10 @@ pub struct Renderer<'a> {
     pub surface: Surface<'a>,
     pub device: Device,
     pub surface_config: SurfaceConfiguration,
-    queue: Queue,
+    pub queue: Queue,
     pub gui: Gui,
     depth_texture: TextureView,
-    offscreen_texture: TextureStuff,
+    pub offscreen_texture: TextureStuff,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
     screen_renderer: ScreenRenderer,
@@ -168,7 +168,9 @@ fn create_test_texture(device: &Device, queue: &Queue, size: PhysicalSize<u32>) 
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rgba8UnormSrgb, // pass this dynamically?
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::RENDER_ATTACHMENT,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING
+            | wgpu::TextureUsages::RENDER_ATTACHMENT
+            | wgpu::TextureUsages::COPY_SRC,
         view_formats: &[],
     });
 

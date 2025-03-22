@@ -208,7 +208,12 @@ fn handle_key_event(
             }
             PhysicalKey::Code(KeyCode::KeyR) => {
                 if key_event.state == ElementState::Pressed && !key_event.repeat {
-                    // save_image::save_image(&mut app.renderer, &app.level);
+                    save_image::save_image(
+                        &app.renderer.device,
+                        &app.renderer.queue,
+                        &app.renderer.surface_config,
+                        &app.renderer.offscreen_texture,
+                    );
                 }
             }
             PhysicalKey::Code(KeyCode::KeyW) => app.level.camera.move_z(true),
