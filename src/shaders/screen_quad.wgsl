@@ -13,9 +13,9 @@ struct VertexOutput {
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    out.uv = model.uv;
     // 2.0 makes it full screen quad
     out.clip_position = vec4<f32>(model.position * 2.0, 1.0);
+    out.uv = vec2<f32>(model.uv.x, 1.0 - model.uv.y);
     return out;
 }
 
