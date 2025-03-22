@@ -41,7 +41,7 @@ impl<'a> Renderer<'a> {
 
         let offscreen_texture = create_test_texture(&device, &queue, size);
 
-        let fill_renderer = FillRenderer::new(&device, &surface_config, size);
+        let fill_renderer = FillRenderer::new(&device, &surface_config);
         let screen_renderer = ScreenRenderer::new(
             &device,
             &queue,

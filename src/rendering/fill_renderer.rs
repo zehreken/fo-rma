@@ -1,59 +1,30 @@
-use std::mem;
-
 use crate::{
     basics::{
-        camera::{self, Camera},
         core::GenericUniformData,
         level::Level,
-        light::Light,
         uniforms::{LightUniform, ObjectUniform},
     },
     rendering_utils,
     utils::{self, ToVec4},
 };
 use glam::vec3;
+use std::mem;
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
     RenderPassDescriptor, StoreOp, SurfaceConfiguration, TextureView,
 };
-use winit::dpi::PhysicalSize;
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
 pub struct FillRenderer {
-    pub camera: Camera,
-    pub light: Light,
     pub depth_texture: TextureView,
 }
 
 impl FillRenderer {
-    pub fn new(
-        device: &Device,
-        surface_config: &SurfaceConfiguration,
-        size: PhysicalSize<u32>,
-    ) -> Self {
-        // camera ============
-        let camera = camera::Camera::new(
-            vec3(0.0, 0.0, 2.0),
-            vec3(0.0, 0.0, 0.0),
-            size.width as f32 / size.height as f32,
-            45.0,
-            0.1,
-            100.0,
-        );
-        // Light uniform
-        // let mut light = Light::new([1.0, 0.678, 0.003]);
-        let mut light = Light::new([1.0, 1.0, 1.0]);
-        light.update_position(vec3(2.0, 0.0, 2.0));
-        // I might need to pass this to create_render_pipeline function
-        // =============
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
-        Self {
-            camera,
-            light,
-            depth_texture,
-        }
+        Self { depth_texture }
     }
 
     pub fn render(
@@ -107,21 +78,15 @@ impl FillRenderer {
         let aligned_uniform_size =
             (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
-        // self.camera
-        //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
-        let el = elapsed * 0.5;
-        self.light
-            .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
-
         let light_data = light_uniform_data;
         let light_uniform = LightUniform {
-            position: self.light.transform.position.extend(0.0).to_array(),
-            color: self.light.color.to_vec4(1.0),
+            position: level.light.transform.position.extend(0.0).to_array(),
+            color: level.light.color.to_vec4(1.0),
         };
 
         for (i, primitive) in level.objects.iter().enumerate() {
             let object_uniform = ObjectUniform {
-                view_proj: self.camera.build_view_projection_matrix(),
+                view_proj: level.camera.build_view_projection_matrix(),
                 model: primitive.model_matrix(),
                 normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),

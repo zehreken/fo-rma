@@ -36,6 +36,7 @@ impl<'a> App<'a> {
             &renderer.surface_config,
             &renderer.generic_uniform_data,
             &renderer.light_uniform_data,
+            size,
         );
 
         let audio_model = AudioModel::new().unwrap();
@@ -123,8 +124,8 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             if signal > app.signal_peak {
                 app.signal_peak = signal;
             }
-            // app.level
-            //     .update(delta_time, app.signal_peak, app.audio_model.show_beat());
+            app.level
+                .update(delta_time, 1.0, app.audio_model.show_beat());
             // let _ = app.renderer.render(
             //     &app.window,
             //     &app.level,

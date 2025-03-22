@@ -1,10 +1,12 @@
-use glam::Vec3;
-use wgpu::{Device, Surface, SurfaceConfiguration};
+use glam::{vec3, Vec3};
+use wgpu::{Device, SurfaceConfiguration};
+use winit::dpi::PhysicalSize;
 
 use super::{
+    camera::{self, Camera},
     core::GenericUniformData,
     cube::Cube,
-    light,
+    light::{self, Light},
     material::Material,
     primitive::Primitive,
     quad::Quad,
@@ -14,7 +16,10 @@ use super::{
 use crate::utils::{self, ToVec4};
 
 pub struct Level {
+    pub camera: Camera,
     pub objects: Vec<Box<dyn Primitive>>,
+    pub light: Light,
+    elapsed: f32,
 }
 
 impl Level {
@@ -23,7 +28,17 @@ impl Level {
         surface_config: &SurfaceConfiguration,
         generic_uniform_data: &GenericUniformData,
         light_uniform_data: &GenericUniformData,
+        size: PhysicalSize<u32>,
     ) -> Self {
+        let camera = camera::Camera::new(
+            vec3(0.0, 0.0, 10.0),
+            vec3(0.0, 0.0, 0.0),
+            size.width as f32 / size.height as f32,
+            45.0,
+            0.1,
+            100.0,
+        );
+
         let color_material = create_color_material(
             device,
             surface_config,
@@ -66,10 +81,26 @@ impl Level {
         //     Box::new(Cube::new(renderer, wave_world_material)),
         // ];
 
-        Self { objects }
+        let mut light = Light::new([1.0, 1.0, 1.0]);
+        light.update_position(vec3(2.0, 0.0, 2.0));
+
+        Self {
+            camera,
+            objects,
+            light,
+            elapsed: 0.0,
+        }
     }
 
     pub fn update(&mut self, delta_time: f32, signal: f32, show_beat: bool) {
+        self.elapsed += delta_time;
+        let el = self.elapsed * 0.5;
+        self.light
+            .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
+
+        // self.camera
+        //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
+
         for primitive in &mut self.objects {
             primitive.material_mut().uniform.set_signal(signal);
             primitive.update(if show_beat {
