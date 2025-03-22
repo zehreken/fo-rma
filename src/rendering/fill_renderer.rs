@@ -7,7 +7,6 @@ use crate::{
     rendering_utils,
     utils::{self, ToVec4},
 };
-use glam::vec3;
 use std::mem;
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
@@ -22,7 +21,7 @@ pub struct FillRenderer {
 
 impl FillRenderer {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
+        let depth_texture = rendering_utils::create_depth_texture(device, surface_config);
 
         Self { depth_texture }
     }
@@ -32,7 +31,6 @@ impl FillRenderer {
         device: &Device,
         queue: &Queue,
         output_view: &TextureView,
-        elapsed: f32,
         level: &Level,
         generic_uniform_data: &GenericUniformData,
         light_uniform_data: &GenericUniformData,

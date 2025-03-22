@@ -1,6 +1,8 @@
 use crate::{
     basics::{core::GenericUniformData, level::Level},
-    rendering::{fill_renderer::FillRenderer, screen_renderer::ScreenRenderer},
+    rendering::{
+        fill_renderer::FillRenderer, line_renderer::LineRenderer, screen_renderer::ScreenRenderer,
+    },
     rendering_utils::{self},
 };
 use wgpu::{
@@ -8,7 +10,7 @@ use wgpu::{
     SurfaceError, Texture, TextureView,
 };
 use winit::{dpi::PhysicalSize, window::Window};
-const PRIMITIVE_COUNT: u64 = 25;
+pub const PRIMITIVE_COUNT: u64 = 25;
 
 pub struct Renderer<'a> {
     pub surface: Surface<'a>,
@@ -17,6 +19,7 @@ pub struct Renderer<'a> {
     queue: Queue,
     offscreen_texture: TextureStuff,
     fill_renderer: FillRenderer,
+    line_renderer: LineRenderer,
     screen_renderer: ScreenRenderer,
     pub generic_uniform_data: GenericUniformData,
     pub light_uniform_data: GenericUniformData,
@@ -42,6 +45,7 @@ impl<'a> Renderer<'a> {
         let offscreen_texture = create_test_texture(&device, &queue, size);
 
         let fill_renderer = FillRenderer::new(&device, &surface_config);
+        let line_renderer = LineRenderer::new(&device, &surface_config);
         let screen_renderer = ScreenRenderer::new(
             &device,
             &queue,
@@ -60,6 +64,7 @@ impl<'a> Renderer<'a> {
             queue,
             offscreen_texture,
             fill_renderer,
+            line_renderer,
             screen_renderer,
             generic_uniform_data,
             light_uniform_data,
@@ -77,10 +82,15 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &self.offscreen_texture.texture_view,
-            elapsed,
             level,
             &self.generic_uniform_data,
             &self.light_uniform_data,
+        );
+        self.line_renderer.render(
+            &self.device,
+            &self.queue,
+            &self.offscreen_texture.texture_view,
+            level,
         );
         // post_processor::test(&output_view);
 
