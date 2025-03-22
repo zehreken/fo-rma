@@ -20,6 +20,7 @@ pub struct Renderer<'a> {
     pub surface_config: SurfaceConfiguration,
     queue: Queue,
     pub gui: Gui,
+    depth_texture: TextureView,
     offscreen_texture: TextureStuff,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
@@ -46,9 +47,12 @@ impl<'a> Renderer<'a> {
         surface.configure(&device, &surface_config);
 
         let gui = Gui::new(window, &device, texture_format);
+
+        let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
+
         let offscreen_texture = create_test_texture(&device, &queue, size);
 
-        let fill_renderer = FillRenderer::new(&device, &surface_config);
+        let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
         let screen_renderer = ScreenRenderer::new(
             &device,
@@ -67,6 +71,7 @@ impl<'a> Renderer<'a> {
             surface_config,
             queue,
             gui,
+            depth_texture,
             offscreen_texture,
             fill_renderer,
             line_renderer,
@@ -93,6 +98,7 @@ impl<'a> Renderer<'a> {
         self.fill_renderer.render(
             &self.device,
             &self.queue,
+            &self.depth_texture,
             &self.offscreen_texture.texture_view,
             level,
             &self.generic_uniform_data,
@@ -101,6 +107,7 @@ impl<'a> Renderer<'a> {
         self.line_renderer.render(
             &self.device,
             &self.queue,
+            &self.depth_texture,
             &self.offscreen_texture.texture_view,
             level,
         );
@@ -135,6 +142,16 @@ impl<'a> Renderer<'a> {
 
         output_frame.present();
         Ok(())
+    }
+
+    pub fn resize(&mut self, size: PhysicalSize<u32>, scale_factor: f64) {
+        self.surface_config.width = size.width;
+        self.surface_config.height = size.height;
+        self.surface.configure(&self.device, &self.surface_config);
+        self.depth_texture =
+            rendering_utils::create_depth_texture(&self.device, &self.surface_config);
+        self.offscreen_texture = create_test_texture(&self.device, &self.queue, size);
+        self.gui.resize(size, scale_factor);
     }
 }
 

@@ -15,21 +15,18 @@ use wgpu::{
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
 
-pub struct FillRenderer {
-    pub depth_texture: TextureView,
-}
+pub struct FillRenderer {}
 
 impl FillRenderer {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let depth_texture = rendering_utils::create_depth_texture(device, surface_config);
-
-        Self { depth_texture }
+    pub fn new() -> Self {
+        Self {}
     }
 
     pub fn render(
         &mut self,
         device: &Device,
         queue: &Queue,
+        depth_texture: &TextureView,
         output_view: &TextureView,
         level: &Level,
         generic_uniform_data: &GenericUniformData,
@@ -58,7 +55,7 @@ impl FillRenderer {
                 },
             })],
             depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-                view: &self.depth_texture,
+                view: depth_texture,
                 depth_ops: Some(wgpu::Operations {
                     load: wgpu::LoadOp::Clear(1.0),
                     store: wgpu::StoreOp::Store,

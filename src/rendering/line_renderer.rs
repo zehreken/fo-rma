@@ -6,19 +6,16 @@ use crate::{
 };
 use wgpu::{
     CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
-    RenderPassDescriptor, RenderPipeline, StoreOp, SurfaceConfiguration, TextureView,
+    RenderPassDescriptor, RenderPipeline, StoreOp, SurfaceConfiguration, Texture, TextureView,
 };
 
 pub struct LineRenderer {
-    pub depth_texture: TextureView,
     render_pipeline: RenderPipeline,
     uniform_data: GenericUniformData,
 }
 
 impl LineRenderer {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let depth_texture = rendering_utils::create_depth_texture(device, surface_config);
-
         let (uniform_data, render_pipeline) = rendering_utils::create_debug_uniform_data(
             device,
             surface_config,
@@ -26,7 +23,6 @@ impl LineRenderer {
         );
 
         Self {
-            depth_texture,
             render_pipeline,
             uniform_data,
         }
@@ -35,6 +31,7 @@ impl LineRenderer {
         &mut self,
         device: &Device,
         queue: &Queue,
+        depth_texture: &TextureView,
         output_view: &TextureView,
         level: &Level,
     ) {
@@ -53,7 +50,7 @@ impl LineRenderer {
                 },
             })],
             depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-                view: &self.depth_texture,
+                view: depth_texture,
                 depth_ops: Some(wgpu::Operations {
                     load: wgpu::LoadOp::Clear(1.0),
                     store: wgpu::StoreOp::Store,

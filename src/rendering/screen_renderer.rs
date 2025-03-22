@@ -11,14 +11,12 @@ use crate::{
 use image::GenericImageView;
 use std::num::NonZeroU64;
 use wgpu::{
-    core::device::{self, queue},
     BindGroup, BindGroupLayout, Color, Device, Extent3d, Operations, Queue,
     RenderPassColorAttachment, SurfaceConfiguration, Texture, TextureView,
 };
 
 pub struct ScreenRenderer {
     generic_uniform_data: GenericUniformData,
-    dynamic_texture: DynamicTexture,
     screen_quad: Box<dyn Primitive>,
 }
 
@@ -60,7 +58,6 @@ impl ScreenRenderer {
             ],
             label: Some("texture_bind_group_layout"),
         });
-        let dynamic_texture = DynamicTexture::new(device, queue, 1080, 1080, &bind_group_layout);
 
         let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 1);
 
@@ -76,7 +73,6 @@ impl ScreenRenderer {
 
         Self {
             generic_uniform_data,
-            dynamic_texture,
             screen_quad,
         }
     }
