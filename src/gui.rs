@@ -1,3 +1,4 @@
+use egui::epaint::Shadow;
 use egui::ViewportId;
 use egui_wgpu::wgpu::TextureFormat;
 use egui_wgpu::{Renderer, ScreenDescriptor};
@@ -41,6 +42,10 @@ impl Gui {
             Some(scale_factor as f32),
             Some(max_texture_size),
         );
+        egui_ctx.style_mut(|style| {
+            style.visuals.window_shadow = Shadow::NONE;
+            style.visuals.popup_shadow = Shadow::NONE
+        });
 
         let screen_descriptor = ScreenDescriptor {
             size_in_pixels: [size.width, size.height],
