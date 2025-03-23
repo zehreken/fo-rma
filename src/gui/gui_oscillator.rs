@@ -2,7 +2,7 @@ use crate::audio::modulated_oscillator::ModulatedOscillator;
 use egui::Color32;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut ModulatedOscillator) {
-    egui::Window::new("sequencer").show(ctx, |ui| {
+    egui::Window::new("oscillator").show(ctx, |ui| {
         ctx.request_repaint();
         ui.colored_label(Color32::RED, "MAIN TAPE ⏺");
         // ui.label(format!("Running: {}", sequencer.is_running));

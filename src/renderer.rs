@@ -142,7 +142,7 @@ impl<'a> Renderer<'a> {
         );
         self.queue.submit(Some(encoder.finish()));
         // ===
-        // ======
+        // post process
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {

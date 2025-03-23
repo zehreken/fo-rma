@@ -10,7 +10,7 @@ impl PostProcessor {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
             source: wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/invert_color.comp.wgsl").into(),
+                include_str!("../shaders/compute/pixelate.comp.wgsl").into(),
             ),
         });
 

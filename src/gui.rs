@@ -1,3 +1,5 @@
+use crate::audio::modulated_oscillator::ModulatedOscillator;
+use crate::audio::sequencer::Sequencer;
 use egui::epaint::Shadow;
 use egui::ViewportId;
 use egui_wgpu::wgpu::TextureFormat;
@@ -11,11 +13,9 @@ use wgpu::{CommandEncoder, Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
-use crate::audio::modulated_oscillator::ModulatedOscillator;
-use crate::audio::sequencer::Sequencer;
-
 pub mod gui_oscillator;
 pub mod gui_sequencer;
+pub mod gui_vfx;
 pub mod top_bar;
 
 pub struct Gui {
@@ -93,7 +93,8 @@ impl Gui {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
             self.top_bar.draw(egui_ctx, fps);
-            gui_sequencer::draw(egui_ctx, sequencer);
+            // gui_sequencer::draw(egui_ctx, sequencer);
+            gui_vfx::draw(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);
