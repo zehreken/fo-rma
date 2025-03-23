@@ -96,7 +96,7 @@ impl Level {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
         self.light
-            .update_position(vec3(2.0 * el.cos(), 0.0, 2.0 * el.sin()));
+            .update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
@@ -120,7 +120,7 @@ fn create_color_material(
 ) -> Material {
     let shader_main = include_str!("../shaders/basic_light.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
-        color: utils::CP1.palette[3].to_vec4(1.0),
+        color: utils::CCP.palette[3].to_vec4(1.0),
     });
 
     create_material(

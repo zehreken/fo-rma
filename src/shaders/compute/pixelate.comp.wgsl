@@ -4,7 +4,7 @@ var img: texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(1)
 var src: texture_2d<f32>;
 
-const PIXEL_SIZE: i32 = 4;
+const PIXEL_SIZE: i32 = 8;
 
 @compute @workgroup_size(8, 8)
 fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {

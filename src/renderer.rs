@@ -172,8 +172,10 @@ impl<'a> Renderer<'a> {
         self.surface.configure(&self.device, &self.surface_config);
         self.depth_texture =
             rendering_utils::create_depth_texture(&self.device, &self.surface_config);
-        // self.offscreen_texture =
-        //     create_test_texture(&self.device, &self.queue, self.texture_format, size);
+        // self.render_texture = create_render_texture(&self.device, &self.texture_format, size);
+        // self.post_process_texture = create_post_process_texture(&self.device, size);
+        // self.render_texture_bind_group =
+        //     create_render_texture_bind_group(&self.device, &self.post_process_texture.1);
         self.gui.resize(size, scale_factor);
     }
 }

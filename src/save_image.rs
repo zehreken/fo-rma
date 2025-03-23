@@ -68,7 +68,7 @@ pub fn save_image(
     // Use an image library to save the data
     use image::{ImageBuffer, Rgba};
 
-    let tightly_packed_data = monochrome_noise(
+    let tightly_packed_data = unprocessed(
         &data,
         width,
         height,
