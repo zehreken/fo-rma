@@ -141,7 +141,7 @@ impl<'a> Renderer<'a> {
             fps,
         );
         self.queue.submit(Some(encoder.finish()));
-
+        // ===
         // ======
         let mut encoder = self
             .device

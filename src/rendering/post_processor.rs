@@ -9,7 +9,9 @@ impl PostProcessor {
     pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/cs_test.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(
+                include_str!("../shaders/compute/invert_color.comp.wgsl").into(),
+            ),
         });
 
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
