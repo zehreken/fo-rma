@@ -1,12 +1,13 @@
-use std::{mem, num::NonZeroU64};
-
-use wgpu::{Device, RenderPipeline, SurfaceCapabilities, SurfaceConfiguration, TextureFormat};
-use winit::dpi::PhysicalSize;
-
 use crate::basics::{
     core::{GenericUniformData, Vertex},
     uniforms::{LightUniform, ObjectUniform},
 };
+use std::{mem, num::NonZeroU64};
+use wgpu::{
+    Device, RenderPipeline, SurfaceCapabilities, SurfaceConfiguration, Texture, TextureFormat,
+    TextureView,
+};
+use winit::dpi::PhysicalSize;
 
 pub fn create_instance_and_surface(
     window: &winit::window::Window,
@@ -91,6 +92,61 @@ pub async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, 
         .await
         .unwrap();
     (device, queue)
+}
+
+pub fn create_render_texture(
+    device: &Device,
+    texture_format: &TextureFormat,
+    size: PhysicalSize<u32>,
+) -> (Texture, TextureView) {
+    let size = wgpu::Extent3d {
+        width: size.width,
+        height: size.height,
+        depth_or_array_layers: 1,
+    };
+    let texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("test_texture"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: *texture_format,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING
+            | wgpu::TextureUsages::RENDER_ATTACHMENT
+            | wgpu::TextureUsages::COPY_SRC,
+        view_formats: &[],
+    });
+
+    let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+    (texture, texture_view)
+}
+
+pub fn create_post_process_texture(
+    device: &Device,
+    size: PhysicalSize<u32>,
+) -> (Texture, TextureView) {
+    let post_process_texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("post_process_texture"),
+        size: wgpu::Extent3d {
+            width: size.width,
+            height: size.height,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8Unorm, // not sRGB!
+        usage: wgpu::TextureUsages::STORAGE_BINDING
+            | wgpu::TextureUsages::TEXTURE_BINDING
+            | wgpu::TextureUsages::RENDER_ATTACHMENT
+            | wgpu::TextureUsages::COPY_SRC,
+        view_formats: &[],
+    });
+
+    let post_process_view = post_process_texture.create_view(&Default::default());
+
+    (post_process_texture, post_process_view)
 }
 
 pub fn create_light_uniform_data(device: &Device) -> GenericUniformData {

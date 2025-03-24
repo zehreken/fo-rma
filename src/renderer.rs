@@ -56,8 +56,8 @@ impl<'a> Renderer<'a> {
 
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
-        let render_texture = create_render_texture(&device, &texture_format, size);
-        let post_process_texture = create_post_process_texture(&device, size);
+        let render_texture = rendering_utils::create_render_texture(&device, &texture_format, size);
+        let post_process_texture = rendering_utils::create_post_process_texture(&device, size);
         // Bind it to the post_processed texture, since that is the one we want to show
         let render_texture_bind_group =
             create_render_texture_bind_group(&device, &post_process_texture.1);
@@ -162,40 +162,19 @@ impl<'a> Renderer<'a> {
         self.surface.configure(&self.device, &self.surface_config);
         self.depth_texture =
             rendering_utils::create_depth_texture(&self.device, &self.surface_config);
-        // self.render_texture = create_render_texture(&self.device, &self.texture_format, size);
-        // self.post_process_texture = create_post_process_texture(&self.device, size);
-        // self.render_texture_bind_group =
-        //     create_render_texture_bind_group(&self.device, &self.post_process_texture.1);
+        self.render_texture =
+            rendering_utils::create_render_texture(&self.device, &self.texture_format, size);
+        self.post_process_texture =
+            rendering_utils::create_post_process_texture(&self.device, size);
+        self.render_texture_bind_group =
+            create_render_texture_bind_group(&self.device, &self.post_process_texture.1);
+        self.post_processor.resize(
+            &self.device,
+            &self.post_process_texture.1,
+            &self.render_texture.1,
+        );
         self.gui.resize(size, scale_factor);
     }
-}
-
-fn create_render_texture(
-    device: &Device,
-    texture_format: &TextureFormat,
-    size: PhysicalSize<u32>,
-) -> (Texture, TextureView) {
-    let size = wgpu::Extent3d {
-        width: size.width,
-        height: size.height,
-        depth_or_array_layers: 1,
-    };
-    let texture = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("test_texture"),
-        size,
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: *texture_format,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING
-            | wgpu::TextureUsages::RENDER_ATTACHMENT
-            | wgpu::TextureUsages::COPY_SRC,
-        view_formats: &[],
-    });
-
-    let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
-
-    (texture, texture_view)
 }
 
 fn create_render_texture_bind_group(
@@ -252,28 +231,4 @@ fn create_render_texture_bind_group(
     });
 
     (bind_group_layout, bind_group)
-}
-
-fn create_post_process_texture(device: &Device, size: PhysicalSize<u32>) -> (Texture, TextureView) {
-    let post_process_texture = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("post_process_texture"),
-        size: wgpu::Extent3d {
-            width: size.width,
-            height: size.height,
-            depth_or_array_layers: 1,
-        },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8Unorm, // not sRGB!
-        usage: wgpu::TextureUsages::STORAGE_BINDING
-            | wgpu::TextureUsages::TEXTURE_BINDING
-            | wgpu::TextureUsages::RENDER_ATTACHMENT
-            | wgpu::TextureUsages::COPY_SRC,
-        view_formats: &[],
-    });
-
-    let post_process_view = post_process_texture.create_view(&Default::default());
-
-    (post_process_texture, post_process_view)
 }
