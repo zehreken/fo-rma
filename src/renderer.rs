@@ -32,6 +32,7 @@ pub struct Renderer<'a> {
     pub generic_uniform_data: GenericUniformData,
     pub light_uniform_data: GenericUniformData,
     texture_format: TextureFormat,
+    size: PhysicalSize<u32>,
 }
 
 impl<'a> Renderer<'a> {
@@ -93,6 +94,7 @@ impl<'a> Renderer<'a> {
             generic_uniform_data,
             light_uniform_data,
             texture_format,
+            size,
         }
     }
 
@@ -118,6 +120,7 @@ impl<'a> Renderer<'a> {
             &self.generic_uniform_data,
             &self.light_uniform_data,
         );
+
         self.line_renderer.render(
             &self.device,
             &self.queue,
@@ -136,7 +139,7 @@ impl<'a> Renderer<'a> {
         );
 
         self.post_processor
-            .run(&self.device, &self.queue, 1080, 1080);
+            .run(&self.device, &self.queue, self.size.width, self.size.height);
 
         let output_view = output_frame
             .texture
@@ -147,12 +150,13 @@ impl<'a> Renderer<'a> {
             &output_view,
             &self.render_texture_bind_group.1,
         );
-
         output_frame.present();
+
         Ok(())
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>, scale_factor: f64) {
+        self.size = size;
         self.surface_config.width = size.width;
         self.surface_config.height = size.height;
         self.surface.configure(&self.device, &self.surface_config);
