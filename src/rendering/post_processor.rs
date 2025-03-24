@@ -1,4 +1,4 @@
-use wgpu::{BindGroup, CommandEncoder, ComputePipeline, Device, TextureView};
+use wgpu::{BindGroup, CommandEncoder, ComputePipeline, Device, Queue, TextureView};
 
 pub struct PostProcessor {
     compute_pipeline: ComputePipeline,
@@ -76,7 +76,11 @@ impl PostProcessor {
         }
     }
 
-    pub fn run(&self, encoder: &mut CommandEncoder, width: u32, height: u32) {
+    pub fn run(&self, device: &Device, queue: &Queue, width: u32, height: u32) {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("post_process_encoder"),
+        });
+
         let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
             label: Some("post_process_compute"),
             timestamp_writes: None,
@@ -85,5 +89,9 @@ impl PostProcessor {
         compute_pass.set_pipeline(&self.compute_pipeline);
         compute_pass.set_bind_group(0, &self.bind_group, &[]);
         compute_pass.dispatch_workgroups((width + 7) / 8, (height + 7) / 8, 1);
+
+        drop(compute_pass);
+
+        queue.submit(Some(encoder.finish()));
     }
 }

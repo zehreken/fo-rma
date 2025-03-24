@@ -125,32 +125,18 @@ impl<'a> Renderer<'a> {
             &self.render_texture.1,
             level,
         );
-        // gui
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("gui_renderer_encoder"),
-            });
+
         self.gui.render(
             window,
             &self.render_texture.1,
             &self.device,
             &self.queue,
-            &mut encoder,
             sequencer,
             fps,
         );
-        self.queue.submit(Some(encoder.finish()));
-        // ===
-        // post process
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("post_process_encoder"),
-            });
-        self.post_processor.run(&mut encoder, 1080, 1080);
-        self.queue.submit(Some(encoder.finish()));
-        // ======
+
+        self.post_processor
+            .run(&self.device, &self.queue, 1080, 1080);
 
         let output_view = output_frame
             .texture

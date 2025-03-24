@@ -86,7 +86,6 @@ impl Gui {
         render_target: &wgpu::TextureView,
         device: &Device,
         queue: &Queue,
-        encoder: &mut CommandEncoder,
         sequencer: &mut Sequencer,
         fps: f32,
     ) {
@@ -109,34 +108,41 @@ impl Gui {
             self.renderer
                 .update_texture(device, queue, *id, image_delta);
         }
+
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("gui_renderer_encoder"),
+        });
         self.renderer.update_buffers(
             device,
             queue,
-            encoder,
+            &mut encoder,
             &self.paint_jobs,
             &self.screen_descriptor,
         );
 
         // Render egui with WGPU
-        {
-            let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("egui"),
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: render_target,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Load,
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: None,
-                ..Default::default()
-            });
+        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("egui"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: render_target,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Load,
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            ..Default::default()
+        });
 
-            self.renderer
-                .render(&mut rpass, &self.paint_jobs, &self.screen_descriptor);
-        }
-        // dropping rpass here
+        self.renderer
+            .render(&mut render_pass, &self.paint_jobs, &self.screen_descriptor);
+
+        // dropping render_pass here
+        drop(render_pass);
+
+        queue.submit(Some(encoder.finish()));
+
         let textures = std::mem::take(&mut self.textures);
         for id in &textures.free {
             self.renderer.free_texture(id);
