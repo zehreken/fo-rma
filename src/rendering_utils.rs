@@ -4,8 +4,8 @@ use crate::basics::{
 };
 use std::{mem, num::NonZeroU64};
 use wgpu::{
-    Device, RenderPipeline, SurfaceCapabilities, SurfaceConfiguration, Texture, TextureFormat,
-    TextureView,
+    BindGroup, BindGroupLayout, Device, RenderPipeline, SurfaceCapabilities, SurfaceConfiguration,
+    Texture, TextureFormat, TextureView,
 };
 use winit::dpi::PhysicalSize;
 
@@ -363,4 +363,60 @@ pub fn create_debug_uniform_data(
         },
         debug_render_pipeline,
     )
+}
+
+pub fn create_render_texture_bind_group(
+    device: &Device,
+    render_texture: &TextureView,
+) -> (BindGroupLayout, BindGroup) {
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Nearest,
+        mipmap_filter: wgpu::FilterMode::Nearest,
+        ..Default::default()
+    });
+
+    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: Some("texture_bind_group_layout"),
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    multisampled: false,
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                // This should match the filterable field of the
+                // corresponding Texture entry above.
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                count: None,
+            },
+        ],
+    });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("texture_bind_group"),
+        layout: &bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&render_texture),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ],
+    });
+
+    (bind_group_layout, bind_group)
 }
