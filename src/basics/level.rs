@@ -60,7 +60,7 @@ impl Level {
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
-            let mut sphere = Sphere::new(
+            let mut sphere = Cube::new(
                 &device,
                 create_color_material(
                     device,

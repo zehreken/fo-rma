@@ -116,7 +116,7 @@ fn unprocessed(
             // if bgra_to_rgba {
             //     pixel.swap(0, 2);
             // }
-            // pixel = utils::srgb_encode(pixel).to_vec();
+            pixel = utils::srgb_encode(pixel).to_vec();
 
             tightly_packed_data.extend_from_slice(&pixel);
         }
