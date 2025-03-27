@@ -121,25 +121,25 @@ impl<'a> Renderer<'a> {
             &self.light_uniform_data,
         );
 
+        // self.gui.render(
+        //     window,
+        //     &self.render_texture.1,
+        //     &self.device,
+        //     &self.queue,
+        //     sequencer,
+        //     fps,
+        // );
+
+        self.post_processor
+            .run(&self.device, &self.queue, self.size.width, self.size.height);
+
         self.line_renderer.render(
             &self.device,
             &self.queue,
             &self.depth_texture,
-            &self.render_texture.1,
+            &self.post_process_texture.1,
             level,
         );
-
-        self.gui.render(
-            window,
-            &self.render_texture.1,
-            &self.device,
-            &self.queue,
-            sequencer,
-            fps,
-        );
-
-        self.post_processor
-            .run(&self.device, &self.queue, self.size.width, self.size.height);
 
         let output_view = output_frame
             .texture

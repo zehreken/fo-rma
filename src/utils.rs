@@ -46,6 +46,25 @@ pub fn force_srgb_to_linear<T: Float>(color: [T; 3], gamma: T) -> [T; 3] {
     ]
 }
 
+pub fn srgb_encode(mut color: Vec<u8>) -> Vec<u8> {
+    let threshold = 0.0031308;
+    let linear_scale = 12.92;
+    let gamma = 1.0 / 2.4;
+    let a = 1.055;
+    let b = 0.055;
+    for i in 0..3 {
+        let linear = (color[i] as f32 / 255.0).clamp(0.0, 1.0);
+        let srgb: f32 = if linear <= threshold {
+            linear * linear_scale
+        } else {
+            a * linear.powf(gamma) - b
+        };
+        color[i] = (srgb * 255.0).round() as u8;
+    }
+
+    color
+}
+
 pub trait ToVec4 {
     fn to_vec4(self, fill: f32) -> [f32; 4];
 }
@@ -141,4 +160,4 @@ pub const CP8: ColorPalette<f32, 4> = ColorPalette {
     ],
 };
 
-pub const CCP: ColorPalette<f32, 4> = CP6;
+pub const CCP: ColorPalette<f32, 4> = CP8;

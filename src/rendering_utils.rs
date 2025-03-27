@@ -326,7 +326,8 @@ pub fn create_debug_uniform_data(
             module: &debug_shader,
             entry_point: "fs_main",
             targets: &[Some(wgpu::ColorTargetState {
-                format: surface_config.format,
+                // format: surface_config.format,
+                format: TextureFormat::Rgba8Unorm,
                 blend: Some(wgpu::BlendState::REPLACE),
                 write_mask: wgpu::ColorWrites::ALL,
             })],
