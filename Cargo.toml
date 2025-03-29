@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 cfg-if = "1"
 winit = "0.29"
+winit_input_helper = "0.16.0"
 env_logger = "0.11"
 log = "0.4"
 wgpu = "0.19"

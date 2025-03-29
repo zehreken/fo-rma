@@ -1,7 +1,7 @@
 use glam::{Mat4, Vec3};
 use winit::dpi::PhysicalSize;
 
-const DIST: f32 = 0.01;
+const DIST: f32 = 0.1;
 
 pub struct Camera {
     pub eye: Vec3,
@@ -46,9 +46,13 @@ impl Camera {
         return (proj * view).to_cols_array_2d();
     }
 
-    pub fn update_position(&mut self, position: Vec3) {
+    pub fn set_position(&mut self, position: Vec3) {
         self.eye = position;
     }
+
+    pub fn update(&mut self) {}
+
+    pub fn reset(&mut self) {}
 
     pub fn move_x(&mut self, plus: bool) {
         self.eye.x += if plus { DIST } else { -DIST };
