@@ -18,7 +18,7 @@ use crate::utils::{self, ToVec4};
 pub struct Level {
     pub camera: Camera,
     pub objects: Vec<Box<dyn Primitive>>,
-    pub light: Light,
+    pub lights: Vec<Light>,
     elapsed: f32,
 }
 
@@ -83,11 +83,12 @@ impl Level {
 
         let mut light = Light::new([1.0, 1.0, 1.0]);
         light.update_position(vec3(2.0, 0.0, 2.0));
+        let lights = vec![light];
 
         Self {
             camera,
             objects,
-            light,
+            lights,
             elapsed: 0.0,
         }
     }
@@ -95,8 +96,7 @@ impl Level {
     pub fn update(&mut self, delta_time: f32, signal: f32, show_beat: bool) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.light
-            .update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
+        self.lights[0].update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));

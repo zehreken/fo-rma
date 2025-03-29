@@ -75,8 +75,8 @@ impl FillRenderer {
 
         let light_data = light_uniform_data;
         let light_uniform = LightUniform {
-            position: level.light.transform.position.extend(0.0).to_array(),
-            color: level.light.color.to_vec4(1.0),
+            position: level.lights[0].transform.position.extend(0.0).to_array(),
+            color: level.lights[0].color.to_vec4(1.0),
         };
 
         for (i, primitive) in level.objects.iter().enumerate() {
