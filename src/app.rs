@@ -119,18 +119,10 @@ pub async fn start() {
     let window = create_window(size, &event_loop);
     let app = App::new(&window).await;
 
-    run_event_loop(event_loop, app);
+    let r = run_event_loop(event_loop, app);
 }
 
 fn run_event_loop(event_loop: EventLoop<()>, mut app: App) -> Result<(), EventLoopError> {
-    let init = [0.0; 60];
-    let mut rolling_frame_times = VecDeque::from(init);
-    let mut earlier = Instant::now();
-    let mut elapsed: f32 = 0.0;
-
-    const TARGET_FPS: u64 = 60;
-    const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / TARGET_FPS);
-
     let mut modifiers = winit::keyboard::ModifiersState::empty();
 
     event_loop.run(move |event, elwt| match event {
