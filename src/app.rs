@@ -21,12 +21,10 @@ pub struct App<'a> {
     // it gets dropped after it as the surface contains
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
-    // renderer: renderer::Renderer<'a>,
     renderer: renderer::Renderer<'a>,
     pub level: Level,
     audio_model: AudioModel,
     signal_peak: f32,
-    init: [f32; 60],
     rolling_frame_times: VecDeque<f32>,
     earlier: Instant,
     elapsed: f32,
@@ -56,7 +54,6 @@ impl<'a> App<'a> {
             level,
             audio_model,
             signal_peak: 0.0,
-            init: [0.0; 60],
             rolling_frame_times: VecDeque::from([0.0; 60]),
             earlier: Instant::now(),
             elapsed: 0.0,
