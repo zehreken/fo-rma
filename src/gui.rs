@@ -1,4 +1,3 @@
-use crate::audio::modulated_oscillator::ModulatedOscillator;
 use crate::audio::sequencer::Sequencer;
 use egui::epaint::Shadow;
 use egui::ViewportId;
@@ -9,7 +8,7 @@ use egui_winit::{
     State,
 };
 use top_bar::TopBar;
-use wgpu::{CommandEncoder, Device, Queue};
+use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
@@ -51,7 +50,7 @@ impl Gui {
             size_in_pixels: [size.width, size.height],
             pixels_per_point: scale_factor as f32,
         };
-        let renderer = Renderer::new(device, texture_format, None, 1);
+        let renderer = Renderer::new(device, TextureFormat::Rgba8Unorm, None, 1);
         let textures = TexturesDelta::default();
 
         let top_bar = TopBar::new();
