@@ -5,11 +5,15 @@ use std::{
 };
 use winit::{
     dpi::{PhysicalSize, Size},
+    error::EventLoopError,
     event::{ElementState, Event, KeyEvent, WindowEvent},
     event_loop::{EventLoop, EventLoopWindowTarget},
     keyboard::{KeyCode, ModifiersState, PhysicalKey},
     window::{Window, WindowBuilder},
 };
+
+const TARGET_FPS: u64 = 60;
+const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / TARGET_FPS);
 
 pub struct App<'a> {
     size: winit::dpi::PhysicalSize<u32>,
@@ -22,6 +26,10 @@ pub struct App<'a> {
     pub level: Level,
     audio_model: AudioModel,
     signal_peak: f32,
+    init: [f32; 60],
+    rolling_frame_times: VecDeque<f32>,
+    earlier: Instant,
+    elapsed: f32,
 }
 
 impl<'a> App<'a> {
@@ -48,6 +56,10 @@ impl<'a> App<'a> {
             level,
             audio_model,
             signal_peak: 0.0,
+            init: [0.0; 60],
+            rolling_frame_times: VecDeque::from([0.0; 60]),
+            earlier: Instant::now(),
+            elapsed: 0.0,
         }
     }
 
@@ -63,7 +75,42 @@ impl<'a> App<'a> {
         todo!()
     }
 
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        let delta_time = std::time::Instant::now()
+            .duration_since(self.earlier)
+            .as_secs_f32();
+        self.elapsed += delta_time;
+        self.earlier = std::time::Instant::now();
+        self.rolling_frame_times.pop_front();
+        self.rolling_frame_times.push_back(delta_time);
+        let fps = calculate_fps(&self.rolling_frame_times);
+        let signal = self.audio_model.get_signal();
+        if signal > self.signal_peak {
+            self.signal_peak = signal;
+        }
+        self.level
+            .update(delta_time, 1.0, self.audio_model.show_beat());
+        let _ = self.renderer.render(
+            self.window,
+            &self.level,
+            &mut self.audio_model.get_sequencers()[0],
+            fps,
+        );
+        self.signal_peak = (self.signal_peak - 0.05).max(0.0);
+
+        self.audio_model.update();
+
+        #[cfg(not(target_os = "macos"))]
+        {
+            let frame_duration = last_frame_time.elapsed();
+            if frame_duration < FRAME_TIME {
+                std::thread::sleep(FRAME_TIME - frame_duration);
+            }
+            last_frame_time = Instant::now();
+        }
+
+        self.window.request_redraw();
+    }
 }
 
 pub async fn start() {
@@ -78,7 +125,7 @@ pub async fn start() {
     run_event_loop(event_loop, app);
 }
 
-fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
+fn run_event_loop(event_loop: EventLoop<()>, mut app: App) -> Result<(), EventLoopError> {
     let init = [0.0; 60];
     let mut rolling_frame_times = VecDeque::from(init);
     let mut earlier = Instant::now();
@@ -86,11 +133,10 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
 
     const TARGET_FPS: u64 = 60;
     const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / TARGET_FPS);
-    let mut last_frame_time = Instant::now();
 
     let mut modifiers = winit::keyboard::ModifiersState::empty();
 
-    let r = event_loop.run(move |event, elwt| match event {
+    event_loop.run(move |event, elwt| match event {
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,
@@ -113,54 +159,13 @@ fn run_event_loop(event_loop: EventLoop<()>, mut app: App) {
             event: WindowEvent::RedrawRequested,
             ..
         } => {
-            let delta_time = std::time::Instant::now()
-                .duration_since(earlier)
-                .as_secs_f32();
-            elapsed += delta_time;
-            earlier = std::time::Instant::now();
-            rolling_frame_times.pop_front();
-            rolling_frame_times.push_back(delta_time);
-            let fps = calculate_fps(&rolling_frame_times);
-            let signal = app.audio_model.get_signal();
-            if signal > app.signal_peak {
-                app.signal_peak = signal;
-            }
-            app.level
-                .update(delta_time, 1.0, app.audio_model.show_beat());
-            // let _ = app.renderer.render(
-            //     &app.window,
-            //     &app.level,
-            //     elapsed,
-            //     delta_time,
-            //     fps,
-            //     &mut app.audio_model.get_sequencers()[0],
-            // );
-            let _ = app.renderer.render(
-                app.window,
-                &app.level,
-                &mut app.audio_model.get_sequencers()[0],
-                fps,
-            );
-            app.signal_peak = (app.signal_peak - 0.05).max(0.0);
-
-            app.audio_model.update();
-
-            #[cfg(not(target_os = "macos"))]
-            {
-                let frame_duration = last_frame_time.elapsed();
-                if frame_duration < FRAME_TIME {
-                    std::thread::sleep(FRAME_TIME - frame_duration);
-                }
-                last_frame_time = Instant::now();
-            }
-
-            app.window.request_redraw();
+            app.update();
         }
         Event::WindowEvent { event, .. } => {
             app.renderer.gui.handle_event(&app.window, &event);
         }
         _ => {}
-    });
+    })
 }
 
 fn create_window(size: Size, event_loop: &EventLoop<()>) -> winit::window::Window {
