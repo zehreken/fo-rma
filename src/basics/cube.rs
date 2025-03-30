@@ -72,12 +72,12 @@ impl Primitive for Cube {
     fn update(&mut self, delta_time: f32) {
         // self.state.update(delta_time);
         // self.state.set_position(vec3(0.5, 0.1, -1.9));
-        let rotation_x = Quat::from_rotation_x(delta_time * 0.3);
-        let rotation_y = Quat::from_rotation_y(delta_time * 0.2);
-        let rotation_z = Quat::from_rotation_z(delta_time * 0.1);
+        // let rotation_x = Quat::from_rotation_x(delta_time * 0.3);
+        // let rotation_y = Quat::from_rotation_y(delta_time * 0.2);
+        // let rotation_z = Quat::from_rotation_z(delta_time * 0.1);
 
-        self.state.transform.rotation =
-            self.state.transform.rotation * rotation_x * rotation_y * rotation_z;
+        // self.state.transform.rotation =
+        //     self.state.transform.rotation * rotation_x * rotation_y * rotation_z;
 
         self.state.model_matrix = Mat4::from_scale_rotation_translation(
             self.state.transform.scale,

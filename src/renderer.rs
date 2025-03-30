@@ -13,7 +13,7 @@ use wgpu::{
     Texture, TextureFormat, TextureView,
 };
 use winit::{dpi::PhysicalSize, window::Window};
-pub const PRIMITIVE_COUNT: u64 = 25;
+pub const PRIMITIVE_COUNT: u64 = 27;
 
 pub struct Renderer<'a> {
     pub surface: Surface<'a>,
@@ -121,13 +121,13 @@ impl<'a> Renderer<'a> {
             &self.light_uniform_data,
         );
 
-        self.line_renderer.render(
-            &self.device,
-            &self.queue,
-            &self.depth_texture,
-            &self.render_texture.1,
-            level,
-        );
+        // self.line_renderer.render(
+        //     &self.device,
+        //     &self.queue,
+        //     &self.depth_texture,
+        //     &self.render_texture.1,
+        //     level,
+        // );
 
         self.post_processor
             .run(&self.device, &self.queue, self.size.width, self.size.height);

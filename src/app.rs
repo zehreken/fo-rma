@@ -34,9 +34,7 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
-        // let renderer = renderer::Renderer::new(window).await;
         let renderer = renderer::Renderer::new(window).await;
-        // let init = vec![0.0; 60];
 
         let level = Level::new(
             &renderer.device,

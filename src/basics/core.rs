@@ -54,9 +54,9 @@ impl Transform {
     pub fn rotate(&mut self, euler_angles: Vec3) {
         let rotation = Quat::from_euler(
             glam::EulerRot::XYZ,
-            euler_angles.x,
-            euler_angles.y,
-            euler_angles.z,
+            euler_angles.x.to_radians(),
+            euler_angles.y.to_radians(),
+            euler_angles.z.to_radians(),
         );
 
         self.rotation *= rotation;

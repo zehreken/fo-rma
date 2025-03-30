@@ -69,11 +69,60 @@ impl Level {
                     light_uniform_data,
                 ),
             );
-            let x = (-4 + i % 5 * 2) as f32;
-            let y = (-4 + i / 5 * 2) as f32;
-            sphere.state.set_position(Vec3 { x, y, z: 0.0 });
+            let x = (-8 + i % 5 * 4) as f32;
+            let z = (-8 + i / 5 * 4) as f32;
+            sphere.state.set_position(Vec3 { x, y: 0.0, z });
+            sphere.state.scale(Vec3 {
+                x: 1.0,
+                y: 6.0,
+                z: 1.0,
+            });
             objects.push(Box::new(sphere));
         }
+
+        let mut quad = Quad::new(device, color_material);
+        quad.state.set_position(Vec3 {
+            x: 0.0,
+            y: -3.0,
+            z: 0.0,
+        });
+        quad.state.rotate(Vec3 {
+            x: -90.0,
+            y: 0.0,
+            z: 0.0,
+        });
+        quad.state.scale(Vec3 {
+            x: 100.0,
+            y: 100.0,
+            z: 100.0,
+        });
+        objects.push(Box::new(quad));
+
+        let mut quad = Quad::new(
+            device,
+            create_color_material(
+                device,
+                surface_config,
+                generic_uniform_data,
+                light_uniform_data,
+            ),
+        );
+        quad.state.set_position(Vec3 {
+            x: 0.0,
+            y: 3.0,
+            z: 0.0,
+        });
+        quad.state.rotate(Vec3 {
+            x: 90.0,
+            y: 0.0,
+            z: 0.0,
+        });
+        quad.state.scale(Vec3 {
+            x: 100.0,
+            y: 100.0,
+            z: 100.0,
+        });
+        objects.push(Box::new(quad));
 
         // let objects: Vec<Box<dyn Primitive>> = vec![
         //     Box::new(Sphere::new(renderer, color_material)),
@@ -82,7 +131,7 @@ impl Level {
         // ];
 
         let mut light = Light::new([1.0, 1.0, 1.0]);
-        light.update_position(vec3(2.0, 0.0, 2.0));
+        light.update_position(vec3(10.0, 0.0, 7.0));
         let lights = vec![light];
 
         Self {
@@ -96,7 +145,7 @@ impl Level {
     pub fn update(&mut self, delta_time: f32, signal: f32, show_beat: bool) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.lights[0].update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
+        // self.lights[0].update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));

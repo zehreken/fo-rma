@@ -20,7 +20,7 @@ const INDICES: &[u16] = &[
 ];
 
 pub struct Quad {
-    state: PrimitiveState,
+    pub state: PrimitiveState,
 }
 
 impl Quad {
@@ -41,13 +41,13 @@ impl Primitive for Quad {
     fn update(&mut self, delta_time: f32) {
         // self.state.update(delta_time);
 
-        let mut rotation = self.state.transform.rotation.to_euler(glam::EulerRot::XYZ);
-        rotation.1 = 0.0;
-        self.state.transform.rotation =
-            Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
+        // let mut rotation = self.state.transform.rotation.to_euler(glam::EulerRot::XYZ);
+        // rotation.1 = 0.0;
+        // self.state.transform.rotation =
+        //     Quat::from_euler(EulerRot::XYZ, rotation.0, rotation.1, rotation.2);
 
-        self.state.transform.scale = vec3(5.0, 5.0, 5.0);
-        self.state.transform.position = vec3(0.0, 0.0, -3.5);
+        // self.state.transform.scale = vec3(5.0, 5.0, 5.0);
+        // self.state.transform.position = vec3(0.0, 0.0, -3.5);
 
         self.state.model_matrix = Mat4::from_scale_rotation_translation(
             self.state.transform.scale,
