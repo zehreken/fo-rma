@@ -4,13 +4,12 @@ use crate::{
         level::Level,
         uniforms::{LightUniform, ObjectUniform},
     },
-    rendering_utils,
     utils::{self, ToVec4},
 };
 use std::mem;
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
-    RenderPassDescriptor, StoreOp, SurfaceConfiguration, TextureView,
+    RenderPassDescriptor, StoreOp, TextureView,
 };
 
 const BG_COLOR: [f32; 3] = utils::CCP.palette[0];

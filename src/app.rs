@@ -84,15 +84,15 @@ impl<'a> App<'a> {
         if signal > self.signal_peak {
             self.signal_peak = signal;
         }
+        self.signal_peak = (self.signal_peak - 0.05).max(0.0);
         self.level
-            .update(delta_time, 1.0, self.audio_model.show_beat());
+            .update(delta_time, self.signal_peak, self.audio_model.show_beat());
         let _ = self.renderer.render(
             self.window,
             &self.level,
             &mut self.audio_model.get_sequencers()[0],
             fps,
         );
-        self.signal_peak = (self.signal_peak - 0.05).max(0.0);
 
         self.audio_model.update();
 

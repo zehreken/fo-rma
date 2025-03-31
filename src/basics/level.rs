@@ -60,9 +60,9 @@ impl Level {
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
-            let mut sphere = Cube::new(
+            let mut cube = Cube::new(
                 &device,
-                create_color_material(
+                create_equalizer_material(
                     device,
                     surface_config,
                     generic_uniform_data,
@@ -71,13 +71,13 @@ impl Level {
             );
             let x = (-8 + i % 5 * 4) as f32;
             let z = (-8 + i / 5 * 4) as f32;
-            sphere.state.set_position(Vec3 { x, y: 0.0, z });
-            sphere.state.scale(Vec3 {
+            cube.state.set_position(Vec3 { x, y: 0.0, z });
+            cube.state.scale(Vec3 {
                 x: 1.0,
                 y: 6.0,
                 z: 1.0,
             });
-            objects.push(Box::new(sphere));
+            objects.push(Box::new(cube));
         }
 
         let mut quad = Quad::new(device, color_material);
