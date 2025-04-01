@@ -1,5 +1,4 @@
 use crate::audio::sequencer::Sequencer;
-use egui::Color32;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
     egui::Window::new("oscillator").show(ctx, |ui| {
@@ -16,10 +15,7 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
         let mut vco_frequency = sequencer.get_frequency();
         ui.horizontal(|ui| {
             ui.label("vco: ");
-            ui.add(egui::widgets::Slider::new(
-                &mut vco_frequency,
-                200.0..=8_000.0,
-            ));
+            ui.add(egui::widgets::Slider::new(&mut vco_frequency, 10.0..=400.0));
         });
         sequencer.set_frequency(vco_frequency);
         // lfo freq

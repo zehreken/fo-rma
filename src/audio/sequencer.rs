@@ -82,7 +82,7 @@ impl Sequencer {
             self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
         }
 
-        // value *= self.ramp;
+        value *= self.ramp;
         value *= self.volume;
 
         value
