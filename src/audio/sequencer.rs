@@ -1,7 +1,6 @@
-use kopek::oscillator::WaveType;
-
 use super::modulated_oscillator::ModulatedOscillator;
 use crate::basics::core::clamp;
+use kopek::oscillator::WaveType;
 
 pub struct Sequencer {
     pub is_running: bool,
@@ -108,6 +107,10 @@ impl Sequencer {
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
         self.oscillator.set_vco_wave_type(wave_type);
+    }
+
+    pub fn get_vco_wave_type(&mut self) -> WaveType {
+        self.oscillator.get_vco_wave_type()
     }
 
     pub fn get_lfo_frequency(&self) -> f32 {

@@ -1,14 +1,6 @@
+use crate::basics::core::clamp;
 use kopek::{noise::Noise, oscillator::*, utils::C_FREQ};
 use ringbuf::{HeapConsumer, HeapProducer};
-
-use crate::basics::core::clamp;
-
-pub enum WaveType {
-    Sine,
-    Sawtooth,
-    Square,
-    Triangle,
-}
 
 pub enum NoiseType {
     None,
@@ -59,7 +51,7 @@ impl Generator {
                 let mut value = match self.oscillator_type {
                     WaveType::Sine => self.oscillator.sine(),
                     WaveType::Sawtooth => self.oscillator.sawtooth(),
-                    WaveType::Square => self.oscillator.square(0.5),
+                    WaveType::Square { duty } => self.oscillator.square(duty),
                     WaveType::Triangle => self.oscillator.triangle(),
                 };
                 value += 0.5
@@ -95,7 +87,7 @@ impl Generator {
                     } else if osc == 1 {
                         self.oscillator_type = WaveType::Sawtooth;
                     } else if osc == 2 {
-                        self.oscillator_type = WaveType::Square;
+                        self.oscillator_type = WaveType::Square { duty: 0.5 };
                     } else if osc == 3 {
                         self.oscillator_type = WaveType::Triangle;
                     }

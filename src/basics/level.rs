@@ -60,15 +60,22 @@ impl Level {
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
-            let mut cube = Cube::new(
-                &device,
+            let material = if i == 12 {
                 create_equalizer_material(
                     device,
                     surface_config,
                     generic_uniform_data,
                     light_uniform_data,
-                ),
-            );
+                )
+            } else {
+                create_color_material(
+                    device,
+                    surface_config,
+                    generic_uniform_data,
+                    light_uniform_data,
+                )
+            };
+            let mut cube = Cube::new(&device, material);
             let x = (-8 + i % 5 * 4) as f32;
             let z = (-8 + i / 5 * 4) as f32;
             cube.state.set_position(Vec3 { x, y: 0.0, z });
@@ -131,7 +138,7 @@ impl Level {
         // ];
 
         let mut light = Light::new([1.0, 1.0, 1.0]);
-        light.update_position(vec3(10.0, 0.0, 7.0));
+        light.update_position(vec3(0.0, 1.0, 0.0));
         let lights = vec![light];
 
         Self {

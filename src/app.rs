@@ -6,9 +6,9 @@ use std::{
 use winit::{
     dpi::{PhysicalSize, Size},
     error::EventLoopError,
-    event::{ElementState, Event, KeyEvent, WindowEvent},
-    event_loop::{EventLoop, EventLoopWindowTarget},
-    keyboard::{KeyCode, ModifiersState, PhysicalKey},
+    event::{Event, WindowEvent},
+    event_loop::EventLoop,
+    keyboard::KeyCode,
     window::{Window, WindowBuilder},
 };
 use winit_input_helper::WinitInputHelper;

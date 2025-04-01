@@ -38,6 +38,10 @@ impl ModulatedOscillator {
         self.vco.set_wave_type(wave_type);
     }
 
+    pub fn get_vco_wave_type(&mut self) -> WaveType {
+        self.vco.get_wave_type()
+    }
+
     pub fn get_lfo_frequency(&self) -> f32 {
         self.lfo.get_frequency()
     }
