@@ -1,5 +1,5 @@
 use super::modulated_oscillator::ModulatedOscillator;
-use crate::basics::core::clamp;
+use crate::{audio::envelope::Envelope, basics::core::clamp};
 use kopek::oscillator::WaveType;
 
 pub struct Sequencer {
@@ -8,14 +8,16 @@ pub struct Sequencer {
     // vco: VCO,
     // lfo: LFO,
     beat_index: u32,
+    prev_beat_index: u32,
     length: u8,
     freq: f32,
     sequence: Vec<f32>,
     tick_period: f32,
-    beat_period: f32,
+    beat_duration: f32,
     is_beat: bool,
     volume: f32,
     ramp: f32,
+    envelope: Envelope,
 }
 
 impl Sequencer {
@@ -39,20 +41,22 @@ impl Sequencer {
             // vco,
             // lfo,
             beat_index: 0,
+            prev_beat_index: 0,
             length: sequence.len() as u8,
             freq: sequence[0],
             sequence,
             tick_period,
-            beat_period: beat_duration,
+            beat_duration,
             is_beat: false,
             volume: 0.1,
             ramp: 0.0,
+            envelope: Envelope::new(0.5, 0.1, 0.2, 0.2),
         }
     }
 
     pub fn update(&mut self, elapsed_samples: u32) -> f32 {
         let remainder = elapsed_samples % self.tick_period as u32;
-        self.is_beat = remainder > 0 && remainder < self.beat_period as u32;
+        self.is_beat = remainder > 0 && remainder < self.beat_duration as u32;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
         const TEMP_OCTAVE: u8 = 2u8.pow(4);
@@ -63,7 +67,6 @@ impl Sequencer {
             self.sequence[step_index] - self.sequence[step_index - 1] / 50.0
         };
 
-        let mut value = 0.0;
         // Ramp between steps
         // if self.freq != self.freqs[step_index] {
         //     self.freq += freq_diff;
@@ -72,16 +75,26 @@ impl Sequencer {
         self.freq = self.sequence[step_index];
         // self.oscillator
         //     .set_frequency(self.freq * TEMP_OCTAVE as f32);
-        value = self.oscillator.run();
+        let mut value = self.oscillator.run();
 
         // Ramp between volumes
-        if self.is_beat && self.ramp < 1.0 {
-            self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
-        } else if !self.is_beat && self.ramp > 0.0 {
-            self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
+        // if self.is_beat && self.ramp < 1.0 {
+        //     self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
+        // } else if !self.is_beat && self.ramp > 0.0 {
+        //     self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
+        // }
+        if self.prev_beat_index != self.beat_index {
+            self.prev_beat_index = self.beat_index;
+            self.envelope.reset();
         }
+        const DELTA_TIME: f32 = 1 as f32 / 44100 as f32;
+        let envelope = self.envelope.update(DELTA_TIME);
+        // if envelope > 0.0 {
+        //     println!("{:?}", envelope);
+        // }
+        value *= envelope;
 
-        value *= self.ramp;
+        // value *= self.ramp;
         value *= self.volume;
 
         value

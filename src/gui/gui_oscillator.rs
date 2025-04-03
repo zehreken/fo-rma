@@ -1,4 +1,5 @@
 use crate::audio::sequencer::Sequencer;
+use cpal::FromSample;
 use kopek::oscillator::WaveType;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
@@ -28,14 +29,17 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
         sequencer.set_lfo_frequency(lfo_frequency);
 
         let mut selected: WaveType = sequencer.get_vco_wave_type();
-        egui::ComboBox::from_label("Wave type")
-            .selected_text(format!("{:?}", selected))
-            .show_ui(ui, |ui| {
-                ui.selectable_value(&mut selected, WaveType::Sine, "Sine");
-                ui.selectable_value(&mut selected, WaveType::Triangle, "Triangle");
-                ui.selectable_value(&mut selected, WaveType::Square { duty: 0.5 }, "Square");
-                ui.selectable_value(&mut selected, WaveType::Sawtooth, "Sawtooth")
-            });
+        ui.horizontal(|ui| {
+            ui.label("wave type: ");
+            egui::ComboBox::from_label("")
+                .selected_text(format!("{:?}", selected))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut selected, WaveType::Sine, "Sine");
+                    ui.selectable_value(&mut selected, WaveType::Triangle, "Triangle");
+                    ui.selectable_value(&mut selected, WaveType::Square { duty: 0.5 }, "Square");
+                    ui.selectable_value(&mut selected, WaveType::Sawtooth, "Sawtooth")
+                });
+        });
         if selected != sequencer.get_vco_wave_type() {
             sequencer.set_vco_wave_type(selected);
         }
