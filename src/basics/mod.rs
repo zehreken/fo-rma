@@ -1,11 +1,11 @@
 pub mod camera;
 pub mod core;
 pub mod cube;
-pub mod level;
 pub mod light;
 pub mod material;
 pub mod primitive;
 pub mod quad;
+pub mod scene;
 pub mod shader_data;
 pub mod sphere;
 pub mod triangle;

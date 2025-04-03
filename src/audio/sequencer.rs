@@ -50,7 +50,7 @@ impl Sequencer {
             is_beat: false,
             volume: 0.1,
             ramp: 0.0,
-            envelope: Envelope::new(0.5, 0.1, 0.2, 0.2),
+            envelope: Envelope::new(0.1, 0.1, 0.2, 0.1),
         }
     }
 

@@ -1,7 +1,7 @@
 use std::mem;
 
 use crate::{
-    basics::{core::GenericUniformData, level::Level, uniforms::ObjectUniform},
+    basics::{core::GenericUniformData, scene::Scene, uniforms::ObjectUniform},
     renderer, rendering_utils,
 };
 use wgpu::{
@@ -33,7 +33,7 @@ impl LineRenderer {
         queue: &Queue,
         depth_texture: &TextureView,
         output_view: &TextureView,
-        level: &Level,
+        level: &Scene,
     ) {
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("line_renderer_encoder"),

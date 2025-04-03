@@ -1,7 +1,7 @@
 use crate::{
     basics::{
         core::GenericUniformData,
-        level::Level,
+        scene::Scene,
         uniforms::{LightUniform, ObjectUniform},
     },
     utils::{self, ToVec4},
@@ -27,7 +27,7 @@ impl FillRenderer {
         queue: &Queue,
         depth_texture: &TextureView,
         output_view: &TextureView,
-        level: &Level,
+        level: &Scene,
         generic_uniform_data: &GenericUniformData,
         light_uniform_data: &GenericUniformData,
     ) {

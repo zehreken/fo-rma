@@ -1,6 +1,6 @@
 use crate::{
     audio::sequencer::Sequencer,
-    basics::{core::GenericUniformData, level::Level},
+    basics::{core::GenericUniformData, scene::Scene},
     gui::Gui,
     rendering::{
         fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
@@ -101,7 +101,7 @@ impl<'a> Renderer<'a> {
     pub fn render(
         &mut self,
         window: &Window,
-        level: &Level,
+        level: &Scene,
         sequencer: &mut Sequencer,
         fps: f32,
     ) -> Result<(), SurfaceError> {

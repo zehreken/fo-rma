@@ -15,14 +15,14 @@ use super::{
 };
 use crate::utils::{self, ToVec4};
 
-pub struct Level {
+pub struct Scene {
     pub camera: Camera,
     pub objects: Vec<Box<dyn Primitive>>,
     pub lights: Vec<Light>,
     elapsed: f32,
 }
 
-impl Level {
+impl Scene {
     pub fn new(
         device: &Device,
         surface_config: &SurfaceConfiguration,
