@@ -96,14 +96,15 @@ impl<'a> App<'a> {
 
         self.audio_model.update();
 
-        #[cfg(not(target_os = "macos"))]
-        {
-            let frame_duration = last_frame_time.elapsed();
-            if frame_duration < FRAME_TIME {
-                std::thread::sleep(FRAME_TIME - frame_duration);
-            }
-            last_frame_time = Instant::now();
-        }
+        // #[cfg(not(target_os = "macos"))]
+        // {
+        //     let mut last_frame_time = Instant::now()
+        //     let frame_duration = last_frame_time.elapsed();
+        //     if frame_duration < FRAME_TIME {
+        //         std::thread::sleep(FRAME_TIME - frame_duration);
+        //     }
+        //     last_frame_time = Instant::now();
+        // }
 
         self.level.camera.update();
 
