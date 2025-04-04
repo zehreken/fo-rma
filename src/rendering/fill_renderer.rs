@@ -1,7 +1,7 @@
 use crate::{
     basics::{
         core::GenericUniformData,
-        scene::Scene,
+        scene2::Scene,
         uniforms::{LightUniform, ObjectUniform},
     },
     utils::{self, ToVec4},

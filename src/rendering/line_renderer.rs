@@ -1,7 +1,7 @@
 use std::mem;
 
 use crate::{
-    basics::{core::GenericUniformData, scene::Scene, uniforms::ObjectUniform},
+    basics::{core::GenericUniformData, scene2::Scene, uniforms::ObjectUniform},
     renderer, rendering_utils,
 };
 use wgpu::{

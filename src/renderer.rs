@@ -1,6 +1,6 @@
 use crate::{
     audio::sequencer::Sequencer,
-    basics::{core::GenericUniformData, scene::Scene},
+    basics::{core::GenericUniformData, scene2::Scene},
     gui::Gui,
     rendering::{
         fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,

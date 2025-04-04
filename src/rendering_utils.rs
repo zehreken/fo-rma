@@ -149,6 +149,27 @@ pub fn create_post_process_texture(
     (post_process_texture, post_process_view)
 }
 
+pub fn create_wave_texture(device: &Device) -> (Texture, TextureView) {
+    let wave_texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("wave_texture"),
+        size: wgpu::Extent3d {
+            width: 512,
+            height: 1,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::R32Float,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        view_formats: &[],
+    });
+
+    let wave_view = wave_texture.create_view(&Default::default());
+
+    (wave_texture, wave_view)
+}
+
 pub fn create_light_uniform_data(device: &Device) -> GenericUniformData {
     let light_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("light_uniform_buffer"),

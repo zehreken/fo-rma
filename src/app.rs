@@ -1,4 +1,4 @@
-use crate::{audio::audio_model::AudioModel, basics::scene::Scene, renderer, save_image};
+use crate::{audio::audio_model::AudioModel, basics::scene2::Scene, renderer, save_image};
 use std::{
     collections::VecDeque,
     time::{Duration, Instant},

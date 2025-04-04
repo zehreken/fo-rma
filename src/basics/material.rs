@@ -1,3 +1,5 @@
+use crate::rendering::screen_renderer::DynamicTexture;
+
 use super::{core::Vertex, uniforms::UniformTrait};
 use image::{ImageBuffer, Rgba};
 use std::num::NonZeroU64;
@@ -11,18 +13,18 @@ pub struct Material {
     pub uniform_buffer: Buffer,
     pub bind_group: BindGroup,
     pub render_pipeline: RenderPipeline,
-    pub texture: Option<TextureStuff>,
+    pub texture: Option<DynamicTexture>,
 }
 
-pub struct TextureStuff {
-    pub texture: Texture,
-    pub rgba: ImageBuffer<Rgba<u8>, Vec<u8>>,
-    pub size: Extent3d,
-    pub texture_view: TextureView,
-    pub sampler: Sampler,
-    pub bind_group_layout: BindGroupLayout,
-    pub bind_group: BindGroup,
-}
+// pub struct TextureStuff {
+//     pub texture: Texture,
+//     pub rgba: ImageBuffer<Rgba<u8>, Vec<u8>>,
+//     pub size: Extent3d,
+//     pub texture_view: TextureView,
+//     pub sampler: Sampler,
+//     pub bind_group_layout: BindGroupLayout,
+//     pub bind_group: BindGroup,
+// }
 
 impl Material {
     pub fn new(
