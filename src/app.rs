@@ -23,7 +23,7 @@ pub struct App<'a> {
     // unsafe references to the window's resources.
     window: &'a Window, // this stays here but above goes to renderer
     renderer: renderer::Renderer<'a>,
-    pub level: Scene,
+    pub scene: Scene,
     audio_model: AudioModel,
     signal_peak: f32,
     rolling_frame_times: VecDeque<f32>,
@@ -36,7 +36,7 @@ impl<'a> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
 
-        let level = Scene::new(
+        let scene = Scene::new(
             &renderer.device,
             &renderer.surface_config,
             &renderer.generic_uniform_data,
@@ -50,7 +50,7 @@ impl<'a> App<'a> {
             size,
             window: &window,
             renderer,
-            level,
+            scene,
             audio_model,
             signal_peak: 0.0,
             rolling_frame_times: VecDeque::from([0.0; 60]),
@@ -63,7 +63,7 @@ impl<'a> App<'a> {
         if size.width > 0 && size.height > 0 {
             self.size = size;
             self.renderer.resize(size, self.window.scale_factor());
-            self.level.camera.resize(size);
+            self.scene.camera.resize(size);
         }
     }
 
@@ -85,11 +85,11 @@ impl<'a> App<'a> {
             self.signal_peak = signal;
         }
         self.signal_peak = (self.signal_peak - 0.05).max(0.0);
-        self.level
+        self.scene
             .update(delta_time, self.signal_peak, self.audio_model.show_beat());
         let _ = self.renderer.render(
             self.window,
-            &self.level,
+            &self.scene,
             &mut self.audio_model.get_sequencers()[0],
             fps,
         );
@@ -106,7 +106,7 @@ impl<'a> App<'a> {
         //     last_frame_time = Instant::now();
         // }
 
-        self.level.camera.update();
+        self.scene.camera.update();
 
         self.window.request_redraw();
     }
@@ -138,41 +138,41 @@ fn run_event_loop(
                 return;
             }
             if input.key_held(KeyCode::KeyW) {
-                app.level.camera.move_z(false);
+                app.scene.camera.move_z(false);
             }
             if input.key_held(KeyCode::KeyA) {
-                app.level.camera.move_x(false);
+                app.scene.camera.move_x(false);
             }
             if input.key_held(KeyCode::KeyS) {
-                app.level.camera.move_z(true);
+                app.scene.camera.move_z(true);
             }
             if input.key_held(KeyCode::KeyD) {
-                app.level.camera.move_x(true);
+                app.scene.camera.move_x(true);
             }
             if input.key_held(KeyCode::KeyQ) {
-                app.level.camera.move_y(true);
+                app.scene.camera.move_y(true);
             }
             if input.key_held(KeyCode::KeyE) {
-                app.level.camera.move_y(false);
+                app.scene.camera.move_y(false);
             }
             if input.held_shift() {
                 if input.key_held(KeyCode::KeyW) {
-                    app.level.camera.orbit_z(false);
+                    app.scene.camera.orbit_z(false);
                 }
                 if input.key_held(KeyCode::KeyA) {
-                    app.level.camera.orbit_x(false);
+                    app.scene.camera.orbit_x(false);
                 }
                 if input.key_held(KeyCode::KeyS) {
-                    app.level.camera.orbit_z(true);
+                    app.scene.camera.orbit_z(true);
                 }
                 if input.key_held(KeyCode::KeyD) {
-                    app.level.camera.orbit_x(true);
+                    app.scene.camera.orbit_x(true);
                 }
                 if input.key_held(KeyCode::KeyQ) {
-                    app.level.camera.orbit_y(true);
+                    app.scene.camera.orbit_y(true);
                 }
                 if input.key_held(KeyCode::KeyE) {
-                    app.level.camera.orbit_y(false);
+                    app.scene.camera.orbit_y(false);
                 }
             }
             if input.key_pressed(KeyCode::KeyR) {

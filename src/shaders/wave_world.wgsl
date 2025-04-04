@@ -3,13 +3,15 @@ struct Object {
     model: mat4x4<f32>,
     normal: mat3x3<f32>,
 };
-@group(0) @binding(0) var<uniform> object: Object;
+@group(0) @binding(0)
+var<uniform> object: Object;
 
 struct Light {
     position: vec4<f32>,
     color: vec4<f32>,
 };
-@group(1) @binding(0) var<uniform> light: Light;
+@group(1) @binding(0)
+var<uniform> light: Light;
 
 struct Material {
     color1: vec4<f32>,
@@ -17,7 +19,8 @@ struct Material {
     color3: vec4<f32>,
     signal: f32,
 };
-@group(2) @binding(0) var<uniform> material: Material;
+@group(2) @binding(0)
+var<uniform> material: Material;
 
 struct VertexInput {
     @location(0) position: vec3<f32>,
