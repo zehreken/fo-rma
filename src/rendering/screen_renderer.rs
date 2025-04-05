@@ -63,7 +63,6 @@ impl ScreenRenderer {
 
         let material = create_screen_quad_material(
             &device,
-            &queue,
             shader,
             &surface_config,
             &generic_uniform_data,
@@ -135,7 +134,6 @@ impl ScreenRenderer {
 
 fn create_screen_quad_material(
     device: &Device,
-    queue: &Queue,
     shader: wgpu::ShaderModule,
     surface_config: &SurfaceConfiguration,
     generic_uniform_data: &GenericUniformData,
@@ -261,13 +259,7 @@ pub struct DynamicTexture {
 }
 
 impl DynamicTexture {
-    fn new(
-        device: &Device,
-        queue: &Queue,
-        width: u32,
-        height: u32,
-        bind_group_layout: &BindGroupLayout,
-    ) -> Self {
+    fn new(device: &Device, width: u32, height: u32, bind_group_layout: &BindGroupLayout) -> Self {
         let size = wgpu::Extent3d {
             width,
             height,
