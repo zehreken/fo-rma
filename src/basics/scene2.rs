@@ -1,9 +1,3 @@
-use std::num::NonZeroU64;
-
-use glam::{vec3, Vec3};
-use wgpu::{Device, Extent3d, SurfaceConfiguration};
-use winit::dpi::PhysicalSize;
-
 use super::{
     camera::{self, Camera},
     core::GenericUniformData,
@@ -13,13 +7,16 @@ use super::{
     primitive::Primitive,
     quad::Quad,
     sphere::Sphere,
-    uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveUniform, WaveWorldUniform},
+    uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveWorldUniform},
 };
 use crate::{
     rendering::screen_renderer::DynamicTexture,
-    rendering_utils::create_wave_texture,
     utils::{self, ToVec4},
 };
+use glam::{vec3, Vec3};
+use std::num::NonZeroU64;
+use wgpu::{Device, Extent3d, SurfaceConfiguration};
+use winit::dpi::PhysicalSize;
 
 pub struct Scene {
     pub camera: Camera,

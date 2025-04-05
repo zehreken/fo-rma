@@ -15,16 +15,22 @@ struct Light {
 @group(1) @binding(0)
 var<uniform> light: Light;
 
+struct Material {
+    color1: vec4<f32>,
+};
 @group(2) @binding(0)
+var<uniform> material: Material;
+
+@group(3) @binding(0)
 var my_texture: texture_1d<f32>;
-@group(2) @binding(1)
+@group(3) @binding(1)
 var my_sampler: sampler;
 
 struct VertexInput {
     @location(0) position: vec3<f32>,
     @location(1) color: vec3<f32>,
     @location(2) normal: vec3<f32>,
-    @location(3) uv: vec3<f32>,
+    @location(3) uv: vec2<f32>,
 };
 
 struct VertexOutput {
@@ -50,5 +56,5 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let x = uv.x; // Assume coord.x is normalized (0.0 - 1.0)
     let y = textureSample(my_texture, my_sampler, x);
 
-    return vec4<f32>(y, y, y, 1.0);
+    return y;
 }

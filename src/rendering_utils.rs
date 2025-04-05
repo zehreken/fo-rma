@@ -1,11 +1,14 @@
-use crate::basics::{
-    core::{GenericUniformData, Vertex},
-    uniforms::{LightUniform, ObjectUniform},
+use crate::{
+    basics::{
+        core::{GenericUniformData, Vertex},
+        uniforms::{LightUniform, ObjectUniform},
+    },
+    rendering::screen_renderer::DynamicTexture,
 };
 use std::{mem, num::NonZeroU64};
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, RenderPipeline, SurfaceCapabilities, SurfaceConfiguration,
-    Texture, TextureFormat, TextureView,
+    BindGroup, BindGroupLayout, Device, Extent3d, RenderPipeline, SurfaceCapabilities,
+    SurfaceConfiguration, Texture, TextureFormat, TextureView,
 };
 use winit::dpi::PhysicalSize;
 
@@ -147,27 +150,6 @@ pub fn create_post_process_texture(
     let post_process_view = post_process_texture.create_view(&Default::default());
 
     (post_process_texture, post_process_view)
-}
-
-pub fn create_wave_texture(device: &Device) -> (Texture, TextureView) {
-    let wave_texture = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("wave_texture"),
-        size: wgpu::Extent3d {
-            width: 512,
-            height: 1,
-            depth_or_array_layers: 1,
-        },
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::R32Float,
-        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-        view_formats: &[],
-    });
-
-    let wave_view = wave_texture.create_view(&Default::default());
-
-    (wave_texture, wave_view)
 }
 
 pub fn create_light_uniform_data(device: &Device) -> GenericUniformData {

@@ -8,7 +8,6 @@ use crate::{
     },
     rendering_utils::create_generic_uniform_data,
 };
-use image::GenericImageView;
 use std::num::NonZeroU64;
 use wgpu::{
     BindGroup, BindGroupLayout, Color, Device, Extent3d, Operations, Queue,

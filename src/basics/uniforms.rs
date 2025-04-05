@@ -91,24 +91,6 @@ impl UniformTrait for WaveWorldUniform {
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct WaveUniform {}
-
-impl UniformTrait for WaveUniform {
-    fn as_bytes(&self) -> &[u8] {
-        todo!()
-    }
-
-    fn get_size(&self) -> usize {
-        todo!()
-    }
-
-    fn set_signal(&mut self, signal: f32) {
-        todo!()
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct ScreenQuadUniform {
     pub signal: [f32; 4],
 }
