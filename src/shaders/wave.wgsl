@@ -58,8 +58,8 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     // let alpha = smoothstep(line_thickness, 0.0, distance);
     let alpha = step(distance, line_thickness);
 
-    let c = material.color2 - vec4<f32>(alpha);
-    return vec4<f32>(srgb_to_linear(c.rgb), 1.0); // red waveform
+    let c = mix(material.color2, material.color3, alpha);
+    return vec4<f32>(srgb_to_linear(c.rgb), 1.0);
     // return vec4<f32>(uv.x, uv.y, 0.0, 1.0);
 }
 
