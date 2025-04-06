@@ -28,6 +28,7 @@ pub struct App<'a> {
     rolling_frame_times: VecDeque<f32>,
     earlier: Instant,
     elapsed: f32,
+    last_frame_time: Instant,
 }
 
 impl<'a> App<'a> {
@@ -54,6 +55,7 @@ impl<'a> App<'a> {
             rolling_frame_times: VecDeque::from([0.0; 60]),
             earlier: Instant::now(),
             elapsed: 0.0,
+            last_frame_time: Instant::now(),
         }
     }
 
@@ -94,15 +96,14 @@ impl<'a> App<'a> {
 
         self.audio_model.update();
 
-        // #[cfg(not(target_os = "macos"))]
-        // {
-        //     let mut last_frame_time = Instant::now()
-        //     let frame_duration = last_frame_time.elapsed();
-        //     if frame_duration < FRAME_TIME {
-        //         std::thread::sleep(FRAME_TIME - frame_duration);
-        //     }
-        //     last_frame_time = Instant::now();
-        // }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let frame_duration = self.last_frame_time.elapsed();
+            if frame_duration < FRAME_TIME {
+                std::thread::sleep(FRAME_TIME - frame_duration);
+            }
+            self.last_frame_time = Instant::now();
+        }
 
         self.scene.camera.update();
 
