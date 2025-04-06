@@ -117,7 +117,7 @@ impl Scene {
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
 
         for primitive in &mut self.objects {
-            primitive.material_mut().uniform.set_signal(signal * 5.0);
+            primitive.material_mut().uniform.set_signal(signal * 2.0);
             primitive.update(if show_beat {
                 delta_time * 20.0
             } else {

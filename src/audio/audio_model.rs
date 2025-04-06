@@ -26,7 +26,7 @@ pub struct AudioModel {
     sequencers: Vec<Sequencer>,
     input_producer: HeapProducer<Input>,
     producer: HeapProducer<f32>,
-    signal: f32, // for visuals
+    signal: f32, // for visuals, @todo this should be signal peak
     pub rolling_wave: VecDeque<f32>,
     // view_consumer: HeapConsumer<f32>,
 }
@@ -153,6 +153,7 @@ impl AudioModel {
     pub fn update(&mut self) {
         let elapsed_samples = self.audio_clock.get_elapsed_samples();
         // self.metronome.update(sample_count);
+        let mut signal_peak = 0.0;
         while !self.producer.is_full() {
             let mut value = 0.0;
             for s in &mut self.sequencers {
@@ -160,11 +161,14 @@ impl AudioModel {
             }
             value = value / self.sequencers.len() as f32;
             self.producer.push(value).unwrap();
-            self.signal = value;
+            if value > signal_peak {
+                signal_peak = value;
+            }
 
             self.rolling_wave.pop_front();
             self.rolling_wave.push_back(value);
         }
+        self.signal = signal_peak;
         // if self.metronome.show_beat() {
         //     self.input_producer.push(Input::Start).unwrap();
         // } else {

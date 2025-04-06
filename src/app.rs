@@ -25,7 +25,6 @@ pub struct App<'a> {
     renderer: renderer::Renderer<'a>,
     pub scene: Scene,
     audio_model: AudioModel,
-    signal_peak: f32,
     rolling_frame_times: VecDeque<f32>,
     earlier: Instant,
     elapsed: f32,
@@ -52,7 +51,6 @@ impl<'a> App<'a> {
             renderer,
             scene,
             audio_model,
-            signal_peak: 0.0,
             rolling_frame_times: VecDeque::from([0.0; 60]),
             earlier: Instant::now(),
             elapsed: 0.0,
@@ -80,14 +78,11 @@ impl<'a> App<'a> {
         self.rolling_frame_times.pop_front();
         self.rolling_frame_times.push_back(delta_time);
         let fps = calculate_fps(&self.rolling_frame_times);
-        let signal = self.audio_model.get_signal();
+        let mut signal_peak = self.audio_model.get_signal();
 
-        if signal > self.signal_peak {
-            self.signal_peak = signal;
-        }
-        self.signal_peak = (self.signal_peak - 0.05).max(0.0);
+        signal_peak = (signal_peak - 0.05).max(0.0);
         self.scene
-            .update(delta_time, self.signal_peak, self.audio_model.show_beat());
+            .update(delta_time, signal_peak, self.audio_model.show_beat());
         let rolling_wave: Vec<f32> = self.audio_model.rolling_wave.iter().map(|i| *i).collect();
         let _ = self.renderer.render(
             self.window,
