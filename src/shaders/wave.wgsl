@@ -3,27 +3,21 @@ struct Object {
     model: mat4x4<f32>,
     normal: mat3x3<f32>,
 };
-
 @group(0) @binding(0)
 var<uniform> object: Object;
 
-struct Light {
-    position: vec4<f32>,
-    color: vec4<f32>,
-};
-
-@group(1) @binding(0)
-var<uniform> light: Light;
-
 struct Material {
     color1: vec4<f32>,
+    color2: vec4<f32>,
+    color3: vec4<f32>,
+    signal: f32,
 };
-@group(2) @binding(0)
+@group(1) @binding(0)
 var<uniform> material: Material;
 
-@group(3) @binding(0)
+@group(2) @binding(0)
 var my_texture: texture_1d<f32>;
-@group(3) @binding(1)
+@group(2) @binding(1)
 var my_sampler: sampler;
 
 struct VertexInput {
@@ -50,11 +44,32 @@ fn vs_main(model: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let resolution = vec2<f32>(1080.0, 1080.0);
     let uv = in.uv;
 
-    let x = uv.x; // Assume coord.x is normalized (0.0 - 1.0)
-    let y = textureSample(my_texture, my_sampler, x);
+    let t = clamp(uv.x, 0.0, 1.0); // not really necessary
+    let wave = textureSample(my_texture, my_sampler, t);
+    let r = wave.r;
+    let g = wave.g;
+    let b = wave.b;
+    let y_centered = r * 0.5 + 0.5; // from [-1..1] to [0..1]
 
-    return y;
+    let line_thickness = 0.1;
+    let distance = abs(uv.y - y_centered);
+    // let alpha = smoothstep(line_thickness, 0.0, distance);
+    let alpha = step(distance, line_thickness);
+
+    let c = material.color2 - vec4<f32>(alpha);
+    return vec4<f32>(srgb_to_linear(c.rgb), 1.0); // red waveform
+    // return vec4<f32>(uv.x, uv.y, 0.0, 1.0);
 }
+
+// @fragment
+// fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
+//     let resolution = vec2<f32>(1080.0, 1080.0);
+//     let uv = in.uv;
+
+//     let x = uv.x; // Assume coord.x is normalized (0.0 - 1.0)
+//     let y = textureSample(my_texture, my_sampler, x);
+
+//     return y;
+// }

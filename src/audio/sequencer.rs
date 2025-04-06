@@ -92,7 +92,7 @@ impl Sequencer {
         // if envelope > 0.0 {
         //     println!("{:?}", envelope);
         // }
-        value *= envelope;
+        // value *= envelope;
 
         // value *= self.ramp;
         value *= self.volume;

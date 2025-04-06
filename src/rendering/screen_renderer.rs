@@ -22,7 +22,6 @@ pub struct ScreenRenderer {
 impl ScreenRenderer {
     pub fn new(
         device: &Device,
-        queue: &Queue,
         surface_config: &SurfaceConfiguration,
         texture_bind_group_layout: &BindGroupLayout,
     ) -> Self {
@@ -101,7 +100,6 @@ impl ScreenRenderer {
             occlusion_query_set: None,
         });
 
-        // self.dynamic_texture.update(queue, texture.texture);
         render_pass.set_pipeline(&self.screen_quad.material().render_pipeline);
         let object_uniform = ObjectUniform {
             view_proj: [[0.0; 4]; 4], // not used in shader

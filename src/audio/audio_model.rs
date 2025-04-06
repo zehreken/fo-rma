@@ -15,7 +15,7 @@ use cpal::{
 };
 use kopek::{metronome::Metronome, utils};
 use ringbuf::{HeapProducer, HeapRb};
-use std::sync::Arc;
+use std::{collections::VecDeque, sync::Arc};
 
 const LATENCY_MS: f32 = 10.0;
 
@@ -27,7 +27,8 @@ pub struct AudioModel {
     input_producer: HeapProducer<Input>,
     producer: HeapProducer<f32>,
     signal: f32, // for visuals
-                 // view_consumer: HeapConsumer<f32>,
+    pub rolling_wave: VecDeque<f32>,
+    // view_consumer: HeapConsumer<f32>,
 }
 
 impl AudioModel {
@@ -136,6 +137,7 @@ impl AudioModel {
             input_producer,
             producer,
             signal: 0.0,
+            rolling_wave: VecDeque::from([0.0; 512]),
             // view_consumer,
         })
     }
@@ -159,6 +161,9 @@ impl AudioModel {
             value = value / self.sequencers.len() as f32;
             self.producer.push(value).unwrap();
             self.signal = value;
+
+            self.rolling_wave.pop_front();
+            self.rolling_wave.push_back(value);
         }
         // if self.metronome.show_beat() {
         //     self.input_producer.push(Input::Start).unwrap();

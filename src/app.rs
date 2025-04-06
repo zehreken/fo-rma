@@ -81,17 +81,20 @@ impl<'a> App<'a> {
         self.rolling_frame_times.push_back(delta_time);
         let fps = calculate_fps(&self.rolling_frame_times);
         let signal = self.audio_model.get_signal();
+
         if signal > self.signal_peak {
             self.signal_peak = signal;
         }
         self.signal_peak = (self.signal_peak - 0.05).max(0.0);
         self.scene
             .update(delta_time, self.signal_peak, self.audio_model.show_beat());
+        let rolling_wave: Vec<f32> = self.audio_model.rolling_wave.iter().map(|i| *i).collect();
         let _ = self.renderer.render(
             self.window,
             &self.scene,
             &mut self.audio_model.get_sequencers()[0],
             fps,
+            &rolling_wave,
         );
 
         self.audio_model.update();

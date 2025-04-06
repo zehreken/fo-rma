@@ -10,12 +10,15 @@ use super::{
     uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveWorldUniform},
 };
 use crate::{
-    rendering::screen_renderer::DynamicTexture,
+    rendering::{screen_renderer::DynamicTexture, temp_renderer::create_wave_material},
+    rendering_utils,
     utils::{self, ToVec4},
 };
 use glam::{vec3, Vec3};
 use std::num::NonZeroU64;
-use wgpu::{Device, Extent3d, SurfaceConfiguration};
+use wgpu::{
+    BindGroup, BindGroupLayout, Device, Extent3d, SurfaceConfiguration, Texture, TextureView,
+};
 use winit::dpi::PhysicalSize;
 
 pub struct Scene {
@@ -23,6 +26,8 @@ pub struct Scene {
     pub objects: Vec<Box<dyn Primitive>>,
     pub lights: Vec<Light>,
     elapsed: f32,
+    pub wave_texture: (Texture, TextureView),
+    pub wave_texture_bind_group: (BindGroupLayout, BindGroup),
 }
 
 impl Scene {
@@ -44,23 +49,26 @@ impl Scene {
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
 
+        let wave_texture = rendering_utils::create_wave_texture(device);
+        let wave_texture_bind_group =
+            rendering_utils::create_wave_texture_bind_group(device, &wave_texture.1);
         let mut quad = Quad::new(
             device,
-            create_equalizer_material(
+            create_wave_material(
                 device,
                 surface_config,
                 generic_uniform_data,
-                light_uniform_data,
+                &wave_texture_bind_group.0,
             ),
         );
         quad.state.set_position(Vec3 {
-            x: -0.5,
-            y: 0.0,
+            x: 0.0,
+            y: -0.5,
             z: 0.0,
         });
         quad.state.scale(Vec3 {
-            x: 1.0,
-            y: 2.0,
+            x: 2.0,
+            y: 1.0,
             z: 1.0,
         });
         objects.push(Box::new(quad));
@@ -75,13 +83,13 @@ impl Scene {
             ),
         );
         quad.state.set_position(Vec3 {
-            x: 0.5,
-            y: 0.0,
+            x: 0.0,
+            y: 0.5,
             z: 0.0,
         });
         quad.state.scale(Vec3 {
-            x: 1.0,
-            y: 2.0,
+            x: 2.0,
+            y: 1.0,
             z: 1.0,
         });
         objects.push(Box::new(quad));
@@ -95,6 +103,8 @@ impl Scene {
             objects,
             lights,
             elapsed: 0.0,
+            wave_texture,
+            wave_texture_bind_group,
         }
     }
 
@@ -107,7 +117,7 @@ impl Scene {
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
 
         for primitive in &mut self.objects {
-            primitive.material_mut().uniform.set_signal(signal);
+            primitive.material_mut().uniform.set_signal(signal * 5.0);
             primitive.update(if show_beat {
                 delta_time * 20.0
             } else {
@@ -147,9 +157,9 @@ fn create_equalizer_material(
 ) -> Material {
     let shader_main = include_str!("../shaders/equalizer.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(EqualizerUniform {
-        color1: utils::CP6.palette[0].to_vec4(1.0),
-        color2: utils::CP6.palette[1].to_vec4(1.0),
-        color3: utils::CP6.palette[2].to_vec4(1.0),
+        color1: utils::CCP.palette[0].to_vec4(1.0),
+        color2: utils::CCP.palette[1].to_vec4(1.0),
+        color3: utils::CCP.palette[2].to_vec4(1.0),
         signal: 0.7,
         _padding: [0.0, 0.0, 0.0],
     });
@@ -162,32 +172,6 @@ fn create_equalizer_material(
         shader_main,
         uniform,
         "equalizer",
-    )
-}
-
-fn create_wave_world_material(
-    device: &Device,
-    surface_config: &SurfaceConfiguration,
-    generic_uniform_data: &GenericUniformData,
-    light_uniform_data: &GenericUniformData,
-) -> Material {
-    let shader_main = include_str!("../shaders/wave_world.wgsl");
-    let uniform: Box<dyn UniformTrait> = Box::new(WaveWorldUniform {
-        color1: utils::CP2.palette[0].to_vec4(1.0),
-        color2: utils::CP2.palette[1].to_vec4(1.0),
-        color3: utils::CP2.palette[2].to_vec4(1.0),
-        signal: 0.5,
-        _padding: [0.0, 0.0, 0.0],
-    });
-
-    create_material(
-        device,
-        surface_config,
-        generic_uniform_data,
-        light_uniform_data,
-        shader_main,
-        uniform,
-        "wave_world",
     )
 }
 

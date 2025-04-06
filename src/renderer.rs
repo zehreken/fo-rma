@@ -1,10 +1,12 @@
+use std::collections::VecDeque;
+
 use crate::{
     audio::sequencer::Sequencer,
     basics::{core::GenericUniformData, scene2::Scene},
     gui::Gui,
     rendering::{
-        fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
-        screen_renderer::ScreenRenderer,
+        line_renderer::LineRenderer, post_processor::PostProcessor,
+        screen_renderer::ScreenRenderer, temp_renderer::FillRenderer,
     },
     rendering_utils::{self},
 };
@@ -66,12 +68,8 @@ impl<'a> Renderer<'a> {
         let line_renderer = LineRenderer::new(&device, &surface_config);
         let post_processor =
             PostProcessor::new(&device, &post_process_texture.1, &render_texture.1);
-        let screen_renderer = ScreenRenderer::new(
-            &device,
-            &queue,
-            &surface_config,
-            &render_texture_bind_group.0,
-        );
+        let screen_renderer =
+            ScreenRenderer::new(&device, &surface_config, &render_texture_bind_group.0);
 
         let generic_uniform_data =
             rendering_utils::create_generic_uniform_data(&device, &surface_config, PRIMITIVE_COUNT);
@@ -104,6 +102,7 @@ impl<'a> Renderer<'a> {
         level: &Scene,
         sequencer: &mut Sequencer,
         fps: f32,
+        rolling_wave: &Vec<f32>,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
@@ -119,6 +118,7 @@ impl<'a> Renderer<'a> {
             level,
             &self.generic_uniform_data,
             &self.light_uniform_data,
+            rolling_wave,
         );
 
         // self.line_renderer.render(

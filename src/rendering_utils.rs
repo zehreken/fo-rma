@@ -152,6 +152,28 @@ pub fn create_post_process_texture(
     (post_process_texture, post_process_view)
 }
 
+pub fn create_wave_texture(device: &Device) -> (Texture, TextureView) {
+    let size = Extent3d {
+        width: 512,
+        height: 1,
+        depth_or_array_layers: 1,
+    };
+    let post_process_texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("wave_texture"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D1,
+        format: wgpu::TextureFormat::R32Float,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        view_formats: &[],
+    });
+
+    let post_process_view = post_process_texture.create_view(&Default::default());
+
+    (post_process_texture, post_process_view)
+}
+
 pub fn create_light_uniform_data(device: &Device) -> GenericUniformData {
     let light_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("light_uniform_buffer"),
@@ -414,6 +436,62 @@ pub fn create_render_texture_bind_group(
             wgpu::BindGroupEntry {
                 binding: 0,
                 resource: wgpu::BindingResource::TextureView(&render_texture),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ],
+    });
+
+    (bind_group_layout, bind_group)
+}
+
+pub fn create_wave_texture_bind_group(
+    device: &Device,
+    wave_texture: &TextureView,
+) -> (BindGroupLayout, BindGroup) {
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Nearest,
+        min_filter: wgpu::FilterMode::Nearest,
+        mipmap_filter: wgpu::FilterMode::Nearest,
+        ..Default::default()
+    });
+
+    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: Some("texture_bind_group_layout"),
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    multisampled: false,
+                    view_dimension: wgpu::TextureViewDimension::D1,
+                    sample_type: wgpu::TextureSampleType::Float { filterable: false },
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                // This should match the filterable field of the
+                // corresponding Texture entry above.
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::NonFiltering),
+                count: None,
+            },
+        ],
+    });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("wave_texture_bind_group"),
+        layout: &bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&wave_texture),
             },
             wgpu::BindGroupEntry {
                 binding: 1,

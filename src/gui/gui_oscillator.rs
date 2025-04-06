@@ -24,7 +24,7 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer) {
         let mut lfo_frequency = sequencer.get_lfo_frequency();
         ui.horizontal(|ui| {
             ui.label("lfo: ");
-            ui.add(egui::widgets::Slider::new(&mut lfo_frequency, 1.0..=20.0));
+            ui.add(egui::widgets::Slider::new(&mut lfo_frequency, 0.0..=20.0));
         });
         sequencer.set_lfo_frequency(lfo_frequency);
 
