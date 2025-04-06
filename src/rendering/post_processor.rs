@@ -10,7 +10,7 @@ impl PostProcessor {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
             source: wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/noise.comp.wgsl").into(),
+                include_str!("../shaders/compute/none.comp.wgsl").into(),
             ),
         });
         let (layout, bind_group) = create_bind_group(device, write_view, read_view);

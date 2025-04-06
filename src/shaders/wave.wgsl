@@ -51,7 +51,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let r = wave.r;
     let g = wave.g;
     let b = wave.b;
-    let y_centered = r * 0.5 + 0.5; // from [-1..1] to [0..1]
+    let y_centered = r * 0.25 + 0.5; // from [-1..1] to [0.25..0.75]
 
     let line_thickness = 0.1;
     let distance = abs(uv.y - y_centered);
