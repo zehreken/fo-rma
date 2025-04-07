@@ -1,18 +1,13 @@
-use super::screen_renderer::DynamicTexture;
 use crate::{
     basics::{
         core::{GenericUniformData, Vertex},
         material::Material,
         scene2::Scene,
-        uniforms::{
-            ColorUniform, EqualizerUniform, LightUniform, ObjectUniform, ScreenQuadUniform,
-            UniformTrait,
-        },
+        uniforms::{EqualizerUniform, LightUniform, ObjectUniform, UniformTrait},
     },
     color_utils::{self, ToVec4},
-    rendering_utils,
 };
-use std::{collections::VecDeque, mem, num::NonZeroU64};
+use std::{mem, num::NonZeroU64};
 use wgpu::{
     BindGroupLayout, Color, CommandEncoderDescriptor, Device, Extent3d, LoadOp, Operations, Queue,
     RenderPassColorAttachment, RenderPassDescriptor, StoreOp, SurfaceConfiguration, TextureView,
@@ -114,14 +109,7 @@ impl FillRenderer {
             height: 1,
             depth_or_array_layers: 1,
         };
-        // let max = wave
-        //     .iter()
-        //     .copied()
-        //     .map(f32::abs)
-        //     .fold(0.0_f32, f32::max)
-        //     .max(1e-5); // avoid divide-by-zero
 
-        // let data: Vec<f32> = wave.iter().map(|&v| v / max).collect();
         queue.write_texture(
             wgpu::ImageCopyTexture {
                 texture: &scene.wave_texture.0,

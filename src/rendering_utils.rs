@@ -1,9 +1,6 @@
-use crate::{
-    basics::{
-        core::{GenericUniformData, Vertex},
-        uniforms::{LightUniform, ObjectUniform},
-    },
-    rendering::screen_renderer::DynamicTexture,
+use crate::basics::{
+    core::{GenericUniformData, Vertex},
+    uniforms::{LightUniform, ObjectUniform},
 };
 use std::{mem, num::NonZeroU64};
 use wgpu::{

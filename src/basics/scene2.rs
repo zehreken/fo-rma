@@ -1,24 +1,19 @@
 use super::{
     camera::{self, Camera},
     core::GenericUniformData,
-    cube::Cube,
     light::{self, Light},
     material::Material,
     primitive::Primitive,
     quad::Quad,
-    sphere::Sphere,
-    uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveWorldUniform},
+    uniforms::{ColorUniform, EqualizerUniform, UniformTrait},
 };
 use crate::{
     color_utils::{self, ToVec4},
-    rendering::{screen_renderer::DynamicTexture, temp_renderer::create_wave_material},
+    rendering::temp_renderer::create_wave_material,
     rendering_utils,
 };
 use glam::{vec3, Vec3};
-use std::num::NonZeroU64;
-use wgpu::{
-    BindGroup, BindGroupLayout, Device, Extent3d, SurfaceConfiguration, Texture, TextureView,
-};
+use wgpu::{BindGroup, BindGroupLayout, Device, SurfaceConfiguration, Texture, TextureView};
 use winit::dpi::PhysicalSize;
 
 pub struct Scene {
@@ -125,28 +120,6 @@ impl Scene {
             });
         }
     }
-}
-
-fn create_color_material(
-    device: &Device,
-    surface_config: &SurfaceConfiguration,
-    generic_uniform_data: &GenericUniformData,
-    light_uniform_data: &GenericUniformData,
-) -> Material {
-    let shader_main = include_str!("../shaders/basic_light.wgsl");
-    let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
-        color: color_utils::CCP.palette[3].to_vec4(1.0),
-    });
-
-    create_material(
-        device,
-        surface_config,
-        generic_uniform_data,
-        light_uniform_data,
-        shader_main,
-        uniform,
-        "color",
-    )
 }
 
 fn create_equalizer_material(
