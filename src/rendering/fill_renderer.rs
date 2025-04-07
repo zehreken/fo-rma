@@ -4,7 +4,7 @@ use crate::{
         scene2::Scene,
         uniforms::{LightUniform, ObjectUniform},
     },
-    utils::{self, ToVec4},
+    color_utils::{self, ToVec4},
 };
 use std::mem;
 use wgpu::{
@@ -12,7 +12,7 @@ use wgpu::{
     RenderPassDescriptor, StoreOp, TextureView,
 };
 
-const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
+const BG_COLOR: [f32; 3] = color_utils::CCP.palette[0];
 
 pub struct FillRenderer {}
 
@@ -35,7 +35,7 @@ impl FillRenderer {
             label: Some("fill_render_encoder"),
         });
 
-        let c_bg_color = utils::srgb_to_linear(BG_COLOR, utils::GAMMA);
+        let c_bg_color = color_utils::srgb_to_linear(BG_COLOR, color_utils::GAMMA);
         let bg_color = Color {
             r: c_bg_color[0] as f64,
             g: c_bg_color[1] as f64,

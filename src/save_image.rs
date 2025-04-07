@@ -1,7 +1,7 @@
 use rand::Rng;
 use wgpu::{Device, Queue, SurfaceConfiguration, Texture, TextureView};
 
-use crate::utils;
+use crate::color_utils;
 
 pub fn save_image(
     device: &Device,
@@ -116,7 +116,7 @@ fn unprocessed(
             // if bgra_to_rgba {
             //     pixel.swap(0, 2);
             // }
-            pixel = utils::srgb_encode(pixel).to_vec();
+            pixel = color_utils::srgb_encode(pixel).to_vec();
 
             tightly_packed_data.extend_from_slice(&pixel);
         }

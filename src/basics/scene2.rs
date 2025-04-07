@@ -10,9 +10,9 @@ use super::{
     uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveWorldUniform},
 };
 use crate::{
+    color_utils::{self, ToVec4},
     rendering::{screen_renderer::DynamicTexture, temp_renderer::create_wave_material},
     rendering_utils,
-    utils::{self, ToVec4},
 };
 use glam::{vec3, Vec3};
 use std::num::NonZeroU64;
@@ -135,7 +135,7 @@ fn create_color_material(
 ) -> Material {
     let shader_main = include_str!("../shaders/basic_light.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
-        color: utils::CCP.palette[3].to_vec4(1.0),
+        color: color_utils::CCP.palette[3].to_vec4(1.0),
     });
 
     create_material(
@@ -157,9 +157,9 @@ fn create_equalizer_material(
 ) -> Material {
     let shader_main = include_str!("../shaders/equalizer.wgsl");
     let uniform: Box<dyn UniformTrait> = Box::new(EqualizerUniform {
-        color1: utils::CCP.palette[0].to_vec4(1.0),
-        color2: utils::CCP.palette[1].to_vec4(1.0),
-        color3: utils::CCP.palette[2].to_vec4(1.0),
+        color1: color_utils::CCP.palette[0].to_vec4(1.0),
+        color2: color_utils::CCP.palette[1].to_vec4(1.0),
+        color3: color_utils::CCP.palette[2].to_vec4(1.0),
         signal: 0.7,
         _padding: [0.0, 0.0, 0.0],
     });

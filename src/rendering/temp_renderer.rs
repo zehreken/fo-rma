@@ -9,8 +9,8 @@ use crate::{
             UniformTrait,
         },
     },
+    color_utils::{self, ToVec4},
     rendering_utils,
-    utils::{self, ToVec4},
 };
 use std::{collections::VecDeque, mem, num::NonZeroU64};
 use wgpu::{
@@ -18,7 +18,7 @@ use wgpu::{
     RenderPassColorAttachment, RenderPassDescriptor, StoreOp, SurfaceConfiguration, TextureView,
 };
 
-const BG_COLOR: [f32; 3] = utils::CCP.palette[0];
+const BG_COLOR: [f32; 3] = color_utils::CCP.palette[0];
 
 pub struct FillRenderer {}
 
@@ -42,7 +42,7 @@ impl FillRenderer {
             label: Some("temp_render_encoder"),
         });
 
-        let c_bg_color = utils::srgb_to_linear(BG_COLOR, utils::GAMMA);
+        let c_bg_color = color_utils::srgb_to_linear(BG_COLOR, color_utils::GAMMA);
         let bg_color = Color {
             r: c_bg_color[0] as f64,
             g: c_bg_color[1] as f64,
@@ -202,9 +202,9 @@ pub fn create_wave_material(
         source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
     });
     let uniform = Box::new(EqualizerUniform {
-        color1: utils::CCP.palette[0].to_vec4(1.0),
-        color2: utils::CCP.palette[1].to_vec4(1.0),
-        color3: utils::CCP.palette[2].to_vec4(1.0),
+        color1: color_utils::CCP.palette[0].to_vec4(1.0),
+        color2: color_utils::CCP.palette[1].to_vec4(1.0),
+        color3: color_utils::CCP.palette[2].to_vec4(1.0),
         signal: 0.7,
         _padding: [0.0, 0.0, 0.0],
     });

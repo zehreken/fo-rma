@@ -3,14 +3,14 @@ use super::{
     material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use crate::utils;
+use crate::color_utils;
 use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[
-    Vertex { position: [ 0.0,  0.5,  0.0], color: utils::CCP.palette[1], normal: [0.0, 0.0, 1.0], uv: [0.5, 1.0] }, // Top
-    Vertex { position: [-0.5, -0.5,  0.0], color: utils::CCP.palette[2], normal: [0.0, 0.0, 1.0], uv: [0.0, 0.0] }, // Bottom-left
-    Vertex { position: [ 0.5, -0.5,  0.0], color: utils::CCP.palette[3], normal: [0.0, 0.0, 1.0], uv: [1.0, 0.0] }, // Bottom-right
+    Vertex { position: [ 0.0,  0.5,  0.0], color: color_utils::CCP.palette[1], normal: [0.0, 0.0, 1.0], uv: [0.5, 1.0] }, // Top
+    Vertex { position: [-0.5, -0.5,  0.0], color: color_utils::CCP.palette[2], normal: [0.0, 0.0, 1.0], uv: [0.0, 0.0] }, // Bottom-left
+    Vertex { position: [ 0.5, -0.5,  0.0], color: color_utils::CCP.palette[3], normal: [0.0, 0.0, 1.0], uv: [1.0, 0.0] }, // Bottom-right
 ];
 
 // Double faced triangle
