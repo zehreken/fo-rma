@@ -1,8 +1,52 @@
 {
     "name": "scene_01",
+    "camera": {
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "fov": 45.0
+    },
+    "lights": [
+        {
+            "color": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "intensity": 1.0,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        }
+    ],
     "objects": [
         {
-            "type": "cube",
+            "mesh": "cube",
+            "material": "how should i define the material?",
             "position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -17,11 +61,11 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
-            },
-            "material": "how should i define the material?"
+            }
         },
         {
-            "type": "sphere",
+            "mesh": "sphere",
+            "material": "how should i define the material?",
             "position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -36,8 +80,7 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
-            },
-            "material": "how should i define the material?"
+            }
         }
     ]
 }

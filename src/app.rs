@@ -1,4 +1,8 @@
-use crate::{audio::audio_model::AudioModel, basics::scene2::Scene, renderer, save_image};
+use crate::{
+    audio::audio_model::AudioModel,
+    basics::{scene2::Scene, scene_constructor},
+    renderer, save_image,
+};
 use std::{
     collections::VecDeque,
     time::{Duration, Instant},
@@ -35,6 +39,10 @@ impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
+
+        let json = include_str!("../scenes/scene_01.json");
+        let scene = scene_constructor::construct_scene_from_json(json);
+        dbg!(scene);
 
         let scene = Scene::new(
             &renderer.device,

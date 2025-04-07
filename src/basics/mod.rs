@@ -7,6 +7,7 @@ pub mod primitive;
 pub mod quad;
 // pub mod scene;
 pub mod scene2;
+pub mod scene_constructor;
 pub mod shader_data;
 pub mod sphere;
 pub mod triangle;
