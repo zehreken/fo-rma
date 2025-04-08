@@ -3,6 +3,7 @@ mod audio;
 mod basics;
 mod color_utils;
 mod gui;
+mod material;
 mod renderer;
 mod rendering;
 mod rendering_utils;

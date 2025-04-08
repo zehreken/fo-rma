@@ -1,80 +1,100 @@
-use super::{core::Vertex, uniforms::UniformTrait};
-use crate::rendering::screen_renderer::DynamicTexture;
-use std::num::NonZeroU64;
-use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, Device, Extent3d, RenderPipeline, Sampler,
-    SurfaceConfiguration, Texture, TextureView,
-};
+use std::{mem, num::NonZeroU64};
 
-pub struct Material {
-    pub uniform: Box<dyn UniformTrait>,
-    pub uniform_buffer: Buffer,
-    pub bind_group: BindGroup,
-    pub render_pipeline: RenderPipeline,
-    pub texture: Option<DynamicTexture>,
+use crate::basics::{
+    core::Vertex,
+    uniforms::{ColorUniform, ObjectUniform, UniformTrait},
+};
+use wgpu::{BindGroup, Device, RenderPipeline, SurfaceConfiguration};
+
+pub struct UnlitColorMaterial {
+    render_pipeline: RenderPipeline,
+    bind_groups: [BindGroup; 2], // object, color
 }
 
-impl Material {
-    pub fn new(
-        device: &Device,
-        surface_config: &SurfaceConfiguration,
-        generic_bind_group_layout: &BindGroupLayout,
-        light_bind_group_layout: &BindGroupLayout,
-        shader_main: &str,
-        shader_name: &str,
-        uniform: Box<dyn UniformTrait>,
-    ) -> Self {
+pub trait MaterialTrait {
+    fn pipeline(&self) -> &RenderPipeline;
+    fn bind_groups(&self) -> &[BindGroup];
+}
+
+impl UnlitColorMaterial {
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+        let shader_main = include_str!("../shaders/basic_light.wgsl");
         let shader_utils = include_str!("../shaders/utils.wgsl");
         let shader_combined = format!("{}\n{}", shader_main, shader_utils);
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some(shader_name),
+            label: Some("unlit_color"),
             source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         });
 
-        let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("material_uniform_buffer"),
-            size: uniform.get_size() as wgpu::BufferAddress,
+        // Object uniform, bind group
+        let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("object_uniform_buffer"),
+            size: mem::size_of::<ObjectUniform>() as wgpu::BufferAddress,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
-
-        let material_bind_group_layout =
+        let object_uniform_bgl =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                label: Some("material_bind_group_layout"),
+                label: Some("object_uniform_bind_group_layout"),
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                    visibility: wgpu::ShaderStages::VERTEX,
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
-                        min_binding_size: Some(NonZeroU64::new(uniform.get_size() as u64).unwrap()),
+                        min_binding_size: None,
                     },
                     count: None,
                 }],
             });
-
-        let material_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("material_bind_group"),
-            layout: &material_bind_group_layout,
+        let object_uniform_bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("object_uniform_bind_group"),
+            layout: &object_uniform_bgl,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: uniform_buffer.as_entire_binding(),
+                resource: object_uniform_buffer.as_entire_binding(),
             }],
         });
+
+        // Color uniform, bind group
+        let color_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("color_uniform_buffer"),
+            size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let color_uniform_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("color_uniform_bind_group_layout"),
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+        });
+        let color_uniform_bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("color_uniform_bind_group"),
+            layout: &color_uniform_bgl,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: color_uniform_buffer.as_entire_binding(),
+            }],
+        });
+        // =========================
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("render_pipeline_layout"),
-                bind_group_layouts: &[
-                    generic_bind_group_layout,
-                    light_bind_group_layout,
-                    &material_bind_group_layout,
-                ],
+                bind_group_layouts: &[&object_uniform_bgl, &color_uniform_bgl],
                 push_constant_ranges: &[],
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("material_render_pipeline"),
+            label: Some("render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
@@ -139,12 +159,11 @@ impl Material {
             multiview: None,
         });
 
+        let bind_groups = [object_uniform_bg, color_uniform_bg];
+
         Self {
-            uniform,
-            uniform_buffer,
-            bind_group: material_bind_group,
             render_pipeline,
-            texture: None,
+            bind_groups,
         }
     }
 }
