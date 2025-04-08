@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-pub fn construct_scene_from_json(json: &str) -> Scene {
-    let deserialized: Scene = serde_json::from_str(json).unwrap();
+pub fn construct_scene_from_json(json: &str) -> PseudoScene {
+    let deserialized: PseudoScene = serde_json::from_str(json).unwrap();
 
     deserialized
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Scene {
+pub struct PseudoScene {
     camera: Camera,
     lights: Vec<Light>,
     objects: Vec<Object>,

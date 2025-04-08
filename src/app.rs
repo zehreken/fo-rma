@@ -41,8 +41,8 @@ impl<'a> App<'a> {
         let renderer = renderer::Renderer::new(window).await;
 
         let json = include_str!("../scenes/scene_01.json");
-        let scene = scene_constructor::construct_scene_from_json(json);
-        dbg!(scene);
+        let pseudo_scene = scene_constructor::construct_scene_from_json(json);
+        dbg!(pseudo_scene);
 
         let scene = Scene::new(
             &renderer.device,
