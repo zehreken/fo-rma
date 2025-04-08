@@ -1,4 +1,4 @@
-use super::{core::Transform, primitive::Primitive, sphere::Sphere};
+use super::core::Transform;
 use glam::Vec3;
 
 pub struct Light {

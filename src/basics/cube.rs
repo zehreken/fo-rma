@@ -1,3 +1,5 @@
+use crate::material::material_layout::MaterialTrait;
+
 use super::{
     core::Vertex,
     material::Material,
@@ -55,7 +57,7 @@ pub struct Cube {
 }
 
 impl Cube {
-    pub fn new(device: &Device, material: Material) -> Self {
+    pub fn new(device: &Device, material: Box<dyn MaterialTrait>) -> Self {
         Self {
             state: PrimitiveState::new(device, VERTICES, INDICES, material),
         }
@@ -100,11 +102,20 @@ impl Primitive for Cube {
         &mut self.state.transform
     }
 
-    fn material(&self) -> &super::material::Material {
-        &self.state.material
+    // fn material(&self) -> &super::material::Material {
+    //     &self.state.material
+    // }
+
+    fn material(&self) -> &dyn MaterialTrait {
+        // &self.state.material
+        self.state.material.as_ref()
     }
 
-    fn material_mut(&mut self) -> &mut super::material::Material {
-        &mut self.state.material
+    // fn material_mut(&mut self) -> &mut super::material::Material {
+    //     &mut self.state.material
+    // }
+
+    fn material_mut(&mut self) -> &mut dyn MaterialTrait {
+        self.state.material.as_mut()
     }
 }

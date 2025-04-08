@@ -1,3 +1,5 @@
+use crate::material::material_layout::MaterialTrait;
+
 use super::{
     core::{Transform, Vertex},
     material::Material,
@@ -11,8 +13,10 @@ pub trait Primitive {
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
     fn transform(&mut self) -> &mut Transform;
-    fn material(&self) -> &Material;
-    fn material_mut(&mut self) -> &mut Material;
+    // fn material(&self) -> &Material;
+    fn material(&self) -> &dyn MaterialTrait;
+    // fn material_mut(&mut self) -> &mut Material;
+    fn material_mut(&mut self) -> &mut dyn MaterialTrait;
 }
 
 pub struct PrimitiveState {
@@ -22,11 +26,16 @@ pub struct PrimitiveState {
     pub transform: Transform,
     pub model_matrix: Mat4,
     pub normal_matrix: Mat3,
-    pub material: Material,
+    pub material: Box<dyn MaterialTrait>,
 }
 
 impl PrimitiveState {
-    pub fn new(device: &Device, vertices: &[Vertex], indices: &[u16], material: Material) -> Self {
+    pub fn new(
+        device: &Device,
+        vertices: &[Vertex],
+        indices: &[u16],
+        material: Box<dyn MaterialTrait>,
+    ) -> Self {
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("vertex_buffer"),
             contents: bytemuck::cast_slice(vertices),

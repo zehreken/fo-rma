@@ -1,10 +1,10 @@
 use crate::{
     audio::sequencer::Sequencer,
-    basics::{core::GenericUniformData, scene2::Scene},
+    basics::{core::GenericUniformData, scene3::Scene},
     gui::Gui,
     rendering::{
-        line_renderer::LineRenderer, post_processor::PostProcessor,
-        screen_renderer::ScreenRenderer, temp_renderer::FillRenderer,
+        fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
+        screen_renderer::ScreenRenderer,
     },
     rendering_utils::{self},
 };
@@ -97,7 +97,7 @@ impl<'a> Renderer<'a> {
     pub fn render(
         &mut self,
         window: &Window,
-        level: &Scene,
+        scene: &Scene,
         sequencer: &mut Sequencer,
         fps: f32,
         rolling_wave: &Vec<f32>,
@@ -113,10 +113,10 @@ impl<'a> Renderer<'a> {
             &self.queue,
             &self.depth_texture,
             &self.render_texture.1,
-            level,
+            scene,
             &self.generic_uniform_data,
             &self.light_uniform_data,
-            rolling_wave,
+            // rolling_wave,
         );
 
         // self.line_renderer.render(

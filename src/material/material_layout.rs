@@ -15,6 +15,16 @@ pub trait MaterialTrait {
     fn bind_groups(&self) -> &[BindGroup];
 }
 
+impl MaterialTrait for UnlitColorMaterial {
+    fn pipeline(&self) -> &RenderPipeline {
+        todo!()
+    }
+
+    fn bind_groups(&self) -> &[BindGroup] {
+        todo!()
+    }
+}
+
 impl UnlitColorMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         let shader_main = include_str!("../shaders/basic_light.wgsl");
