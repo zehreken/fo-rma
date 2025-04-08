@@ -1,9 +1,8 @@
-use std::{mem, num::NonZeroU64};
-
 use crate::basics::{
     core::Vertex,
     uniforms::{ColorUniform, ObjectUniform, UniformTrait},
 };
+use std::mem;
 use wgpu::{BindGroup, Device, RenderPipeline, SurfaceConfiguration};
 
 pub struct UnlitColorMaterial {
