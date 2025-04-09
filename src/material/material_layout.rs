@@ -11,17 +11,17 @@ pub struct UnlitColorMaterial {
 }
 
 pub trait MaterialTrait {
-    fn pipeline(&self) -> &RenderPipeline;
+    fn render_pipeline(&self) -> &RenderPipeline;
     fn bind_groups(&self) -> &[BindGroup];
 }
 
 impl MaterialTrait for UnlitColorMaterial {
-    fn pipeline(&self) -> &RenderPipeline {
-        todo!()
+    fn render_pipeline(&self) -> &RenderPipeline {
+        &self.render_pipeline
     }
 
     fn bind_groups(&self) -> &[BindGroup] {
-        todo!()
+        &self.bind_groups
     }
 }
 

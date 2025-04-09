@@ -86,7 +86,7 @@ impl FillRenderer {
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
-            render_pass.set_pipeline(&primitive.material().render_pipeline);
+            render_pass.set_pipeline(&primitive.material().render_pipeline());
             let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
             queue.write_buffer(

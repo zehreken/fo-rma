@@ -100,7 +100,7 @@ impl ScreenRenderer {
             occlusion_query_set: None,
         });
 
-        render_pass.set_pipeline(&self.screen_quad.material().render_pipeline);
+        render_pass.set_pipeline(&self.screen_quad.material().render_pipeline());
         let object_uniform = ObjectUniform {
             view_proj: [[0.0; 4]; 4], // not used in shader
             model: [[0.0; 4]; 4],     // not used in shader
