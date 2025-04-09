@@ -66,11 +66,11 @@ impl FillRenderer {
         });
         // render_pass.set_pipeline(&self.render_pipeline);
 
-        let uniform_alignment =
-            device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
-        let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
-        let aligned_uniform_size =
-            (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
+        // let uniform_alignment =
+        //     device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
+        // let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
+        // let aligned_uniform_size =
+        //     (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
         let light_data = light_uniform_data;
         let light_uniform = LightUniform {
@@ -87,30 +87,25 @@ impl FillRenderer {
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
             render_pass.set_pipeline(&primitive.material().render_pipeline());
-            let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
+            // let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
-            queue.write_buffer(
-                &generic_uniform_data.uniform_buffer,
-                uniform_offset,
-                bytemuck::cast_slice(&[object_uniform]),
-            );
-            queue.write_buffer(
-                &light_data.uniform_buffer,
-                0,
-                bytemuck::cast_slice(&[light_uniform]),
-            );
-            queue.write_buffer(
-                &primitive.material().uniform_buffer,
-                0,
-                &primitive.material().uniform.as_bytes(),
-            );
-            render_pass.set_bind_group(
-                0,
-                &generic_uniform_data.uniform_bind_group,
-                &[uniform_offset as u32],
-            );
-            render_pass.set_bind_group(1, &light_data.uniform_bind_group, &[]);
-            render_pass.set_bind_group(2, &primitive.material().bind_group, &[]);
+            // queue.write_buffer(
+            //     &generic_uniform_data.uniform_buffer,
+            //     0,
+            //     bytemuck::cast_slice(&[object_uniform]),
+            // );
+            // queue.write_buffer(
+            //     &primitive.material().uniform_buffer,
+            //     0,
+            //     &primitive.material().uniform.as_bytes(),
+            // );
+            // render_pass.set_bind_group(
+            //     0,
+            //     &generic_uniform_data.uniform_bind_group,
+            //     &[uniform_offset as u32],
+            // );
+            render_pass.set_bind_group(1, &primitive.material().bind_groups()[0], &[]);
+            render_pass.set_bind_group(2, &primitive.material().bind_groups()[1], &[]);
             primitive.draw(&mut render_pass);
         }
 

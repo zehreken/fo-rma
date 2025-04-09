@@ -119,7 +119,7 @@ impl ScreenRenderer {
             self.screen_quad.material().uniform.as_bytes(),
         );
 
-        render_pass.set_bind_group(0, &self.generic_uniform_data.uniform_bind_group, &[0]);
+        render_pass.set_bind_group(0, &self.screen_quad.material().bind_groups()[0], &[0]);
         render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
         render_pass.set_bind_group(2, texture_bind_group, &[]);
         self.screen_quad.draw(&mut render_pass);
