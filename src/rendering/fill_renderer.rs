@@ -86,6 +86,12 @@ impl FillRenderer {
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
+            let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("uniform_buffer"),
+                size: mem::size_of::<ObjectUniform>() as wgpu::BufferAddress,
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
             let color_uniform = ColorUniform {
                 color: [1.0, 0.0, 0.0, 1.0],
             };
@@ -99,12 +105,12 @@ impl FillRenderer {
             // let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
             queue.write_buffer(
-                &generic_uniform_data.uniform_buffer,
+                &primitive.material().buffers()[0],
                 0,
                 bytemuck::cast_slice(&[object_uniform]),
             );
             queue.write_buffer(
-                &color_uniform_buffer,
+                &primitive.material().buffers()[1],
                 0,
                 bytemuck::cast_slice(&[color_uniform]),
             );

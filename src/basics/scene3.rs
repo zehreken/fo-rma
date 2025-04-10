@@ -33,7 +33,7 @@ impl Scene {
         size: PhysicalSize<u32>,
     ) -> Self {
         let camera = camera::Camera::new(
-            vec3(0.0, 0.0, 10.0),
+            vec3(0.0, 0.0, 2.4),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,

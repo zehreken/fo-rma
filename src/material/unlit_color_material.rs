@@ -3,21 +3,27 @@ use crate::basics::{
     uniforms::{ColorUniform, ObjectUniform, UniformTrait},
 };
 use std::mem;
-use wgpu::{BindGroup, Device, RenderPipeline, SurfaceConfiguration};
+use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
 pub struct UnlitColorMaterial {
     render_pipeline: RenderPipeline,
+    buffers: [Buffer; 2],
     bind_groups: [BindGroup; 2], // object, color
 }
 
 pub trait MaterialTrait {
     fn render_pipeline(&self) -> &RenderPipeline;
+    fn buffers(&self) -> &[Buffer];
     fn bind_groups(&self) -> &[BindGroup];
 }
 
 impl MaterialTrait for UnlitColorMaterial {
     fn render_pipeline(&self) -> &RenderPipeline {
         &self.render_pipeline
+    }
+
+    fn buffers(&self) -> &[Buffer] {
+        &self.buffers
     }
 
     fn bind_groups(&self) -> &[BindGroup] {
@@ -168,10 +174,12 @@ impl UnlitColorMaterial {
             multiview: None,
         });
 
+        let buffers = [object_uniform_buffer, color_uniform_buffer];
         let bind_groups = [object_uniform_bg, color_uniform_bg];
 
         Self {
             render_pipeline,
+            buffers,
             bind_groups,
         }
     }
