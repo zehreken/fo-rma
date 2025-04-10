@@ -7,8 +7,7 @@ use crate::{
         uniforms::{ObjectUniform, ScreenQuadUniform, UniformTrait},
     },
     material::{
-        render_post_process_texture_material::RenderPostProcessTextureMaterial,
-        unlit_color_material::UnlitColorMaterial,
+        post_process_material::PostProcessMaterial, unlit_color_material::UnlitColorMaterial,
     },
     rendering_utils::create_generic_uniform_data,
 };
@@ -84,7 +83,7 @@ impl ScreenRenderer {
         device: &Device,
         queue: &Queue,
         output_view: &TextureView,
-        render_texture_material: &RenderPostProcessTextureMaterial,
+        render_texture_material: &PostProcessMaterial,
     ) {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("screen_render_encoder"),

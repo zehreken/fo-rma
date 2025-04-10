@@ -1,2 +1,11 @@
-pub mod render_post_process_texture_material;
+use wgpu::{BindGroup, Buffer, RenderPipeline};
+
+pub mod diffuse_color_material;
+pub mod post_process_material;
 pub mod unlit_color_material;
+
+pub trait MaterialTrait {
+    fn render_pipeline(&self) -> &RenderPipeline;
+    fn buffers(&self) -> &[Buffer];
+    fn bind_groups(&self) -> &[BindGroup];
+}

@@ -1,4 +1,4 @@
-use crate::material::unlit_color_material::MaterialTrait;
+use crate::material::MaterialTrait;
 
 use super::{
     core::{Transform, Vertex},

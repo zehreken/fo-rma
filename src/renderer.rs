@@ -2,7 +2,7 @@ use crate::{
     audio::sequencer::Sequencer,
     basics::{core::GenericUniformData, scene3::Scene},
     gui::Gui,
-    material::render_post_process_texture_material::RenderPostProcessTextureMaterial,
+    material::post_process_material::PostProcessMaterial,
     rendering::{
         fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
         screen_renderer::ScreenRenderer,
@@ -23,7 +23,7 @@ pub struct Renderer<'a> {
     pub queue: Queue,
     pub gui: Gui,
     depth_texture: TextureView,
-    pub render_texture_material: RenderPostProcessTextureMaterial,
+    pub render_texture_material: PostProcessMaterial,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
     post_processor: PostProcessor,
@@ -55,8 +55,7 @@ impl<'a> Renderer<'a> {
 
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
-        let render_texture_material =
-            RenderPostProcessTextureMaterial::new(&device, &surface_config, size);
+        let render_texture_material = PostProcessMaterial::new(&device, &surface_config, size);
         let render_texture = rendering_utils::create_render_texture(&device, &texture_format, size);
         let post_process_texture = rendering_utils::create_post_process_texture(&device, size);
         // Bind it to the post_processed texture, since that is the one we want to show

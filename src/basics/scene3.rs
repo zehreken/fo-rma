@@ -14,7 +14,9 @@ use super::{
 };
 use crate::{
     color_utils::{self, ToVec4},
-    material::unlit_color_material::UnlitColorMaterial,
+    material::{
+        diffuse_color_material::DiffuseColorMaterial, unlit_color_material::UnlitColorMaterial,
+    },
 };
 
 pub struct Scene {
@@ -50,7 +52,8 @@ impl Scene {
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
-            let material = UnlitColorMaterial::new(device, surface_config);
+            // let material = UnlitColorMaterial::new(device, surface_config);
+            let material = DiffuseColorMaterial::new(device, surface_config);
             let mut cube = Cube::new(&device, Box::new(material));
             let x = (-8 + i % 5 * 4) as f32;
             let z = (-8 + i / 5 * 4) as f32;
@@ -63,33 +66,33 @@ impl Scene {
             objects.push(Box::new(cube));
         }
 
-        let material = UnlitColorMaterial::new(device, surface_config);
-        let mut quad = Quad::new(device, Box::new(material));
-        quad.state.set_position(Vec3 {
-            x: 0.0,
-            y: -0.5,
-            z: 0.0,
-        });
-        quad.state.scale(Vec3 {
-            x: 2.0,
-            y: 1.0,
-            z: 1.0,
-        });
-        objects.push(Box::new(quad));
+        // let material = UnlitColorMaterial::new(device, surface_config);
+        // let mut quad = Quad::new(device, Box::new(material));
+        // quad.state.set_position(Vec3 {
+        //     x: 0.0,
+        //     y: -0.5,
+        //     z: 0.0,
+        // });
+        // quad.state.scale(Vec3 {
+        //     x: 2.0,
+        //     y: 1.0,
+        //     z: 1.0,
+        // });
+        // objects.push(Box::new(quad));
 
-        let material = UnlitColorMaterial::new(device, surface_config);
-        let mut quad = Quad::new(device, Box::new(material));
-        quad.state.set_position(Vec3 {
-            x: 0.0,
-            y: 0.5,
-            z: 0.0,
-        });
-        quad.state.scale(Vec3 {
-            x: 2.0,
-            y: 1.0,
-            z: 1.0,
-        });
-        objects.push(Box::new(quad));
+        // let material = UnlitColorMaterial::new(device, surface_config);
+        // let mut quad = Quad::new(device, Box::new(material));
+        // quad.state.set_position(Vec3 {
+        //     x: 0.0,
+        //     y: 0.5,
+        //     z: 0.0,
+        // });
+        // quad.state.scale(Vec3 {
+        //     x: 2.0,
+        //     y: 1.0,
+        //     z: 1.0,
+        // });
+        // objects.push(Box::new(quad));
 
         let mut light = Light::new([1.0, 1.0, 1.0]);
         light.update_position(vec3(0.0, 1.0, 0.0));

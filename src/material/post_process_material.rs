@@ -5,7 +5,7 @@ use wgpu::{
 };
 use winit::dpi::PhysicalSize;
 
-pub struct RenderPostProcessTextureMaterial {
+pub struct PostProcessMaterial {
     pub render_texture: Texture,
     pub render_texture_view: TextureView,
     pub post_process_texture: Texture,
@@ -16,7 +16,7 @@ pub struct RenderPostProcessTextureMaterial {
     pub render_pipeline: RenderPipeline,
 }
 
-impl RenderPostProcessTextureMaterial {
+impl PostProcessMaterial {
     pub fn new(
         device: &Device,
         surface_config: &SurfaceConfiguration,

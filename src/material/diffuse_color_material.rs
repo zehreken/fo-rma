@@ -1,18 +1,21 @@
-use super::MaterialTrait;
-use crate::basics::{
-    core::Vertex,
-    uniforms::{ColorUniform, ObjectUniform},
-};
 use std::mem;
+
 use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
-pub struct UnlitColorMaterial {
+use crate::basics::{
+    core::Vertex,
+    uniforms::{ColorUniform, LightUniform, ObjectUniform},
+};
+
+use super::MaterialTrait;
+
+pub struct DiffuseColorMaterial {
     render_pipeline: RenderPipeline,
-    buffers: [Buffer; 2],
-    bind_groups: [BindGroup; 2], // object, color
+    buffers: [Buffer; 3],
+    bind_groups: [BindGroup; 3],
 }
 
-impl MaterialTrait for UnlitColorMaterial {
+impl MaterialTrait for DiffuseColorMaterial {
     fn render_pipeline(&self) -> &RenderPipeline {
         &self.render_pipeline
     }
@@ -26,13 +29,13 @@ impl MaterialTrait for UnlitColorMaterial {
     }
 }
 
-impl UnlitColorMaterial {
+impl DiffuseColorMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader_main = include_str!("../shaders/unlit_color.wgsl");
+        let shader_main = include_str!("../shaders/basic_light.wgsl");
         let shader_utils = include_str!("../shaders/utils.wgsl");
         let shader_combined = format!("{}\n{}", shader_main, shader_utils);
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("unlit_color"),
+            label: Some("diffuse_color"),
             source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         });
 
@@ -96,15 +99,43 @@ impl UnlitColorMaterial {
         });
         // =========================
 
+        let light_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("light_uniform_buffer"),
+            size: mem::size_of::<LightUniform>() as wgpu::BufferAddress,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let light_uniform_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("light_uniform_bind_group_layout"),
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+        });
+        let light_uniform_bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("light_uniform_bind_group"),
+            layout: &light_uniform_bgl,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: light_uniform_buffer.as_entire_binding(),
+            }],
+        });
+
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("unlit_color_render_pipeline_layout"),
-                bind_group_layouts: &[&object_uniform_bgl, &color_uniform_bgl],
+                label: Some("diffuse_color_render_pipeline_layout"),
+                bind_group_layouts: &[&object_uniform_bgl, &color_uniform_bgl, &light_uniform_bgl],
                 push_constant_ranges: &[],
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("unlit_color_render_pipeline"),
+            label: Some("diffuse_color_render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
@@ -169,8 +200,12 @@ impl UnlitColorMaterial {
             multiview: None,
         });
 
-        let buffers = [object_uniform_buffer, color_uniform_buffer];
-        let bind_groups = [object_uniform_bg, color_uniform_bg];
+        let buffers = [
+            object_uniform_buffer,
+            color_uniform_buffer,
+            light_uniform_buffer,
+        ];
+        let bind_groups = [object_uniform_bg, color_uniform_bg, light_uniform_bg];
 
         Self {
             render_pipeline,

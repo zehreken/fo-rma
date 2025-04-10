@@ -5,16 +5,16 @@ struct Object {
 };
 @group(0) @binding(0) var<uniform> object: Object;
 
+struct Material {
+    color: vec4<f32> // a is for signal
+}
+@group(1) @binding(0) var<uniform> material: Material;
+
 struct Light {
     position: vec4<f32>,
     color: vec4<f32>,
 };
-@group(1) @binding(0) var<uniform> light: Light;
-
-struct Material {
-    color: vec4<f32> // a is for signal
-}
-@group(2) @binding(0) var<uniform> material: Material;
+@group(2) @binding(0) var<uniform> light: Light;
 
 struct VertexInput {
     @location(0) position: vec3<f32>,

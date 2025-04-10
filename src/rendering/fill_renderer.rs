@@ -114,6 +114,11 @@ impl FillRenderer {
                 0,
                 bytemuck::cast_slice(&[color_uniform]),
             );
+            queue.write_buffer(
+                &primitive.material().buffers()[2],
+                0,
+                bytemuck::cast_slice(&[light_uniform]),
+            );
             // render_pass.set_bind_group(
             //     0,
             //     &generic_uniform_data.uniform_bind_group,
@@ -121,6 +126,7 @@ impl FillRenderer {
             // );
             render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
             render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
+            render_pass.set_bind_group(2, &primitive.material().bind_groups()[2], &[]);
             primitive.draw(&mut render_pass);
         }
 
