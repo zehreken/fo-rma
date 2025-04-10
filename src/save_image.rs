@@ -7,7 +7,7 @@ pub fn save_image(
     device: &Device,
     queue: &Queue,
     surface_config: &SurfaceConfiguration,
-    texture: &(Texture, TextureView),
+    texture: &Texture,
 ) {
     let width = surface_config.width;
     let height = surface_config.height;
@@ -31,7 +31,7 @@ pub fn save_image(
     let mut encoder = device.create_command_encoder(&command_encoder_desc);
     encoder.copy_texture_to_buffer(
         wgpu::ImageCopyTexture {
-            texture: &texture.0,
+            texture: &texture,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
             aspect: wgpu::TextureAspect::All,

@@ -388,9 +388,9 @@ pub fn create_debug_uniform_data(
     )
 }
 
-pub fn create_render_texture_bind_group(
+pub fn create_texture_bind_group(
     device: &Device,
-    render_texture: &TextureView,
+    post_process_texture_view: &TextureView,
 ) -> (BindGroupLayout, BindGroup) {
     let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
         address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -432,7 +432,7 @@ pub fn create_render_texture_bind_group(
         entries: &[
             wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::TextureView(&render_texture),
+                resource: wgpu::BindingResource::TextureView(&post_process_texture_view),
             },
             wgpu::BindGroupEntry {
                 binding: 1,

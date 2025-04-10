@@ -2,6 +2,7 @@ use crate::{
     audio::sequencer::Sequencer,
     basics::{core::GenericUniformData, scene3::Scene},
     gui::Gui,
+    material::render_post_process_texture_material::RenderPostProcessTextureMaterial,
     rendering::{
         fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
         screen_renderer::ScreenRenderer,
@@ -22,9 +23,7 @@ pub struct Renderer<'a> {
     pub queue: Queue,
     pub gui: Gui,
     depth_texture: TextureView,
-    pub render_texture: (Texture, TextureView),
-    render_texture_bind_group: (BindGroupLayout, BindGroup),
-    pub post_process_texture: (Texture, TextureView),
+    pub render_texture_material: RenderPostProcessTextureMaterial,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
     post_processor: PostProcessor,
@@ -56,11 +55,13 @@ impl<'a> Renderer<'a> {
 
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
+        let render_texture_material =
+            RenderPostProcessTextureMaterial::new(&device, &surface_config, size);
         let render_texture = rendering_utils::create_render_texture(&device, &texture_format, size);
         let post_process_texture = rendering_utils::create_post_process_texture(&device, size);
         // Bind it to the post_processed texture, since that is the one we want to show
         let render_texture_bind_group =
-            rendering_utils::create_render_texture_bind_group(&device, &post_process_texture.1);
+            rendering_utils::create_texture_bind_group(&device, &post_process_texture.1);
 
         let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
@@ -80,9 +81,7 @@ impl<'a> Renderer<'a> {
             queue,
             gui,
             depth_texture,
-            render_texture,
-            render_texture_bind_group,
-            post_process_texture,
+            render_texture_material,
             fill_renderer,
             line_renderer,
             post_processor,
@@ -112,27 +111,27 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &self.depth_texture,
-            &self.render_texture.1,
+            &self.render_texture_material.render_texture_view,
             scene,
             &self.generic_uniform_data,
             &self.light_uniform_data,
             // rolling_wave,
         );
 
-        // self.line_renderer.render(
-        //     &self.device,
-        //     &self.queue,
-        //     &self.depth_texture,
-        //     &self.render_texture.1,
-        //     level,
-        // );
+        self.line_renderer.render(
+            &self.device,
+            &self.queue,
+            &self.depth_texture,
+            &self.render_texture_material.render_texture_view,
+            scene,
+        );
 
         self.post_processor
             .run(&self.device, &self.queue, self.size.width, self.size.height);
 
         self.gui.render(
             window,
-            &self.post_process_texture.1,
+            &self.render_texture_material.post_process_texture_view,
             &self.device,
             &self.queue,
             sequencer,
@@ -146,7 +145,7 @@ impl<'a> Renderer<'a> {
             &self.device,
             &self.queue,
             &output_view,
-            &self.render_texture_bind_group.1,
+            &self.render_texture_material,
         );
         output_frame.present();
 
@@ -160,18 +159,12 @@ impl<'a> Renderer<'a> {
         self.surface.configure(&self.device, &self.surface_config);
         self.depth_texture =
             rendering_utils::create_depth_texture(&self.device, &self.surface_config);
-        self.render_texture =
-            rendering_utils::create_render_texture(&self.device, &self.texture_format, size);
-        self.post_process_texture =
-            rendering_utils::create_post_process_texture(&self.device, size);
-        self.render_texture_bind_group = rendering_utils::create_render_texture_bind_group(
-            &self.device,
-            &self.post_process_texture.1,
-        );
+        self.render_texture_material
+            .resize(&self.device, &self.surface_config, size);
         self.post_processor.resize(
             &self.device,
-            &self.post_process_texture.1,
-            &self.render_texture.1,
+            &self.render_texture_material.post_process_texture_view,
+            &self.render_texture_material.render_texture_view,
         );
         self.gui.resize(size, scale_factor);
     }

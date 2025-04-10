@@ -14,7 +14,7 @@ use super::{
 };
 use crate::{
     color_utils::{self, ToVec4},
-    material::material_layout::UnlitColorMaterial,
+    material::unlit_color_material::UnlitColorMaterial,
 };
 
 pub struct Scene {
@@ -41,12 +41,12 @@ impl Scene {
             100.0,
         );
 
-        let color_material = create_color_material(
-            device,
-            surface_config,
-            generic_uniform_data,
-            light_uniform_data,
-        );
+        // let color_material = create_color_material(
+        //     device,
+        //     surface_config,
+        //     generic_uniform_data,
+        //     light_uniform_data,
+        // );
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
@@ -67,18 +67,13 @@ impl Scene {
         let mut quad = Quad::new(device, Box::new(material));
         quad.state.set_position(Vec3 {
             x: 0.0,
-            y: -3.0,
-            z: 0.0,
-        });
-        quad.state.rotate(Vec3 {
-            x: -90.0,
-            y: 0.0,
+            y: -0.5,
             z: 0.0,
         });
         quad.state.scale(Vec3 {
-            x: 100.0,
-            y: 100.0,
-            z: 100.0,
+            x: 2.0,
+            y: 1.0,
+            z: 1.0,
         });
         objects.push(Box::new(quad));
 
@@ -86,18 +81,13 @@ impl Scene {
         let mut quad = Quad::new(device, Box::new(material));
         quad.state.set_position(Vec3 {
             x: 0.0,
-            y: 3.0,
-            z: 0.0,
-        });
-        quad.state.rotate(Vec3 {
-            x: 90.0,
-            y: 0.0,
+            y: 0.5,
             z: 0.0,
         });
         quad.state.scale(Vec3 {
-            x: 100.0,
-            y: 100.0,
-            z: 100.0,
+            x: 2.0,
+            y: 1.0,
+            z: 1.0,
         });
         objects.push(Box::new(quad));
 
@@ -121,57 +111,57 @@ impl Scene {
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
 
-        // for primitive in &mut self.objects {
-        //     primitive.material_mut().uniform.set_signal(signal);
-        //     primitive.update(if show_beat {
-        //         delta_time * 20.0
-        //     } else {
-        //         delta_time
-        //     });
-        // }
+        for primitive in &mut self.objects {
+            // primitive.material_mut().uniform.set_signal(signal);
+            primitive.update(if show_beat {
+                delta_time * 20.0
+            } else {
+                delta_time
+            });
+        }
     }
 }
 
-fn create_color_material(
-    device: &Device,
-    surface_config: &SurfaceConfiguration,
-    generic_uniform_data: &GenericUniformData,
-    light_uniform_data: &GenericUniformData,
-) -> Material {
-    let shader_main = include_str!("../shaders/basic_light.wgsl");
-    let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
-        color: color_utils::CCP.palette[3].to_vec4(1.0),
-    });
+// fn create_color_material(
+//     device: &Device,
+//     surface_config: &SurfaceConfiguration,
+//     generic_uniform_data: &GenericUniformData,
+//     light_uniform_data: &GenericUniformData,
+// ) -> Material {
+//     let shader_main = include_str!("../shaders/basic_light.wgsl");
+//     let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
+//         color: color_utils::CCP.palette[3].to_vec4(1.0),
+//     });
 
-    create_material(
-        device,
-        surface_config,
-        generic_uniform_data,
-        light_uniform_data,
-        shader_main,
-        uniform,
-        "color",
-    )
-}
+//     create_material(
+//         device,
+//         surface_config,
+//         generic_uniform_data,
+//         light_uniform_data,
+//         shader_main,
+//         uniform,
+//         "color",
+//     )
+// }
 
-fn create_material(
-    device: &Device,
-    surface_config: &SurfaceConfiguration,
-    generic_uniform_data: &GenericUniformData,
-    light_uniform_data: &GenericUniformData,
-    shader_main: &str,
-    uniform: Box<dyn UniformTrait>,
-    name: &str,
-) -> Material {
-    let material = Material::new(
-        &device,
-        &surface_config,
-        &generic_uniform_data.uniform_bind_group_layout,
-        &light_uniform_data.uniform_bind_group_layout,
-        shader_main,
-        name,
-        uniform,
-    );
+// fn create_material(
+//     device: &Device,
+//     surface_config: &SurfaceConfiguration,
+//     generic_uniform_data: &GenericUniformData,
+//     light_uniform_data: &GenericUniformData,
+//     shader_main: &str,
+//     uniform: Box<dyn UniformTrait>,
+//     name: &str,
+// ) -> Material {
+//     let material = Material::new(
+//         &device,
+//         &surface_config,
+//         &generic_uniform_data.uniform_bind_group_layout,
+//         &light_uniform_data.uniform_bind_group_layout,
+//         shader_main,
+//         name,
+//         uniform,
+//     );
 
-    material
-}
+//     material
+// }

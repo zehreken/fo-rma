@@ -3,7 +3,7 @@ use super::{
     material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use crate::material::material_layout::MaterialTrait;
+use crate::material::unlit_color_material::MaterialTrait;
 use glam::{vec3, EulerRot, Mat3, Mat4, Quat};
 use wgpu::{Device, RenderPass};
 

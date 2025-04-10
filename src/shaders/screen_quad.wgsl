@@ -19,9 +19,9 @@ fn vs_main(model: VertexInput) -> VertexOutput {
     return out;
 }
 
-@group(2) @binding(0)
+@group(0) @binding(0)
 var my_texture: texture_2d<f32>;
-@group(2) @binding(1)
+@group(0) @binding(1)
 var my_sampler: sampler;
  
 @fragment

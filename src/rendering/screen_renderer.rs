@@ -6,6 +6,10 @@ use crate::{
         quad::Quad,
         uniforms::{ObjectUniform, ScreenQuadUniform, UniformTrait},
     },
+    material::{
+        render_post_process_texture_material::RenderPostProcessTextureMaterial,
+        unlit_color_material::UnlitColorMaterial,
+    },
     rendering_utils::create_generic_uniform_data,
 };
 use std::num::NonZeroU64;
@@ -59,14 +63,15 @@ impl ScreenRenderer {
 
         let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 1);
 
-        let material = create_screen_quad_material(
-            &device,
-            shader,
-            &surface_config,
-            &generic_uniform_data,
-            &texture_bind_group_layout,
-        );
-        let screen_quad = Box::new(Quad::new(&device, material));
+        // let material = create_screen_quad_material(
+        //     &device,
+        //     shader,
+        //     &surface_config,
+        //     &generic_uniform_data,
+        //     &texture_bind_group_layout,
+        // );
+        let mock_material = UnlitColorMaterial::new(device, surface_config);
+        let screen_quad = Box::new(Quad::new(&device, Box::new(mock_material)));
 
         Self {
             generic_uniform_data,
@@ -79,14 +84,14 @@ impl ScreenRenderer {
         device: &Device,
         queue: &Queue,
         output_view: &TextureView,
-        texture_bind_group: &BindGroup,
+        render_texture_material: &RenderPostProcessTextureMaterial,
     ) {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("render_encooder"),
+            label: Some("screen_render_encoder"),
         });
 
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: Some("render_pass"),
+            label: Some("screen_render_pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
                 view: output_view,
                 resolve_target: None,
@@ -100,28 +105,29 @@ impl ScreenRenderer {
             occlusion_query_set: None,
         });
 
-        render_pass.set_pipeline(&self.screen_quad.material().render_pipeline());
-        let object_uniform = ObjectUniform {
-            view_proj: [[0.0; 4]; 4], // not used in shader
-            model: [[0.0; 4]; 4],     // not used in shader
-            normal1: [0.0; 4],        // not used in shader
-            normal2: [0.0; 4],        // not used in shader
-            normal3: [0.0; 4],        // not used in shader
-        };
-        queue.write_buffer(
-            &self.generic_uniform_data.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[object_uniform]),
-        );
-        queue.write_buffer(
-            &self.screen_quad.material().uniform_buffer,
-            0,
-            self.screen_quad.material().uniform.as_bytes(),
-        );
+        // render_pass.set_pipeline(&self.screen_quad.material().render_pipeline());
+        render_pass.set_pipeline(&render_texture_material.render_pipeline);
+        // let object_uniform = ObjectUniform {
+        //     view_proj: [[0.0; 4]; 4], // not used in shader
+        //     model: [[0.0; 4]; 4],     // not used in shader
+        //     normal1: [0.0; 4],        // not used in shader
+        //     normal2: [0.0; 4],        // not used in shader
+        //     normal3: [0.0; 4],        // not used in shader
+        // };
+        // queue.write_buffer(
+        //     &self.generic_uniform_data.uniform_buffer,
+        //     0,
+        //     bytemuck::cast_slice(&[object_uniform]),
+        // );
+        // queue.write_buffer(
+        //     &self.screen_quad.material().uniform_buffer,
+        //     0,
+        //     self.screen_quad.material().uniform.as_bytes(),
+        // );
 
-        render_pass.set_bind_group(0, &self.screen_quad.material().bind_groups()[0], &[0]);
-        render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
-        render_pass.set_bind_group(2, texture_bind_group, &[]);
+        // render_pass.set_bind_group(0, &self.screen_quad.material().bind_groups()[0], &[0]);
+        // render_pass.set_bind_group(1, &self.screen_quad.material().bind_group, &[]);
+        render_pass.set_bind_group(0, &render_texture_material.texture_bind_group, &[]);
         self.screen_quad.draw(&mut render_pass);
         drop(render_pass);
 

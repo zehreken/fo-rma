@@ -27,7 +27,7 @@ impl MaterialTrait for UnlitColorMaterial {
 
 impl UnlitColorMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader_main = include_str!("../shaders/basic_light.wgsl");
+        let shader_main = include_str!("../shaders/unlit_color.wgsl");
         let shader_utils = include_str!("../shaders/utils.wgsl");
         let shader_combined = format!("{}\n{}", shader_main, shader_utils);
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -97,13 +97,13 @@ impl UnlitColorMaterial {
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("render_pipeline_layout"),
+                label: Some("unlit_color_render_pipeline_layout"),
                 bind_group_layouts: &[&object_uniform_bgl, &color_uniform_bgl],
                 push_constant_ranges: &[],
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("render_pipeline"),
+            label: Some("unlit_color_render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,

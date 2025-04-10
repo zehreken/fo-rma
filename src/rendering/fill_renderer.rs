@@ -2,7 +2,7 @@ use crate::{
     basics::{
         core::GenericUniformData,
         scene3::Scene,
-        uniforms::{LightUniform, ObjectUniform},
+        uniforms::{ColorUniform, LightUniform, ObjectUniform},
     },
     color_utils::{self, ToVec4},
 };
@@ -86,26 +86,35 @@ impl FillRenderer {
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
+            let color_uniform = ColorUniform {
+                color: [1.0, 0.0, 0.0, 1.0],
+            };
+            let color_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("color_uniform_buffer"),
+                size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
             render_pass.set_pipeline(&primitive.material().render_pipeline());
             // let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
-            // queue.write_buffer(
-            //     &generic_uniform_data.uniform_buffer,
-            //     0,
-            //     bytemuck::cast_slice(&[object_uniform]),
-            // );
-            // queue.write_buffer(
-            //     &primitive.material().uniform_buffer,
-            //     0,
-            //     &primitive.material().uniform.as_bytes(),
-            // );
+            queue.write_buffer(
+                &generic_uniform_data.uniform_buffer,
+                0,
+                bytemuck::cast_slice(&[object_uniform]),
+            );
+            queue.write_buffer(
+                &color_uniform_buffer,
+                0,
+                bytemuck::cast_slice(&[color_uniform]),
+            );
             // render_pass.set_bind_group(
             //     0,
             //     &generic_uniform_data.uniform_bind_group,
             //     &[uniform_offset as u32],
             // );
-            render_pass.set_bind_group(1, &primitive.material().bind_groups()[0], &[]);
-            render_pass.set_bind_group(2, &primitive.material().bind_groups()[1], &[]);
+            render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
+            render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
             primitive.draw(&mut render_pass);
         }
 

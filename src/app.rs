@@ -187,7 +187,7 @@ fn run_event_loop(
                     &app.renderer.device,
                     &app.renderer.queue,
                     &app.renderer.surface_config,
-                    &app.renderer.post_process_texture,
+                    &app.renderer.render_texture_material.post_process_texture,
                 );
             }
         }
