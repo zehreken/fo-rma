@@ -1,12 +1,7 @@
 use crate::{
-    basics::{
-        core::GenericUniformData,
-        scene3::Scene,
-        uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
-    },
-    color_utils::{self, ToVec4},
+    basics::scene3::Scene,
+    color_utils::{self},
 };
-use std::mem;
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
     RenderPassDescriptor, StoreOp, TextureView,
@@ -28,8 +23,6 @@ impl FillRenderer {
         depth_texture: &TextureView,
         output_view: &TextureView,
         level: &Scene,
-        generic_uniform_data: &GenericUniformData,
-        light_uniform_data: &GenericUniformData,
     ) {
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("fill_render_encoder"),
@@ -64,76 +57,14 @@ impl FillRenderer {
             timestamp_writes: None,
             occlusion_query_set: None,
         });
-        // render_pass.set_pipeline(&self.render_pipeline);
-
-        // let uniform_alignment =
-        //     device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
-        // let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
-        // let aligned_uniform_size =
-        //     (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
-
-        // let light_data = light_uniform_data
-        // let light_uniform = LightUniform {
-        //     position: level.lights[0].transform.position.extend(0.0).to_array(),
-        //     color: level.lights[0].color.to_vec4(1.0),
-        // };
 
         for primitive in &level.objects {
-            // let object_uniform = ObjectUniform {
-            //     view_proj: level.camera.build_view_projection_matrix(),
-            //     model: primitive.model_matrix(),
-            //     normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
-            //     normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
-            //     normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
-            // };
-            // let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            //     label: Some("uniform_buffer"),
-            //     size: mem::size_of::<ObjectUniform>() as wgpu::BufferAddress,
-            //     usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            //     mapped_at_creation: false,
-            // });
-            // let color_uniform = ColorUniform {
-            //     color: [1.0, 0.0, 0.0, 1.0],
-            // };
-            // let equalizer_uniform = EqualizerUniform {
-            //     color1: color_utils::CCP.palette[0].to_vec4(1.0),
-            //     color2: color_utils::CCP.palette[1].to_vec4(1.0),
-            //     color3: color_utils::CCP.palette[2].to_vec4(1.0),
-            //     signal: 0.7,
-            //     _padding: [0.0, 0.0, 0.0],
-            // };
-            // let color_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            //     label: Some("color_uniform_buffer"),
-            //     size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
-            //     usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            //     mapped_at_creation: false,
-            // });
             render_pass.set_pipeline(&primitive.material().render_pipeline());
-            // let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
-            // queue.write_buffer(
-            //     &primitive.material().buffers()[0],
-            //     0,
-            //     bytemuck::cast_slice(&[object_uniform]),
-            // );
-            // queue.write_buffer(
-            //     &primitive.material().buffers()[1],
-            //     0,
-            //     bytemuck::cast_slice(&[equalizer_uniform]),
-            // );
-            // queue.write_buffer(
-            //     &primitive.material().buffers()[2],
-            //     0,
-            //     bytemuck::cast_slice(&[light_uniform]),
-            // );
-            // render_pass.set_bind_group(
-            //     0,
-            //     &generic_uniform_data.uniform_bind_group,
-            //     &[uniform_offset as u32],
-            // );
             render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
             render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
             render_pass.set_bind_group(2, &primitive.material().bind_groups()[2], &[]);
+
             primitive.draw(&mut render_pass);
         }
 

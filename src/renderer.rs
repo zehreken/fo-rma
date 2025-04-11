@@ -28,8 +28,6 @@ pub struct Renderer<'a> {
     line_renderer: LineRenderer,
     post_processor: PostProcessor,
     screen_renderer: ScreenRenderer,
-    pub generic_uniform_data: GenericUniformData,
-    pub light_uniform_data: GenericUniformData,
     texture_format: TextureFormat,
     size: PhysicalSize<u32>,
 }
@@ -69,10 +67,6 @@ impl<'a> Renderer<'a> {
         let screen_renderer =
             ScreenRenderer::new(&device, &surface_config, &render_texture_bind_group.0);
 
-        let generic_uniform_data =
-            rendering_utils::create_generic_uniform_data(&device, &surface_config, PRIMITIVE_COUNT);
-        let light_uniform_data = rendering_utils::create_light_uniform_data(&device);
-
         Self {
             surface,
             device,
@@ -85,8 +79,6 @@ impl<'a> Renderer<'a> {
             line_renderer,
             post_processor,
             screen_renderer,
-            generic_uniform_data,
-            light_uniform_data,
             texture_format,
             size,
         }
@@ -112,8 +104,6 @@ impl<'a> Renderer<'a> {
             &self.depth_texture,
             &self.render_texture_material.render_texture_view,
             scene,
-            &self.generic_uniform_data,
-            &self.light_uniform_data,
             // rolling_wave,
         );
 

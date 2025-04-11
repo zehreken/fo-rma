@@ -34,8 +34,6 @@ impl Scene {
     pub fn new(
         device: &Device,
         surface_config: &SurfaceConfiguration,
-        generic_uniform_data: &GenericUniformData,
-        light_uniform_data: &GenericUniformData,
         size: PhysicalSize<u32>,
     ) -> Self {
         let camera = camera::Camera::new(
@@ -46,13 +44,6 @@ impl Scene {
             0.1,
             100.0,
         );
-
-        // let color_material = create_color_material(
-        //     device,
-        //     surface_config,
-        //     generic_uniform_data,
-        //     light_uniform_data,
-        // );
 
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
@@ -71,33 +62,43 @@ impl Scene {
             objects.push(Box::new(cube));
         }
 
-        // let material = UnlitColorMaterial::new(device, surface_config);
-        // let mut quad = Quad::new(device, Box::new(material));
-        // quad.state.set_position(Vec3 {
-        //     x: 0.0,
-        //     y: -0.5,
-        //     z: 0.0,
-        // });
-        // quad.state.scale(Vec3 {
-        //     x: 2.0,
-        //     y: 1.0,
-        //     z: 1.0,
-        // });
-        // objects.push(Box::new(quad));
+        let material = DiffuseColorMaterial::new(device, surface_config);
+        let mut quad = Quad::new(device, Box::new(material));
+        quad.state.set_position(Vec3 {
+            x: 0.0,
+            y: -3.0,
+            z: 0.0,
+        });
+        quad.state.rotate(Vec3 {
+            x: -90.0,
+            y: 0.0,
+            z: 0.0,
+        });
+        quad.state.scale(Vec3 {
+            x: 100.0,
+            y: 100.0,
+            z: 100.0,
+        });
+        objects.push(Box::new(quad));
 
-        // let material = UnlitColorMaterial::new(device, surface_config);
-        // let mut quad = Quad::new(device, Box::new(material));
-        // quad.state.set_position(Vec3 {
-        //     x: 0.0,
-        //     y: 0.5,
-        //     z: 0.0,
-        // });
-        // quad.state.scale(Vec3 {
-        //     x: 2.0,
-        //     y: 1.0,
-        //     z: 1.0,
-        // });
-        // objects.push(Box::new(quad));
+        let material = DiffuseColorMaterial::new(device, surface_config);
+        let mut quad = Quad::new(device, Box::new(material));
+        quad.state.set_position(Vec3 {
+            x: 0.0,
+            y: 3.0,
+            z: 0.0,
+        });
+        quad.state.rotate(Vec3 {
+            x: 90.0,
+            y: 0.0,
+            z: 0.0,
+        });
+        quad.state.scale(Vec3 {
+            x: 100.0,
+            y: 100.0,
+            z: 100.0,
+        });
+        objects.push(Box::new(quad));
 
         let mut light = Light::new([1.0, 1.0, 1.0]);
         light.update_position(vec3(0.0, 1.0, 0.0));

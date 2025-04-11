@@ -44,13 +44,7 @@ impl<'a> App<'a> {
         let pseudo_scene = scene_constructor::construct_scene_from_json(json);
         dbg!(pseudo_scene);
 
-        let scene = Scene::new(
-            &renderer.device,
-            &renderer.surface_config,
-            &renderer.generic_uniform_data,
-            &renderer.light_uniform_data,
-            size,
-        );
+        let scene = Scene::new(&renderer.device, &renderer.surface_config, size);
 
         let audio_model = AudioModel::new().unwrap();
 
