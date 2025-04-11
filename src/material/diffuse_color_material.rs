@@ -1,13 +1,10 @@
-use std::mem;
-
-use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
-
+use super::MaterialTrait;
 use crate::basics::{
     core::Vertex,
     uniforms::{ColorUniform, LightUniform, ObjectUniform},
 };
-
-use super::MaterialTrait;
+use std::mem;
+use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
 pub struct DiffuseColorMaterial {
     render_pipeline: RenderPipeline,
@@ -27,6 +24,8 @@ impl MaterialTrait for DiffuseColorMaterial {
     fn bind_groups(&self) -> &[BindGroup] {
         &self.bind_groups
     }
+
+    fn update(&self, data: &dyn std::any::Any) {}
 }
 
 impl DiffuseColorMaterial {

@@ -15,7 +15,8 @@ use super::{
 use crate::{
     color_utils::{self, ToVec4},
     material::{
-        diffuse_color_material::DiffuseColorMaterial, unlit_color_material::UnlitColorMaterial,
+        diffuse_color_material::DiffuseColorMaterial, equalizer_material::EqualizerMaterial,
+        unlit_color_material::UnlitColorMaterial,
     },
 };
 
@@ -53,7 +54,8 @@ impl Scene {
         let mut objects: Vec<Box<dyn Primitive>> = vec![];
         for i in 0..25 {
             // let material = UnlitColorMaterial::new(device, surface_config);
-            let material = DiffuseColorMaterial::new(device, surface_config);
+            // let material = DiffuseColorMaterial::new(device, surface_config);
+            let material = EqualizerMaterial::new(device, surface_config);
             let mut cube = Cube::new(&device, Box::new(material));
             let x = (-8 + i % 5 * 4) as f32;
             let z = (-8 + i / 5 * 4) as f32;

@@ -1,11 +1,9 @@
-use crate::material::MaterialTrait;
-
 use super::{
     core::Vertex,
-    material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use glam::{vec3, Mat3, Mat4, Quat};
+use crate::material::MaterialTrait;
+use glam::{Mat3, Mat4};
 use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
