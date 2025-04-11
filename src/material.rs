@@ -11,4 +11,5 @@ pub trait MaterialTrait {
     fn buffers(&self) -> &[Buffer];
     fn bind_groups(&self) -> &[BindGroup];
     fn update(&self, queue: &Queue, data: &dyn Any);
+    fn get_id(&self) -> u8;
 }

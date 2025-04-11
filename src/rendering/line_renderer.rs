@@ -1,7 +1,9 @@
 use std::mem;
 
 use crate::{
-    basics::{core::GenericUniformData, scene3::Scene, uniforms::ObjectUniform},
+    basics::{
+        core::GenericUniformData, primitive::Primitive, scene3::Scene, uniforms::ObjectUniform,
+    },
     renderer, rendering_utils,
 };
 use wgpu::{
@@ -62,9 +64,13 @@ impl LineRenderer {
         });
 
         render_pass.set_pipeline(&self.render_pipeline);
-
+        let flat: Vec<&Box<dyn Primitive>> = level
+            .material_object_map
+            .values()
+            .flat_map(|v| v.iter())
+            .collect();
         // Update debug uniforms
-        for (i, primitive) in level.objects.iter().enumerate() {
+        for (i, primitive) in flat.iter().enumerate() {
             let debug_uniform = ObjectUniform {
                 view_proj: level.camera.build_view_projection_matrix(),
                 // debug_uniforms.model = self.light.debug_mesh.model_matrix();

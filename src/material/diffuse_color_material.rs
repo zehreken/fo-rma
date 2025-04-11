@@ -6,6 +6,12 @@ use crate::basics::{
 use std::mem;
 use wgpu::{BindGroup, Buffer, Device, Queue, RenderPipeline, SurfaceConfiguration};
 
+pub struct DiffuseColorUniforms {
+    pub object: ObjectUniform,
+    pub color: ColorUniform,
+    pub light: LightUniform,
+}
+
 pub struct DiffuseColorMaterial {
     render_pipeline: RenderPipeline,
     buffers: [Buffer; 3],
@@ -25,7 +31,17 @@ impl MaterialTrait for DiffuseColorMaterial {
         &self.bind_groups
     }
 
-    fn update(&self, queue: &Queue, data: &dyn std::any::Any) {}
+    fn update(&self, queue: &Queue, data: &dyn std::any::Any) {
+        if let Some(data) = data.downcast_ref::<DiffuseColorUniforms>() {
+            queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
+            queue.write_buffer(&self.buffers[1], 0, bytemuck::cast_slice(&[data.color]));
+            queue.write_buffer(&self.buffers[2], 0, bytemuck::cast_slice(&[data.light]));
+        }
+    }
+
+    fn get_id(&self) -> u8 {
+        1
+    }
 }
 
 impl DiffuseColorMaterial {

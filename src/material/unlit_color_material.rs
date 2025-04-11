@@ -28,6 +28,10 @@ impl MaterialTrait for UnlitColorMaterial {
     }
 
     fn update(&self, queue: &Queue, data: &dyn std::any::Any) {}
+
+    fn get_id(&self) -> u8 {
+        2
+    }
 }
 
 impl UnlitColorMaterial {

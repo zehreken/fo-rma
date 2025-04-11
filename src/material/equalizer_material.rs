@@ -38,6 +38,10 @@ impl MaterialTrait for EqualizerMaterial {
             queue.write_buffer(&self.buffers[2], 0, bytemuck::cast_slice(&[data.light]));
         }
     }
+
+    fn get_id(&self) -> u8 {
+        0
+    }
 }
 
 impl EqualizerMaterial {

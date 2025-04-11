@@ -58,14 +58,28 @@ impl FillRenderer {
             occlusion_query_set: None,
         });
 
-        for primitive in &level.objects {
-            render_pass.set_pipeline(&primitive.material().render_pipeline());
+        for (material_id, objects) in &level.material_object_map {
+            if *material_id == 0 {
+                for primitive in objects {
+                    render_pass.set_pipeline(&primitive.material().render_pipeline());
 
-            render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
-            render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
-            render_pass.set_bind_group(2, &primitive.material().bind_groups()[2], &[]);
+                    render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
+                    render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
+                    render_pass.set_bind_group(2, &primitive.material().bind_groups()[2], &[]);
 
-            primitive.draw(&mut render_pass);
+                    primitive.draw(&mut render_pass);
+                }
+            } else if *material_id == 1 {
+                for primitive in objects {
+                    render_pass.set_pipeline(&primitive.material().render_pipeline());
+
+                    render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
+                    render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
+                    render_pass.set_bind_group(2, &primitive.material().bind_groups()[2], &[]);
+
+                    primitive.draw(&mut render_pass);
+                }
+            }
         }
 
         drop(render_pass); // also releases encoder
