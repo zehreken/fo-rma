@@ -73,19 +73,19 @@ impl FillRenderer {
         //     (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
 
         // let light_data = light_uniform_data
-        let light_uniform = LightUniform {
-            position: level.lights[0].transform.position.extend(0.0).to_array(),
-            color: level.lights[0].color.to_vec4(1.0),
-        };
+        // let light_uniform = LightUniform {
+        //     position: level.lights[0].transform.position.extend(0.0).to_array(),
+        //     color: level.lights[0].color.to_vec4(1.0),
+        // };
 
         for primitive in &level.objects {
-            let object_uniform = ObjectUniform {
-                view_proj: level.camera.build_view_projection_matrix(),
-                model: primitive.model_matrix(),
-                normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
-                normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
-                normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
-            };
+            // let object_uniform = ObjectUniform {
+            //     view_proj: level.camera.build_view_projection_matrix(),
+            //     model: primitive.model_matrix(),
+            //     normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
+            //     normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
+            //     normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
+            // };
             // let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             //     label: Some("uniform_buffer"),
             //     size: mem::size_of::<ObjectUniform>() as wgpu::BufferAddress,
@@ -95,13 +95,13 @@ impl FillRenderer {
             // let color_uniform = ColorUniform {
             //     color: [1.0, 0.0, 0.0, 1.0],
             // };
-            let equalizer_uniform = EqualizerUniform {
-                color1: color_utils::CCP.palette[0].to_vec4(1.0),
-                color2: color_utils::CCP.palette[1].to_vec4(1.0),
-                color3: color_utils::CCP.palette[2].to_vec4(1.0),
-                signal: 0.7,
-                _padding: [0.0, 0.0, 0.0],
-            };
+            // let equalizer_uniform = EqualizerUniform {
+            //     color1: color_utils::CCP.palette[0].to_vec4(1.0),
+            //     color2: color_utils::CCP.palette[1].to_vec4(1.0),
+            //     color3: color_utils::CCP.palette[2].to_vec4(1.0),
+            //     signal: 0.7,
+            //     _padding: [0.0, 0.0, 0.0],
+            // };
             // let color_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             //     label: Some("color_uniform_buffer"),
             //     size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
