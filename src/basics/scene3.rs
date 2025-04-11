@@ -1,27 +1,21 @@
-use glam::{vec3, Vec3};
-use wgpu::{Device, Queue, SurfaceConfiguration};
-use winit::dpi::PhysicalSize;
-
 use super::{
     camera::{self, Camera},
-    core::GenericUniformData,
     cube::Cube,
-    light::{self, Light},
-    material::Material,
+    light::Light,
     primitive::Primitive,
     quad::Quad,
-    uniforms::{
-        ColorUniform, EqualizerUniform, LightUniform, ObjectUniform, UniformTrait, WaveWorldUniform,
-    },
+    uniforms::{EqualizerUniform, LightUniform, ObjectUniform, UniformTrait, WaveWorldUniform},
 };
 use crate::{
     color_utils::{self, ToVec4},
     material::{
         diffuse_color_material::DiffuseColorMaterial,
         equalizer_material::{EqualizerMaterial, EqualizerUniforms},
-        unlit_color_material::UnlitColorMaterial,
     },
 };
+use glam::{vec3, Vec3};
+use wgpu::{Device, Queue, SurfaceConfiguration};
+use winit::dpi::PhysicalSize;
 
 pub struct Scene {
     pub camera: Camera,
@@ -62,7 +56,7 @@ impl Scene {
             objects.push(Box::new(cube));
         }
 
-        let material = DiffuseColorMaterial::new(device, surface_config);
+        let material = EqualizerMaterial::new(device, surface_config);
         let mut quad = Quad::new(device, Box::new(material));
         quad.state.set_position(Vec3 {
             x: 0.0,
@@ -81,7 +75,7 @@ impl Scene {
         });
         objects.push(Box::new(quad));
 
-        let material = DiffuseColorMaterial::new(device, surface_config);
+        let material = EqualizerMaterial::new(device, surface_config);
         let mut quad = Quad::new(device, Box::new(material));
         quad.state.set_position(Vec3 {
             x: 0.0,
@@ -154,47 +148,3 @@ impl Scene {
         }
     }
 }
-
-// fn create_color_material(
-//     device: &Device,
-//     surface_config: &SurfaceConfiguration,
-//     generic_uniform_data: &GenericUniformData,
-//     light_uniform_data: &GenericUniformData,
-// ) -> Material {
-//     let shader_main = include_str!("../shaders/basic_light.wgsl");
-//     let uniform: Box<dyn UniformTrait> = Box::new(ColorUniform {
-//         color: color_utils::CCP.palette[3].to_vec4(1.0),
-//     });
-
-//     create_material(
-//         device,
-//         surface_config,
-//         generic_uniform_data,
-//         light_uniform_data,
-//         shader_main,
-//         uniform,
-//         "color",
-//     )
-// }
-
-// fn create_material(
-//     device: &Device,
-//     surface_config: &SurfaceConfiguration,
-//     generic_uniform_data: &GenericUniformData,
-//     light_uniform_data: &GenericUniformData,
-//     shader_main: &str,
-//     uniform: Box<dyn UniformTrait>,
-//     name: &str,
-// ) -> Material {
-//     let material = Material::new(
-//         &device,
-//         &surface_config,
-//         &generic_uniform_data.uniform_bind_group_layout,
-//         &light_uniform_data.uniform_bind_group_layout,
-//         shader_main,
-//         name,
-//         uniform,
-//     );
-
-//     material
-// }

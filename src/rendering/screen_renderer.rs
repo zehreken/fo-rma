@@ -9,7 +9,6 @@ use crate::{
     material::{
         post_process_material::PostProcessMaterial, unlit_color_material::UnlitColorMaterial,
     },
-    rendering_utils::create_generic_uniform_data,
 };
 use std::num::NonZeroU64;
 use wgpu::{
@@ -18,7 +17,6 @@ use wgpu::{
 };
 
 pub struct ScreenRenderer {
-    generic_uniform_data: GenericUniformData,
     screen_quad: Box<dyn Primitive>,
 }
 
@@ -60,8 +58,6 @@ impl ScreenRenderer {
             label: Some("texture_bind_group_layout"),
         });
 
-        let generic_uniform_data = create_generic_uniform_data(&device, &surface_config, 1);
-
         // let material = create_screen_quad_material(
         //     &device,
         //     shader,
@@ -72,10 +68,7 @@ impl ScreenRenderer {
         let mock_material = UnlitColorMaterial::new(device, surface_config);
         let screen_quad = Box::new(Quad::new(&device, Box::new(mock_material)));
 
-        Self {
-            generic_uniform_data,
-            screen_quad,
-        }
+        Self { screen_quad }
     }
 
     pub fn render(
