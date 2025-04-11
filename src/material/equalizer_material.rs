@@ -1,13 +1,16 @@
-use std::mem;
-
-use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
-
+use super::MaterialTrait;
 use crate::basics::{
     core::Vertex,
     uniforms::{EqualizerUniform, LightUniform, ObjectUniform},
 };
+use std::mem;
+use wgpu::{BindGroup, Buffer, Device, Queue, RenderPipeline, SurfaceConfiguration};
 
-use super::MaterialTrait;
+pub struct EqualizerUniforms {
+    pub object: ObjectUniform,
+    pub equalizer: EqualizerUniform,
+    pub light: LightUniform,
+}
 
 pub struct EqualizerMaterial {
     render_pipeline: RenderPipeline,
@@ -28,7 +31,13 @@ impl MaterialTrait for EqualizerMaterial {
         &self.bind_groups
     }
 
-    fn update(&self, data: &dyn std::any::Any) {}
+    fn update(&self, queue: &Queue, data: &dyn std::any::Any) {
+        if let Some(data) = data.downcast_ref::<EqualizerUniforms>() {
+            queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
+            queue.write_buffer(&self.buffers[1], 0, bytemuck::cast_slice(&[data.equalizer]));
+            queue.write_buffer(&self.buffers[2], 0, bytemuck::cast_slice(&[data.light]));
+        }
+    }
 }
 
 impl EqualizerMaterial {

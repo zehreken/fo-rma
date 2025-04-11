@@ -4,7 +4,7 @@ use crate::basics::{
     uniforms::{ColorUniform, LightUniform, ObjectUniform},
 };
 use std::mem;
-use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use wgpu::{BindGroup, Buffer, Device, Queue, RenderPipeline, SurfaceConfiguration};
 
 pub struct DiffuseColorMaterial {
     render_pipeline: RenderPipeline,
@@ -25,7 +25,7 @@ impl MaterialTrait for DiffuseColorMaterial {
         &self.bind_groups
     }
 
-    fn update(&self, data: &dyn std::any::Any) {}
+    fn update(&self, queue: &Queue, data: &dyn std::any::Any) {}
 }
 
 impl DiffuseColorMaterial {

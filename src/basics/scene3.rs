@@ -1,5 +1,5 @@
 use glam::{vec3, Vec3};
-use wgpu::{Device, SurfaceConfiguration};
+use wgpu::{Device, Queue, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 
 use super::{
@@ -10,12 +10,15 @@ use super::{
     material::Material,
     primitive::Primitive,
     quad::Quad,
-    uniforms::{ColorUniform, EqualizerUniform, UniformTrait, WaveWorldUniform},
+    uniforms::{
+        ColorUniform, EqualizerUniform, LightUniform, ObjectUniform, UniformTrait, WaveWorldUniform,
+    },
 };
 use crate::{
     color_utils::{self, ToVec4},
     material::{
-        diffuse_color_material::DiffuseColorMaterial, equalizer_material::EqualizerMaterial,
+        diffuse_color_material::DiffuseColorMaterial,
+        equalizer_material::{EqualizerMaterial, EqualizerUniforms},
         unlit_color_material::UnlitColorMaterial,
     },
 };
@@ -108,7 +111,7 @@ impl Scene {
         }
     }
 
-    pub fn update(&mut self, delta_time: f32, signal: f32, show_beat: bool) {
+    pub fn update(&mut self, queue: &Queue, delta_time: f32, signal: f32, show_beat: bool) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
         // self.lights[0].update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
@@ -117,6 +120,30 @@ impl Scene {
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
 
         for primitive in &mut self.objects {
+            let object = ObjectUniform {
+                view_proj: self.camera.build_view_projection_matrix(),
+                model: primitive.model_matrix(),
+                normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
+                normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
+                normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
+            };
+            let equalizer = EqualizerUniform {
+                color1: color_utils::CCP.palette[0].to_vec4(1.0),
+                color2: color_utils::CCP.palette[1].to_vec4(1.0),
+                color3: color_utils::CCP.palette[2].to_vec4(1.0),
+                signal,
+                _padding: [0.0, 0.0, 0.0],
+            };
+            let light = LightUniform {
+                position: self.lights[0].transform.position.extend(0.0).to_array(),
+                color: self.lights[0].color.to_vec4(1.0),
+            };
+            let data = EqualizerUniforms {
+                object,
+                equalizer,
+                light,
+            };
+            primitive.material().update(queue, &data);
             // primitive.material_mut().uniform.set_signal(signal);
             primitive.update(if show_beat {
                 delta_time * 20.0

@@ -91,8 +91,12 @@ impl<'a> App<'a> {
         let mut signal_peak = self.audio_model.get_signal();
 
         signal_peak = (signal_peak - 0.05).max(0.0);
-        self.scene
-            .update(delta_time, signal_peak, self.audio_model.show_beat());
+        self.scene.update(
+            &self.renderer.queue,
+            delta_time,
+            signal_peak,
+            self.audio_model.show_beat(),
+        );
         let rolling_wave: Vec<f32> = self.audio_model.rolling_wave.iter().map(|i| *i).collect();
         let _ = self.renderer.render(
             self.window,

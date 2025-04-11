@@ -111,21 +111,21 @@ impl FillRenderer {
             render_pass.set_pipeline(&primitive.material().render_pipeline());
             // let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
 
-            queue.write_buffer(
-                &primitive.material().buffers()[0],
-                0,
-                bytemuck::cast_slice(&[object_uniform]),
-            );
-            queue.write_buffer(
-                &primitive.material().buffers()[1],
-                0,
-                bytemuck::cast_slice(&[equalizer_uniform]),
-            );
-            queue.write_buffer(
-                &primitive.material().buffers()[2],
-                0,
-                bytemuck::cast_slice(&[light_uniform]),
-            );
+            // queue.write_buffer(
+            //     &primitive.material().buffers()[0],
+            //     0,
+            //     bytemuck::cast_slice(&[object_uniform]),
+            // );
+            // queue.write_buffer(
+            //     &primitive.material().buffers()[1],
+            //     0,
+            //     bytemuck::cast_slice(&[equalizer_uniform]),
+            // );
+            // queue.write_buffer(
+            //     &primitive.material().buffers()[2],
+            //     0,
+            //     bytemuck::cast_slice(&[light_uniform]),
+            // );
             // render_pass.set_bind_group(
             //     0,
             //     &generic_uniform_data.uniform_bind_group,

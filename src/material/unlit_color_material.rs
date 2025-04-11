@@ -4,7 +4,9 @@ use crate::basics::{
     uniforms::{ColorUniform, ObjectUniform},
 };
 use std::mem;
-use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use wgpu::{
+    core::device::queue, BindGroup, Buffer, Device, Queue, RenderPipeline, SurfaceConfiguration,
+};
 
 pub struct UnlitColorMaterial {
     render_pipeline: RenderPipeline,
@@ -25,7 +27,7 @@ impl MaterialTrait for UnlitColorMaterial {
         &self.bind_groups
     }
 
-    fn update(&self, data: &dyn std::any::Any) {}
+    fn update(&self, queue: &Queue, data: &dyn std::any::Any) {}
 }
 
 impl UnlitColorMaterial {
