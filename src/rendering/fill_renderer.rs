@@ -1,5 +1,5 @@
 use crate::{
-    basics::scene3::Scene,
+    basics::scene::Scene,
     color_utils::{self},
 };
 use wgpu::{

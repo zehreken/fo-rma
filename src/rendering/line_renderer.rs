@@ -2,7 +2,7 @@ use std::mem;
 
 use crate::{
     basics::{
-        core::GenericUniformData, primitive::Primitive, scene3::Scene, uniforms::ObjectUniform,
+        core::GenericUniformData, primitive::Primitive, scene::Scene, uniforms::ObjectUniform,
     },
     renderer, rendering_utils,
 };
