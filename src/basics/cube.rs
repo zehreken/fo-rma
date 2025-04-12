@@ -100,18 +100,9 @@ impl Primitive for Cube {
         &mut self.state.transform
     }
 
-    // fn material(&self) -> &super::material::Material {
-    //     &self.state.material
-    // }
-
     fn material(&self) -> &dyn MaterialTrait {
-        // &self.state.material
         self.state.material.as_ref()
     }
-
-    // fn material_mut(&mut self) -> &mut super::material::Material {
-    //     &mut self.state.material
-    // }
 
     fn material_mut(&mut self) -> &mut dyn MaterialTrait {
         self.state.material.as_mut()

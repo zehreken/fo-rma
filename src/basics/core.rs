@@ -1,5 +1,4 @@
 use glam::{Quat, Vec3};
-use wgpu::{BindGroup, BindGroupLayout, Buffer};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
