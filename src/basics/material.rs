@@ -1,5 +1,4 @@
 use super::{core::Vertex, uniforms::UniformTrait};
-use crate::rendering::screen_renderer::DynamicTexture;
 use std::num::NonZeroU64;
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, Device, Extent3d, RenderPipeline, Sampler,
@@ -11,7 +10,6 @@ pub struct Material {
     pub uniform_buffer: Buffer,
     pub bind_group: BindGroup,
     pub render_pipeline: RenderPipeline,
-    pub texture: Option<DynamicTexture>,
 }
 
 impl Material {
@@ -144,7 +142,6 @@ impl Material {
             uniform_buffer,
             bind_group: material_bind_group,
             render_pipeline,
-            texture: None,
         }
     }
 }

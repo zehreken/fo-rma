@@ -1,9 +1,5 @@
+use super::core::{Transform, Vertex};
 use crate::material::MaterialTrait;
-
-use super::{
-    core::{Transform, Vertex},
-    material::Material,
-};
 use glam::{Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};
 
@@ -13,9 +9,7 @@ pub trait Primitive {
     fn model_matrix(&self) -> [[f32; 4]; 4];
     fn normal_matrix(&self) -> Mat3;
     fn transform(&mut self) -> &mut Transform;
-    // fn material(&self) -> &Material;
     fn material(&self) -> &dyn MaterialTrait;
-    // fn material_mut(&mut self) -> &mut Material;
     fn material_mut(&mut self) -> &mut dyn MaterialTrait;
 }
 

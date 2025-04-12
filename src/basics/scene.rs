@@ -4,6 +4,7 @@ use super::{
     light::Light,
     primitive::Primitive,
     quad::Quad,
+    sphere::Sphere,
     uniforms::{
         ColorUniform, EqualizerUniform, LightUniform, ObjectUniform, UniformTrait, WaveWorldUniform,
     },
@@ -13,6 +14,7 @@ use crate::{
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
         equalizer_material::{EqualizerMaterial, EqualizerUniforms},
+        unlit_color_material::{UnlitColorMaterial, UnlitColorUniforms},
         MaterialType,
     },
 };
@@ -61,6 +63,17 @@ impl Scene {
             objects.push(Box::new(cube));
         }
         material_object_map.insert(MaterialType::EqualizerMaterial, objects);
+
+        objects = vec![];
+        for i in 0..4 {
+            let material = UnlitColorMaterial::new(device, surface_config);
+            let mut sphere = Sphere::new(&device, Box::new(material));
+            let x = i as f32 * 3.0;
+            let z = i as f32 * 3.0;
+            sphere.state.set_position(Vec3 { x, y: 0.0, z });
+            objects.push(Box::new(sphere));
+        }
+        material_object_map.insert(MaterialType::UnlitColorMaterial, objects);
 
         objects = vec![];
         let material = DiffuseColorMaterial::new(device, surface_config);
@@ -142,6 +155,22 @@ impl Scene {
                         equalizer,
                         light,
                     };
+                    primitive.material().update(queue, &data);
+                }
+            } else if *material_id == MaterialType::UnlitColorMaterial {
+                for primitive in objects {
+                    primitive.update(delta_time);
+                    let object = ObjectUniform {
+                        view_proj: self.camera.build_view_projection_matrix(),
+                        model: primitive.model_matrix(),
+                        normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
+                        normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
+                        normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
+                    };
+                    let color = ColorUniform {
+                        color: [signal, signal, signal, 1.0],
+                    };
+                    let data = UnlitColorUniforms { object, color };
                     primitive.material().update(queue, &data);
                 }
             } else if *material_id == MaterialType::DiffuseColorMaterial {

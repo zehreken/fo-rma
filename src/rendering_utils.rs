@@ -1,8 +1,6 @@
-use crate::basics::{core::Vertex, uniforms::ObjectUniform};
-use std::{mem, num::NonZeroU64};
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, Extent3d, RenderPipeline, SurfaceCapabilities,
-    SurfaceConfiguration, Texture, TextureFormat, TextureView,
+    BindGroup, BindGroupLayout, Device, Extent3d, SurfaceCapabilities, Texture, TextureFormat,
+    TextureView,
 };
 use winit::dpi::PhysicalSize;
 

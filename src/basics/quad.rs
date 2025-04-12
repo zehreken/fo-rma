@@ -1,6 +1,5 @@
 use super::{
     core::Vertex,
-    material::Material,
     primitive::{Primitive, PrimitiveState},
 };
 use crate::material::MaterialTrait;

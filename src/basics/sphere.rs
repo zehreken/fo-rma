@@ -1,8 +1,8 @@
 use super::{
     core::Vertex,
-    material::Material,
     primitive::{Primitive, PrimitiveState},
 };
+use crate::material::MaterialTrait;
 use glam::{EulerRot, Mat3, Mat4, Quat};
 use std::f32::consts::PI;
 use wgpu::Device;
@@ -19,7 +19,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(device: &Device, material: Material) -> Self {
+    pub fn new(device: &Device, material: Box<dyn MaterialTrait>) -> Self {
         let (vertices, indices) = calculate_vertices_and_indices();
         Self {
             state: PrimitiveState::new(device, &vertices, &indices, material),
@@ -62,12 +62,12 @@ impl Primitive for Sphere {
         &mut self.state.transform
     }
 
-    fn material(&self) -> &super::material::Material {
-        &self.state.material
+    fn material(&self) -> &dyn MaterialTrait {
+        self.state.material.as_ref()
     }
 
-    fn material_mut(&mut self) -> &mut super::material::Material {
-        &mut self.state.material
+    fn material_mut(&mut self) -> &mut dyn MaterialTrait {
+        self.state.material.as_mut()
     }
 }
 

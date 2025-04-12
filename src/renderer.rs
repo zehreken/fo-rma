@@ -9,12 +9,10 @@ use crate::{
     },
     rendering_utils::{self},
 };
-use wgpu::{
-    BindGroup, BindGroupLayout, Device, Queue, Surface, SurfaceConfiguration, SurfaceError,
-    Texture, TextureFormat, TextureView,
-};
+use wgpu::{Device, Queue, Surface, SurfaceConfiguration, SurfaceError, TextureView};
 use winit::{dpi::PhysicalSize, window::Window};
-pub const PRIMITIVE_COUNT: u64 = 27;
+
+pub const PRIMITIVE_COUNT: u64 = 31;
 
 pub struct Renderer<'a> {
     pub surface: Surface<'a>,
@@ -28,7 +26,6 @@ pub struct Renderer<'a> {
     line_renderer: LineRenderer,
     post_processor: PostProcessor,
     screen_renderer: ScreenRenderer,
-    texture_format: TextureFormat,
     size: PhysicalSize<u32>,
 }
 
@@ -54,16 +51,14 @@ impl<'a> Renderer<'a> {
         let depth_texture = rendering_utils::create_depth_texture(&device, &surface_config);
 
         let render_texture_material = PostProcessMaterial::new(&device, &surface_config, size);
-        let render_texture = rendering_utils::create_render_texture(&device, &texture_format, size);
-        let post_process_texture = rendering_utils::create_post_process_texture(&device, size);
-        // Bind it to the post_processed texture, since that is the one we want to show
-        let render_texture_bind_group =
-            rendering_utils::create_texture_bind_group(&device, &post_process_texture.1);
 
         let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
-        let post_processor =
-            PostProcessor::new(&device, &post_process_texture.1, &render_texture.1);
+        let post_processor = PostProcessor::new(
+            &device,
+            &render_texture_material.post_process_texture_view,
+            &render_texture_material.render_texture_view,
+        );
         let screen_renderer = ScreenRenderer::new(&device, &surface_config);
 
         Self {
@@ -78,7 +73,6 @@ impl<'a> Renderer<'a> {
             line_renderer,
             post_processor,
             screen_renderer,
-            texture_format,
             size,
         }
     }

@@ -1,9 +1,8 @@
 use super::{
     core::Vertex,
-    material::Material,
     primitive::{Primitive, PrimitiveState},
 };
-use crate::color_utils;
+use crate::{color_utils, material::MaterialTrait};
 use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
@@ -21,7 +20,7 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    pub fn new(device: &Device, material: Material) -> Self {
+    pub fn new(device: &Device, material: Box<dyn MaterialTrait>) -> Self {
         Self {
             state: PrimitiveState::new(device, VERTICES, INDICES, material),
         }
@@ -51,11 +50,11 @@ impl Primitive for Triangle {
         &mut self.state.transform
     }
 
-    fn material(&self) -> &super::material::Material {
-        &self.state.material
+    fn material(&self) -> &dyn MaterialTrait {
+        self.state.material.as_ref()
     }
 
-    fn material_mut(&mut self) -> &mut super::material::Material {
-        &mut self.state.material
+    fn material_mut(&mut self) -> &mut dyn MaterialTrait {
+        self.state.material.as_mut()
     }
 }

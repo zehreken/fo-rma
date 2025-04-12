@@ -29,11 +29,6 @@ struct VertexOutput {
 // Vertex shader
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
-    // let world_position = (object.model * vec4<f32>(model.position, 1.0)).xyz;
-    // out.world_position = world_position;
-    // out.world_normal = object.normal * model.normal;
-    // out.clip_position = object.view_proj * vec4<f32>(world_position, 1.0);
-
     var out: VertexOutput; 
     let world_position = object.model * vec4<f32>(model.position, 1.0);
     out.clip_position = object.view_proj * world_position;
@@ -45,6 +40,5 @@ fn vs_main(model: VertexInput) -> VertexOutput {
 // Fragment shader
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4<f32>(1.0, 1.0, 1.0, 1.0);
-    // return vec4<f32>(in.color.rgb, 1.0);
+    return vec4<f32>(in.color.rgb, 1.0);
 }
