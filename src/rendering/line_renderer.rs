@@ -1,34 +1,33 @@
-use std::mem;
-
 use crate::{
     basics::{
-        core::GenericUniformData, primitive::Primitive, scene::Scene, uniforms::ObjectUniform,
+        primitive::Primitive,
+        scene::Scene,
+        uniforms::{ColorUniform, ObjectUniform},
     },
-    renderer, rendering_utils,
+    material::{debug_material::DebugMaterial, MaterialTrait},
+    renderer::PRIMITIVE_COUNT,
 };
 use wgpu::{
     CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
-    RenderPassDescriptor, RenderPipeline, StoreOp, SurfaceConfiguration, Texture, TextureView,
+    RenderPassDescriptor, StoreOp, SurfaceConfiguration, TextureView,
 };
 
 pub struct LineRenderer {
-    render_pipeline: RenderPipeline,
-    uniform_data: GenericUniformData,
+    debug_materials: Vec<DebugMaterial>,
 }
 
 impl LineRenderer {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let (uniform_data, render_pipeline) = rendering_utils::create_debug_uniform_data(
-            device,
-            surface_config,
-            renderer::PRIMITIVE_COUNT,
-        );
-
-        Self {
-            render_pipeline,
-            uniform_data,
+        let mut debug_materials = vec![];
+        // Create one debug material for each primitive
+        for _ in (0..PRIMITIVE_COUNT) {
+            let debug_material = DebugMaterial::new(device, surface_config);
+            debug_materials.push(debug_material);
         }
+
+        Self { debug_materials }
     }
+
     pub fn render(
         &mut self,
         device: &Device,
@@ -63,44 +62,38 @@ impl LineRenderer {
             occlusion_query_set: None,
         });
 
-        render_pass.set_pipeline(&self.render_pipeline);
+        render_pass.set_pipeline(&self.debug_materials[0].render_pipeline()); // Set pipeline once
         let flat: Vec<&Box<dyn Primitive>> = level
             .material_object_map
             .values()
             .flat_map(|v| v.iter())
             .collect();
-        // Update debug uniforms
+        let color = ColorUniform {
+            color: [1.0, 0.0, 0.0, 1.0],
+        };
         for (i, primitive) in flat.iter().enumerate() {
-            let debug_uniform = ObjectUniform {
+            let object = ObjectUniform {
                 view_proj: level.camera.build_view_projection_matrix(),
-                // debug_uniforms.model = self.light.debug_mesh.model_matrix();
                 model: primitive.model_matrix(),
                 normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
                 normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
             };
 
-            let uniform_alignment =
-                device.limits().min_uniform_buffer_offset_alignment as wgpu::BufferAddress;
-            let uniform_size = mem::size_of::<ObjectUniform>() as wgpu::BufferAddress;
-            let aligned_uniform_size =
-                (uniform_size + uniform_alignment - 1) & !(uniform_alignment - 1);
-            let uniform_offset = (i as wgpu::BufferAddress) * aligned_uniform_size;
-
             queue.write_buffer(
-                &self.uniform_data.uniform_buffer,
-                uniform_offset,
-                bytemuck::cast_slice(&[debug_uniform]),
-            );
-
-            render_pass.set_bind_group(
+                &self.debug_materials[i].buffers()[0],
                 0,
-                &self.uniform_data.uniform_bind_group,
-                &[uniform_offset as u32],
+                bytemuck::cast_slice(&[object]),
+            );
+            queue.write_buffer(
+                &self.debug_materials[i].buffers()[1],
+                0,
+                bytemuck::cast_slice(&[color]),
             );
 
-            // Draw debug mesh (assuming you have a debug_mesh field in your Renderer)
-            // self.light.debug_mesh.draw(&mut debug_render_pass);
+            render_pass.set_bind_group(0, &self.debug_materials[i].bind_groups()[0], &[]);
+            render_pass.set_bind_group(1, &self.debug_materials[i].bind_groups()[1], &[]);
+
             primitive.draw(&mut render_pass);
         }
 

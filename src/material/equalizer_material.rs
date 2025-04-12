@@ -1,4 +1,4 @@
-use super::MaterialTrait;
+use super::{MaterialTrait, MaterialType};
 use crate::basics::{
     core::Vertex,
     uniforms::{EqualizerUniform, LightUniform, ObjectUniform},
@@ -39,8 +39,8 @@ impl MaterialTrait for EqualizerMaterial {
         }
     }
 
-    fn get_id(&self) -> u8 {
-        0
+    fn get_id(&self) -> MaterialType {
+        MaterialType::EqualizerMaterial
     }
 }
 

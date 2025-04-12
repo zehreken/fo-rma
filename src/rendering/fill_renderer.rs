@@ -1,6 +1,7 @@
 use crate::{
     basics::scene::Scene,
     color_utils::{self},
+    material::MaterialType,
 };
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
@@ -59,7 +60,7 @@ impl FillRenderer {
         });
 
         for (material_id, objects) in &level.material_object_map {
-            if *material_id == 0 {
+            if *material_id == MaterialType::EqualizerMaterial {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -69,7 +70,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == 1 {
+            } else if *material_id == MaterialType::DiffuseColorMaterial {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 

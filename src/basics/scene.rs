@@ -13,6 +13,7 @@ use crate::{
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
         equalizer_material::{EqualizerMaterial, EqualizerUniforms},
+        MaterialType,
     },
 };
 use glam::{vec3, Vec3};
@@ -22,7 +23,7 @@ use winit::dpi::PhysicalSize;
 
 pub struct Scene {
     pub camera: Camera,
-    pub material_object_map: HashMap<u8, Vec<Box<dyn Primitive>>>,
+    pub material_object_map: HashMap<MaterialType, Vec<Box<dyn Primitive>>>,
     pub lights: Vec<Light>,
     elapsed: f32,
 }
@@ -59,7 +60,7 @@ impl Scene {
             });
             objects.push(Box::new(cube));
         }
-        material_object_map.insert(0, objects);
+        material_object_map.insert(MaterialType::EqualizerMaterial, objects);
 
         objects = vec![];
         let material = DiffuseColorMaterial::new(device, surface_config);
@@ -99,7 +100,7 @@ impl Scene {
             z: 100.0,
         });
         objects.push(Box::new(quad));
-        material_object_map.insert(1, objects);
+        material_object_map.insert(MaterialType::DiffuseColorMaterial, objects);
 
         let mut light = Light::new([1.0, 1.0, 1.0]);
         light.update_position(vec3(0.0, 1.0, 0.0));
@@ -115,8 +116,9 @@ impl Scene {
 
     pub fn update(&mut self, queue: &Queue, delta_time: f32, signal: f32, show_beat: bool) {
         for (material_id, objects) in &mut self.material_object_map {
-            if *material_id == 0 {
+            if *material_id == MaterialType::EqualizerMaterial {
                 for primitive in objects {
+                    primitive.update(delta_time);
                     let object = ObjectUniform {
                         view_proj: self.camera.build_view_projection_matrix(),
                         model: primitive.model_matrix(),
@@ -141,10 +143,10 @@ impl Scene {
                         light,
                     };
                     primitive.material().update(queue, &data);
-                    primitive.update(delta_time);
                 }
-            } else if *material_id == 1 {
+            } else if *material_id == MaterialType::DiffuseColorMaterial {
                 for primitive in objects {
+                    primitive.update(delta_time);
                     let object = ObjectUniform {
                         view_proj: self.camera.build_view_projection_matrix(),
                         model: primitive.model_matrix(),
@@ -165,7 +167,6 @@ impl Scene {
                         light,
                     };
                     primitive.material().update(queue, &data);
-                    primitive.update(delta_time);
                 }
             }
         }

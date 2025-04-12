@@ -64,8 +64,7 @@ impl<'a> Renderer<'a> {
         let line_renderer = LineRenderer::new(&device, &surface_config);
         let post_processor =
             PostProcessor::new(&device, &post_process_texture.1, &render_texture.1);
-        let screen_renderer =
-            ScreenRenderer::new(&device, &surface_config, &render_texture_bind_group.0);
+        let screen_renderer = ScreenRenderer::new(&device, &surface_config);
 
         Self {
             surface,
@@ -107,13 +106,13 @@ impl<'a> Renderer<'a> {
             // rolling_wave,
         );
 
-        // self.line_renderer.render(
-        //     &self.device,
-        //     &self.queue,
-        //     &self.depth_texture,
-        //     &self.render_texture_material.render_texture_view,
-        //     scene,
-        // );
+        self.line_renderer.render(
+            &self.device,
+            &self.queue,
+            &self.depth_texture,
+            &self.render_texture_material.render_texture_view,
+            scene,
+        );
 
         self.post_processor
             .run(&self.device, &self.queue, self.size.width, self.size.height);

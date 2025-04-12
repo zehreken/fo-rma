@@ -1,20 +1,19 @@
-use super::{MaterialTrait, MaterialType};
 use crate::basics::{
     core::Vertex,
     uniforms::{ColorUniform, ObjectUniform},
 };
 use std::mem;
-use wgpu::{
-    core::device::queue, BindGroup, Buffer, Device, Queue, RenderPipeline, SurfaceConfiguration,
-};
+use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
-pub struct UnlitColorMaterial {
+use super::{MaterialTrait, MaterialType};
+
+pub struct DebugMaterial {
     render_pipeline: RenderPipeline,
     buffers: [Buffer; 2],
-    bind_groups: [BindGroup; 2], // object, color
+    bind_groups: [BindGroup; 2],
 }
 
-impl MaterialTrait for UnlitColorMaterial {
+impl MaterialTrait for DebugMaterial {
     fn render_pipeline(&self) -> &RenderPipeline {
         &self.render_pipeline
     }
@@ -27,20 +26,20 @@ impl MaterialTrait for UnlitColorMaterial {
         &self.bind_groups
     }
 
-    fn update(&self, queue: &Queue, data: &dyn std::any::Any) {}
+    fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {}
 
     fn get_id(&self) -> MaterialType {
-        MaterialType::UnlitColorMaterial
+        MaterialType::DebugMaterial
     }
 }
 
-impl UnlitColorMaterial {
+impl DebugMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader_main = include_str!("../shaders/unlit_color.wgsl");
+        let shader_debug = include_str!("../shaders/debug.wgsl");
         let shader_utils = include_str!("../shaders/utils.wgsl");
-        let shader_combined = format!("{}\n{}", shader_main, shader_utils);
+        let shader_combined = format!("{}\n{}", shader_debug, shader_utils);
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("unlit_color"),
+            label: Some("debug_shader"),
             source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
         });
 
@@ -85,7 +84,7 @@ impl UnlitColorMaterial {
             label: Some("color_uniform_bind_group_layout"),
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX,
+                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
                 ty: wgpu::BindingType::Buffer {
                     ty: wgpu::BufferBindingType::Uniform,
                     has_dynamic_offset: false,
@@ -106,13 +105,13 @@ impl UnlitColorMaterial {
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("unlit_color_render_pipeline_layout"),
+                label: Some("debug_render_pipeline_layout"),
                 bind_group_layouts: &[&object_uniform_bgl, &color_uniform_bgl],
                 push_constant_ranges: &[],
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("unlit_color_render_pipeline"),
+            label: Some("debug_render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
@@ -149,6 +148,7 @@ impl UnlitColorMaterial {
                 entry_point: "fs_main",
                 targets: &[Some(wgpu::ColorTargetState {
                     format: surface_config.format,
+                    // format: TextureFormat::Rgba8Unorm,
                     blend: Some(wgpu::BlendState::REPLACE),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
@@ -158,14 +158,14 @@ impl UnlitColorMaterial {
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
                 cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
+                polygon_mode: wgpu::PolygonMode::Line,
                 unclipped_depth: false,
                 conservative: false,
             },
             depth_stencil: Some(wgpu::DepthStencilState {
                 format: wgpu::TextureFormat::Depth32Float,
                 depth_write_enabled: true,
-                depth_compare: wgpu::CompareFunction::Less,
+                depth_compare: wgpu::CompareFunction::Always,
                 stencil: wgpu::StencilState::default(),
                 bias: wgpu::DepthBiasState::default(),
             }),

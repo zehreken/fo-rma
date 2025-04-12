@@ -1,12 +1,6 @@
 use glam::{Quat, Vec3};
 use wgpu::{BindGroup, BindGroupLayout, Buffer};
 
-pub struct GenericUniformData {
-    pub uniform_buffer: Buffer,
-    pub uniform_bind_group: BindGroup,
-    pub uniform_bind_group_layout: BindGroupLayout,
-}
-
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {

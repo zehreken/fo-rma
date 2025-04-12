@@ -5,7 +5,6 @@ pub mod light;
 pub mod material;
 pub mod primitive;
 pub mod quad;
-// pub mod scene;
 // pub mod scene2;
 pub mod scene;
 pub mod scene_constructor;

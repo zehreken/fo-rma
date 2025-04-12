@@ -5,8 +5,17 @@ struct Object {
 };
 @group(0) @binding(0) var<uniform> object: Object;
 
+struct Material {
+    color: vec4<f32>
+}
+@group(1) @binding(0)
+var<uniform> material: Material;
+
 struct VertexInput {
     @location(0) position: vec3<f32>,
+    @location(1) color: vec3<f32>,
+    @location(2) normal: vec3<f32>,
+    @location(3) uv: vec2<f32>,
 };
 
 struct VertexOutput {
@@ -22,7 +31,7 @@ fn vs_main(model: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main() -> @location(0) vec4<f32> {
-    var color = vec3<f32>(0.8, 0.8, 0.8);
+    var color = material.color.rgb;
     color = srgb_to_linear(color);
     return vec4<f32>(color.rgb, 1.0);
 }

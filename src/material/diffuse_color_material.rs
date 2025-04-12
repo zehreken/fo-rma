@@ -1,4 +1,4 @@
-use super::MaterialTrait;
+use super::{MaterialTrait, MaterialType};
 use crate::basics::{
     core::Vertex,
     uniforms::{ColorUniform, LightUniform, ObjectUniform},
@@ -39,8 +39,8 @@ impl MaterialTrait for DiffuseColorMaterial {
         }
     }
 
-    fn get_id(&self) -> u8 {
-        1
+    fn get_id(&self) -> MaterialType {
+        MaterialType::DiffuseColorMaterial
     }
 }
 
