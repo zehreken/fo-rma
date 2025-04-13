@@ -61,9 +61,8 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let color1 = vec4<f32>(1.0, 0.0, 0.0, 1.0);
     let color2 = vec4<f32>(0.0, 0.0, 1.0, 1.0);
     let c = mix(color1, color2, alpha);
-    // return vec4<f32>(srgb_to_linear(c.rgb), 1.0);
+    return vec4<f32>(srgb_to_linear(c.rgb), 1.0);
     // return vec4<f32>(uv.x, uv.y, 0.0, 1.0);
-    return vec4<f32>(0.0, 0.0, 0.0, 1.0);
 }
 
 // @fragment

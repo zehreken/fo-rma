@@ -89,6 +89,15 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
+            } else if *material_id == MaterialType::WaveMaterial {
+                for primitive in objects {
+                    render_pass.set_pipeline(&primitive.material().render_pipeline());
+
+                    render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
+                    render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
+
+                    primitive.draw(&mut render_pass);
+                }
             }
         }
 
