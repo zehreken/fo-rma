@@ -13,11 +13,12 @@ use crate::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
         equalizer_material::{EqualizerMaterial, EqualizerUniforms},
         unlit_color_material::{UnlitColorMaterial, UnlitColorUniforms},
+        wave_material::{WaveMaterial, WaveUniforms},
         MaterialType,
     },
 };
 use glam::{vec3, Vec3};
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 use wgpu::{Device, Queue, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 
@@ -64,14 +65,14 @@ impl Scene {
 
         objects = vec![];
         for i in 0..4 {
-            let material = UnlitColorMaterial::new(device, surface_config);
+            let material = WaveMaterial::new(device, surface_config);
             let mut sphere = Sphere::new(&device, Box::new(material));
-            let x = i as f32 * 3.0;
+            let x = 10.0 + i as f32 * 3.0;
             let z = i as f32 * 3.0;
             sphere.state.set_position(Vec3 { x, y: 0.0, z });
             objects.push(Box::new(sphere));
         }
-        material_object_map.insert(MaterialType::UnlitColorMaterial, objects);
+        material_object_map.insert(MaterialType::WaveMaterial, objects);
 
         objects = vec![];
         let material = DiffuseColorMaterial::new(device, surface_config);
@@ -125,7 +126,14 @@ impl Scene {
         }
     }
 
-    pub fn update(&mut self, queue: &Queue, delta_time: f32, signal: f32, show_beat: bool) {
+    pub fn update(
+        &mut self,
+        queue: &Queue,
+        delta_time: f32,
+        signal: f32,
+        show_beat: bool,
+        wave: Arc<Vec<f32>>,
+    ) {
         for (material_id, objects) in &mut self.material_object_map {
             if *material_id == MaterialType::EqualizerMaterial {
                 for primitive in objects {
@@ -192,6 +200,22 @@ impl Scene {
                         object,
                         color,
                         light,
+                    };
+                    primitive.material().update(queue, &data);
+                }
+            } else if *material_id == MaterialType::WaveMaterial {
+                for primitive in objects {
+                    primitive.update(delta_time);
+                    let object = ObjectUniform {
+                        view_proj: self.camera.build_view_projection_matrix(),
+                        model: primitive.model_matrix(),
+                        normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
+                        normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
+                        normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
+                    };
+                    let data = WaveUniforms {
+                        object,
+                        wave: Arc::clone(&wave),
                     };
                     primitive.material().update(queue, &data);
                 }
