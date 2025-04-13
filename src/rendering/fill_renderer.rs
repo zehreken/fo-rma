@@ -1,5 +1,5 @@
 use crate::{
-    basics::scene::Scene,
+    basics::scene2::Scene,
     color_utils::{self},
     material::MaterialType,
 };

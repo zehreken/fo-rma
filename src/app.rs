@@ -1,10 +1,11 @@
 use crate::{
     audio::audio_model::AudioModel,
-    basics::{scene::Scene, scene_constructor},
+    basics::{scene2::Scene, scene_constructor},
     renderer, save_image,
 };
 use std::{
     collections::VecDeque,
+    sync::Arc,
     time::{Duration, Instant},
 };
 use winit::{
@@ -84,20 +85,20 @@ impl<'a> App<'a> {
         let fps = calculate_fps(&self.rolling_frame_times);
         let mut signal_peak = self.audio_model.get_signal();
 
+        let rolling_wave: Vec<f32> = self.audio_model.rolling_wave.iter().map(|i| *i).collect();
         signal_peak = (signal_peak - 0.05).max(0.0);
         self.scene.update(
             &self.renderer.queue,
             delta_time,
             signal_peak,
             self.audio_model.show_beat(),
+            Arc::new(rolling_wave),
         );
-        let rolling_wave: Vec<f32> = self.audio_model.rolling_wave.iter().map(|i| *i).collect();
         let _ = self.renderer.render(
             self.window,
             &self.scene,
             &mut self.audio_model.get_sequencers()[0],
             fps,
-            &rolling_wave,
         );
 
         self.audio_model.update();

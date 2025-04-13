@@ -5,8 +5,7 @@ use crate::{
     },
 };
 use wgpu::{
-    BindGroup, BindGroupLayout, Color, Device, Extent3d, Operations, Queue,
-    RenderPassColorAttachment, SurfaceConfiguration, Texture, TextureView,
+    Color, Device, Operations, Queue, RenderPassColorAttachment, SurfaceConfiguration, TextureView,
 };
 
 pub struct ScreenRenderer {

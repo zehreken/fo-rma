@@ -4,9 +4,7 @@ use kopek::oscillator::WaveType;
 
 pub struct Sequencer {
     pub is_running: bool,
-    oscillator: ModulatedOscillator,
-    // vco: VCO,
-    // lfo: LFO,
+    modulated_oscillator: ModulatedOscillator,
     beat_index: u32,
     prev_beat_index: u32,
     length: u8,
@@ -16,7 +14,6 @@ pub struct Sequencer {
     beat_duration: f32,
     is_beat: bool,
     volume: f32,
-    ramp: f32,
     envelope: Envelope,
 }
 
@@ -30,16 +27,10 @@ impl Sequencer {
         let tick_period = (sample_rate * 60) as f32 / bpm as f32;
         let beat_duration = tick_period / 3.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
-        // let mut vco = VCO::new(sample_rate as f32);
-        // vco.set_wave_type(kopek::oscillator::WaveType::Sine);
-        // let mut lfo = LFO::new(sample_rate as f32);
-        // lfo.set_frequency(10.0);
 
         Self {
             is_running: false,
-            oscillator: ModulatedOscillator::new(sample_rate),
-            // vco,
-            // lfo,
+            modulated_oscillator: ModulatedOscillator::new(sample_rate),
             beat_index: 0,
             prev_beat_index: 0,
             length: sequence.len() as u8,
@@ -48,8 +39,7 @@ impl Sequencer {
             tick_period,
             beat_duration,
             is_beat: false,
-            volume: 0.1,
-            ramp: 0.0,
+            volume: 0.91,
             envelope: Envelope::new(0.1, 0.1, 0.2, 0.1),
         }
     }
@@ -59,7 +49,7 @@ impl Sequencer {
         self.is_beat = remainder > 0 && remainder < self.beat_duration as u32;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(4);
+        const TEMP_OCTAVE: u8 = 2u8.pow(1);
         let freq_diff: f32 = if step_index == 0 {
             0.0
         } else {
@@ -73,16 +63,12 @@ impl Sequencer {
         // }
 
         self.freq = self.sequence[step_index];
-        // self.oscillator
-        //     .set_frequency(self.freq * TEMP_OCTAVE as f32);
-        let mut value = self.oscillator.run();
+        self.modulated_oscillator
+            .set_vco_wave_type(WaveType::Sawtooth);
+        self.modulated_oscillator
+            .set_frequency(self.freq * TEMP_OCTAVE as f32);
+        let mut value = self.modulated_oscillator.run();
 
-        // Ramp between volumes
-        // if self.is_beat && self.ramp < 1.0 {
-        //     self.ramp = clamp(self.ramp + 0.001, 0.0, 1.0);
-        // } else if !self.is_beat && self.ramp > 0.0 {
-        //     self.ramp = clamp(self.ramp - 0.001, 0.0, 1.0);
-        // }
         if self.prev_beat_index != self.beat_index {
             self.prev_beat_index = self.beat_index;
             self.envelope.reset();
@@ -92,9 +78,8 @@ impl Sequencer {
         // if envelope > 0.0 {
         //     println!("{:?}", envelope);
         // }
-        // value *= envelope;
+        value *= envelope;
 
-        // value *= self.ramp;
         value *= self.volume;
 
         value
@@ -111,31 +96,31 @@ impl Sequencer {
     }
 
     pub fn get_frequency(&self) -> f32 {
-        self.oscillator.get_frequency()
+        self.modulated_oscillator.get_frequency()
     }
 
     pub fn set_frequency(&mut self, frequency: f32) {
-        self.oscillator.set_frequency(frequency);
+        self.modulated_oscillator.set_frequency(frequency);
     }
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
-        self.oscillator.set_vco_wave_type(wave_type);
+        self.modulated_oscillator.set_vco_wave_type(wave_type);
     }
 
     pub fn get_vco_wave_type(&mut self) -> WaveType {
-        self.oscillator.get_vco_wave_type()
+        self.modulated_oscillator.get_vco_wave_type()
     }
 
     pub fn get_lfo_frequency(&self) -> f32 {
-        self.oscillator.get_lfo_frequency()
+        self.modulated_oscillator.get_lfo_frequency()
     }
 
     pub fn set_lfo_frequency(&mut self, frequency: f32) {
-        self.oscillator.set_lfo_frequency(frequency);
+        self.modulated_oscillator.set_lfo_frequency(frequency);
     }
 
     pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
-        self.oscillator.set_lfo_wave_type(wave_type);
+        self.modulated_oscillator.set_lfo_wave_type(wave_type);
     }
 
     pub fn get_volume(&self) -> f32 {

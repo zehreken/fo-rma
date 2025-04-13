@@ -6,6 +6,7 @@ pub mod diffuse_color_material;
 pub mod equalizer_material;
 pub mod post_process_material;
 pub mod unlit_color_material;
+pub mod wave_material;
 
 pub trait MaterialTrait {
     fn render_pipeline(&self) -> &RenderPipeline;
@@ -22,4 +23,5 @@ pub enum MaterialType {
     EqualizerMaterial,
     PostProcessMaterial,
     UnlitColorMaterial,
+    WaveMaterial,
 }

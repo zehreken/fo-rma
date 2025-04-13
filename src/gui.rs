@@ -91,8 +91,8 @@ impl Gui {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
             self.top_bar.draw(egui_ctx, fps);
-            gui_oscillator::draw(egui_ctx, sequencer);
-            gui_vfx::draw(egui_ctx);
+            // gui_oscillator::draw(egui_ctx, sequencer);
+            // gui_vfx::draw(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);

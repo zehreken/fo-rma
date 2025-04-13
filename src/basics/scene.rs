@@ -5,9 +5,7 @@ use super::{
     primitive::Primitive,
     quad::Quad,
     sphere::Sphere,
-    uniforms::{
-        ColorUniform, EqualizerUniform, LightUniform, ObjectUniform, UniformTrait, WaveWorldUniform,
-    },
+    uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
 };
 use crate::{
     color_utils::{self, ToVec4},

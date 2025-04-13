@@ -1,7 +1,7 @@
 use crate::{
     basics::{
         primitive::Primitive,
-        scene::Scene,
+        scene2::Scene,
         uniforms::{ColorUniform, ObjectUniform},
     },
     material::{debug_material::DebugMaterial, MaterialTrait},
@@ -20,7 +20,7 @@ impl LineRenderer {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         let mut debug_materials = vec![];
         // Create one debug material for each primitive
-        for _ in (0..PRIMITIVE_COUNT) {
+        for _ in 0..PRIMITIVE_COUNT {
             let debug_material = DebugMaterial::new(device, surface_config);
             debug_materials.push(debug_material);
         }

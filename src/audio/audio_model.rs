@@ -108,18 +108,19 @@ impl AudioModel {
         // });
 
         let sequencer = Sequencer::new(
-            140,
+            440,
             sample_rate,
             output_config.channels.into(),
-            vec![utils::A_FREQ],
+            // vec![utils::A_FREQ],
+            songs::TEST.to_vec(),
         );
 
         let sequencer_2 = Sequencer::new(
-            280,
+            110,
             sample_rate,
             output_config.channels.into(),
             // songs::BILLIE_JEAN_2.to_vec(),
-            vec![utils::G_FREQ],
+            vec![utils::A_FREQ],
         );
         let mut sequencers = Vec::new();
         sequencers.push(sequencer);

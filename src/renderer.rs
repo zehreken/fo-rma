@@ -1,6 +1,6 @@
 use crate::{
     audio::sequencer::Sequencer,
-    basics::scene::Scene,
+    basics::scene2::Scene,
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
@@ -83,7 +83,6 @@ impl<'a> Renderer<'a> {
         scene: &Scene,
         sequencer: &mut Sequencer,
         fps: f32,
-        rolling_wave: &Vec<f32>,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
@@ -97,7 +96,6 @@ impl<'a> Renderer<'a> {
             &self.depth_texture,
             &self.render_texture_material.render_texture_view,
             scene,
-            // rolling_wave,
         );
 
         self.line_renderer.render(
