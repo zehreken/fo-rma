@@ -43,6 +43,7 @@ fn vs_main(model: VertexInput) -> VertexOutput {
     let world_position = object.model * vec4<f32>(model.position, 1.0);
     out.clip_position = object.view_proj * world_position;
     out.world_position = world_position.xyz / world_position.w;
+    
     out.color1 = material.color1;
     out.color2 = material.color2;
     out.color3 = material.color3;
