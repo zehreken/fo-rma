@@ -1,5 +1,3 @@
-use std::{collections::HashMap, sync::Arc};
-
 use super::{
     camera::{self, Camera},
     light::Light,
@@ -11,13 +9,14 @@ use crate::{
     color_utils::{self, ToVec4},
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
-        equalizer_material::{EqualizerMaterial, EqualizerUniforms},
+        equalizer_material::EqualizerUniforms,
         wave_material::{WaveMaterial, WaveUniforms},
         MaterialType,
     },
     // rendering::temp_renderer::create_wave_material,
 };
 use glam::{vec3, Vec3};
+use std::{collections::HashMap, sync::Arc};
 use wgpu::{Device, Queue, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 
@@ -35,7 +34,7 @@ impl Scene {
         size: PhysicalSize<u32>,
     ) -> Self {
         let camera = camera::Camera::new(
-            vec3(0.0, 2.0, 2.4),
+            vec3(0.0, 2.0, 20.0),
             vec3(0.0, 2.0, 0.0),
             size.width as f32 / size.height as f32,
             45.0,
@@ -49,13 +48,13 @@ impl Scene {
             let material = WaveMaterial::new(device, surface_config);
             let mut quad = Quad::new(device, Box::new(material));
             quad.state.set_position(Vec3 {
-                x: 0.0,
-                y: 0.5 + i as f32 * 1.0,
+                x: -4.0 + i as f32 * 2.0,
+                y: 2.5,
                 z: 0.0,
             });
             quad.state.scale(Vec3 {
-                x: 10.0,
-                y: 1.0,
+                x: 2.0,
+                y: 5.0,
                 z: 1.0,
             });
             objects.push(Box::new(quad));
@@ -143,7 +142,7 @@ impl Scene {
         material_object_map.insert(MaterialType::DiffuseColorMaterial, objects);
 
         let mut light = Light::new(color_utils::CCP.palette[1]);
-        light.update_position(vec3(0.0, 1.0, 0.0));
+        light.update_position(vec3(0.0, 2.5, 0.1));
         let lights = vec![light];
 
         Self {

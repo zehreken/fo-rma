@@ -160,4 +160,4 @@ pub const CP8: ColorPalette<f32, 4> = ColorPalette {
     ],
 };
 
-pub const CCP: ColorPalette<f32, 4> = CP7;
+pub const CCP: ColorPalette<f32, 4> = CP0;

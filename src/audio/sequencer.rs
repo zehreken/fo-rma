@@ -65,8 +65,6 @@ impl Sequencer {
 
         self.freq = self.sequence[step_index];
         self.modulated_oscillator
-            .set_vco_wave_type(WaveType::Sawtooth);
-        self.modulated_oscillator
             .set_frequency(self.freq * TEMP_OCTAVE as f32);
         let mut value = self.modulated_oscillator.run();
 
