@@ -28,6 +28,7 @@ impl Sequencer {
         let beat_duration = tick_period / 3.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
 
+        const factor: f32 = 0.2;
         Self {
             is_running: false,
             modulated_oscillator: ModulatedOscillator::new(sample_rate),
@@ -40,7 +41,7 @@ impl Sequencer {
             beat_duration,
             is_beat: false,
             volume: 0.91,
-            envelope: Envelope::new(0.1, 0.1, 0.2, 0.1),
+            envelope: Envelope::new(0.1 * factor, 0.1 * factor, 0.2 * factor, 0.1 * factor),
         }
     }
 

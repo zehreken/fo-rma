@@ -1,5 +1,5 @@
 use crate::{
-    basics::scene::Scene,
+    basics::scene3::Scene,
     color_utils::{self},
     material::MaterialType,
 };
@@ -95,6 +95,8 @@ impl FillRenderer {
 
                     render_pass.set_bind_group(0, &primitive.material().bind_groups()[0], &[]);
                     render_pass.set_bind_group(1, &primitive.material().bind_groups()[1], &[]);
+                    render_pass.set_bind_group(2, &primitive.material().bind_groups()[2], &[]);
+                    render_pass.set_bind_group(3, &primitive.material().bind_groups()[3], &[]);
 
                     primitive.draw(&mut render_pass);
                 }

@@ -1,7 +1,7 @@
 use crate::{
     basics::{
         primitive::Primitive,
-        scene::Scene,
+        scene3::Scene,
         uniforms::{ColorUniform, ObjectUniform},
     },
     material::{debug_material::DebugMaterial, MaterialTrait},

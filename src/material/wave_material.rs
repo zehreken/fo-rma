@@ -1,6 +1,9 @@
 use super::MaterialTrait;
 use crate::{
-    basics::{core::Vertex, uniforms::ObjectUniform},
+    basics::{
+        core::Vertex,
+        uniforms::{ColorUniform, ObjectUniform},
+    },
     rendering_utils,
 };
 use std::{mem, sync::Arc};
@@ -10,13 +13,15 @@ use wgpu::{
 
 pub struct WaveUniforms {
     pub object: ObjectUniform,
+    pub color1: ColorUniform,
+    pub color2: ColorUniform,
     pub wave: Arc<Vec<f32>>,
 }
 
 pub struct WaveMaterial {
     render_pipeline: RenderPipeline,
-    buffers: [Buffer; 1], // Don't need a buffer for texture
-    bind_groups: [BindGroup; 2],
+    buffers: [Buffer; 3], // Don't need a buffer for texture
+    bind_groups: [BindGroup; 4],
     wave_texture: (Texture, TextureView),
 }
 
@@ -41,6 +46,8 @@ impl MaterialTrait for WaveMaterial {
         };
         if let Some(data) = data.downcast_ref::<WaveUniforms>() {
             queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
+            queue.write_buffer(&self.buffers[1], 0, bytemuck::cast_slice(&[data.color1]));
+            queue.write_buffer(&self.buffers[2], 0, bytemuck::cast_slice(&[data.color2]));
             queue.write_texture(
                 wgpu::ImageCopyTexture {
                     texture: &self.wave_texture.0,
@@ -104,6 +111,51 @@ impl WaveMaterial {
             }],
         });
 
+        // Color uniform, bind group
+        let color1_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("color1_uniform_buffer"),
+            size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let color2_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("color1_uniform_buffer"),
+            size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let color_uniform_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("color_uniform_bind_group_layout"),
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+        });
+        let color1_uniform_bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("color1_uniform_bind_group"),
+            layout: &color_uniform_bgl,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: color1_uniform_buffer.as_entire_binding(),
+            }],
+        });
+
+        let color2_uniform_bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("color2_uniform_bind_group"),
+            layout: &color_uniform_bgl,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: color2_uniform_buffer.as_entire_binding(),
+            }],
+        });
+        // =========================
+
         let wave_texture: (Texture, TextureView) = rendering_utils::create_wave_texture(device);
         let wave_texture_bind_group =
             rendering_utils::create_wave_texture_bind_group(device, &wave_texture.1);
@@ -111,7 +163,12 @@ impl WaveMaterial {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("wave_pipeline_layout"),
-                bind_group_layouts: &[&object_uniform_bgl, &wave_texture_bind_group.0],
+                bind_group_layouts: &[
+                    &object_uniform_bgl,
+                    &color_uniform_bgl,
+                    &color_uniform_bgl,
+                    &wave_texture_bind_group.0,
+                ],
                 push_constant_ranges: &[],
             });
 
@@ -181,8 +238,17 @@ impl WaveMaterial {
             multiview: None,
         });
 
-        let buffers = [object_uniform_buffer];
-        let bind_groups = [object_uniform_bg, wave_texture_bind_group.1];
+        let buffers = [
+            object_uniform_buffer,
+            color1_uniform_buffer,
+            color2_uniform_buffer,
+        ];
+        let bind_groups = [
+            object_uniform_bg,
+            color1_uniform_bg,
+            color2_uniform_bg,
+            wave_texture_bind_group.1,
+        ];
 
         Self {
             render_pipeline,
