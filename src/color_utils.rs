@@ -76,10 +76,12 @@ impl ToVec4 for [f32; 3] {
 }
 
 pub struct ColorPalette<T: Float, const N: usize> {
+    pub name: &'static str,
     pub palette: [[T; 3]; N],
 }
 
 pub const CP0: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp0",
     palette: [
         [0.263, 0.208, 0.655],
         [1.000, 0.498, 0.243],
@@ -89,6 +91,7 @@ pub const CP0: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP1: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp1",
     palette: [
         [0.956, 0.964, 1.000],
         [0.952, 0.776, 0.137],
@@ -98,6 +101,7 @@ pub const CP1: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP2: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp2",
     palette: [
         [0.690, 0.188, 0.322],
         [0.843, 0.424, 0.510],
@@ -107,6 +111,7 @@ pub const CP2: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP3: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp3",
     palette: [
         [0.263, 0.475, 0.949],
         [0.431, 0.761, 0.027],
@@ -116,6 +121,7 @@ pub const CP3: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP4: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp4",
     palette: [
         [0.451, 0.467, 0.482],
         [0.925, 0.6, 0.294],
@@ -125,6 +131,7 @@ pub const CP4: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP5: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp5",
     palette: [
         [0.298, 0.322, 0.439],
         [0.212, 0.933, 0.878],
@@ -134,6 +141,7 @@ pub const CP5: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP6: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp6",
     palette: [
         [0.20, 0.21, 0.32],
         [0.46, 0.73, 0.28],
@@ -143,6 +151,7 @@ pub const CP6: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP7: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp7",
     palette: [
         [0.275, 0.208, 0.694],
         [1.000, 0.984, 0.792],
@@ -152,6 +161,7 @@ pub const CP7: ColorPalette<f32, 4> = ColorPalette {
 };
 
 pub const CP8: ColorPalette<f32, 4> = ColorPalette {
+    name: "cp8",
     palette: [
         [0.1, 0.1, 0.1],
         [0.2, 0.2, 0.2],
@@ -160,4 +170,4 @@ pub const CP8: ColorPalette<f32, 4> = ColorPalette {
     ],
 };
 
-pub const CCP: ColorPalette<f32, 4> = CP0;
+pub const CCP: ColorPalette<f32, 4> = CP3;

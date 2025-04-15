@@ -84,11 +84,12 @@ pub fn save_image(
         ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
 
     // Save the image
+    let color_palette_name = color_utils::CCP.name;
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    let image_path = format!("out/basic-{timestamp}.png");
+    let image_path = format!("out/basic-{color_palette_name}-{timestamp}.png");
     buffer.save(&image_path).unwrap();
 
     // buffer.unmap(); // This is a later version of wgpu
