@@ -34,6 +34,17 @@ pub struct App<'a> {
     earlier: Instant,
     elapsed: f32,
     last_frame_time: Instant,
+    settings: Settings,
+}
+
+pub struct Settings {
+    pub draw_ui: bool,
+}
+
+impl Settings {
+    pub fn new() -> Self {
+        Settings { draw_ui: true }
+    }
 }
 
 impl<'a> App<'a> {
@@ -59,6 +70,7 @@ impl<'a> App<'a> {
             earlier: Instant::now(),
             elapsed: 0.0,
             last_frame_time: Instant::now(),
+            settings: Settings::new(),
         }
     }
 
@@ -99,6 +111,7 @@ impl<'a> App<'a> {
             &self.scene,
             &mut self.audio_model.get_sequencers()[0],
             fps,
+            &self.settings,
         );
 
         self.audio_model.update();
@@ -180,6 +193,9 @@ fn run_event_loop(
                 if input.key_held(KeyCode::KeyE) {
                     app.scene.camera.orbit_y(false);
                 }
+            }
+            if input.key_pressed(KeyCode::KeyU) {
+                app.settings.draw_ui = !app.settings.draw_ui;
             }
             if input.key_pressed(KeyCode::KeyR) {
                 save_image::save_image(
