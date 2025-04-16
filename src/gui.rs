@@ -72,9 +72,9 @@ impl Gui {
             textures,
             top_bar,
             settings: Settings {
-                show_sequencer_list: false,
-                show_oscillator_inspector: false,
-                show_vfx: false,
+                show_sequencer_list: true,
+                show_oscillator_inspector: true,
+                show_vfx: true,
             },
         }
     }
