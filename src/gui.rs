@@ -13,6 +13,7 @@ use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
 pub mod gui_oscillator;
+pub mod gui_sequencer_list;
 pub mod gui_temp;
 pub mod gui_vfx;
 pub mod top_bar;
@@ -25,6 +26,13 @@ pub struct Gui {
     paint_jobs: Vec<ClippedPrimitive>,
     textures: TexturesDelta,
     top_bar: TopBar,
+    settings: Settings,
+}
+
+pub struct Settings {
+    pub show_sequencer_list: bool,
+    pub show_oscillator_inspector: bool,
+    pub show_vfx: bool,
 }
 
 impl Gui {
@@ -63,6 +71,11 @@ impl Gui {
             paint_jobs: vec![],
             textures,
             top_bar,
+            settings: Settings {
+                show_sequencer_list: false,
+                show_oscillator_inspector: false,
+                show_vfx: false,
+            },
         }
     }
 
@@ -90,9 +103,20 @@ impl Gui {
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
-            self.top_bar.draw(egui_ctx, fps);
-            gui_oscillator::draw(egui_ctx, sequencer);
-            // gui_vfx::draw(egui_ctx);
+            self.top_bar.draw(egui_ctx, &mut self.settings, fps);
+            if self.settings.show_oscillator_inspector {
+                gui_oscillator::draw(
+                    egui_ctx,
+                    sequencer,
+                    &mut self.settings.show_oscillator_inspector,
+                );
+            }
+            if self.settings.show_vfx {
+                gui_vfx::draw(egui_ctx, &mut self.settings.show_vfx);
+            }
+            if self.settings.show_sequencer_list {
+                gui_sequencer_list::draw(egui_ctx, &mut self.settings.show_sequencer_list);
+            }
         });
 
         self.textures.append(output.textures_delta);

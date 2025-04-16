@@ -1,6 +1,8 @@
 use egui::{Color32, RichText};
 use egui_winit::egui::{self, Context};
 
+use super::Settings;
+
 pub struct TopBar {
     is_window_open: bool,
 }
@@ -12,13 +14,25 @@ impl TopBar {
         }
     }
 
-    pub fn draw(&mut self, ctx: &Context, fps: f32) {
+    pub fn draw(&mut self, ctx: &Context, settings: &mut Settings, fps: f32) {
         egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::GREEN));
                 ui.menu_button("File", |ui| {
                     if ui.button("About...").clicked() {
                         self.is_window_open = true;
+                        ui.close_menu();
+                    }
+                    if ui.button("oscillator").clicked() {
+                        settings.show_oscillator_inspector = true;
+                        ui.close_menu();
+                    }
+                    if ui.button("sequencer list").clicked() {
+                        settings.show_sequencer_list = true;
+                        ui.close_menu();
+                    }
+                    if ui.button("vfx").clicked() {
+                        settings.show_vfx = true;
                         ui.close_menu();
                     }
                 });
