@@ -205,6 +205,9 @@ fn run_event_loop(
                     &app.renderer.render_texture_material.post_process_texture,
                 );
             }
+            app.scene
+                .camera
+                .rotate(input.mouse_diff().0, input.mouse_diff().1);
         }
 
         match event {
