@@ -1,8 +1,17 @@
-use wgpu::{BindGroup, BindGroupLayout, ComputePipeline, Device, Queue, Texture, TextureView};
+use std::{mem, time::Instant};
+
+use wgpu::{
+    BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, Texture, TextureView,
+};
+
+use crate::basics::uniforms::ColorUniform;
 
 pub struct PostProcessor {
     compute_pipeline: ComputePipeline,
     pub bind_group: BindGroup,
+    pub control_uniform_buffer: Buffer,
+    pub control_bg: BindGroup,
+    pub instant: Instant,
 }
 
 impl PostProcessor {
@@ -10,14 +19,15 @@ impl PostProcessor {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
             source: wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/none.comp.wgsl").into(),
+                include_str!("../shaders/compute/noise.comp.wgsl").into(),
             ),
         });
         let (layout, bind_group) = create_bind_group(device, write_view, read_view);
+        let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("post_process_pipeline_layout"),
-            bind_group_layouts: &[&layout],
+            bind_group_layouts: &[&layout, &control_bgl],
             push_constant_ranges: &[],
         });
 
@@ -31,6 +41,9 @@ impl PostProcessor {
         Self {
             compute_pipeline,
             bind_group,
+            control_uniform_buffer,
+            control_bg,
+            instant: Instant::now(),
         }
     }
 
@@ -45,7 +58,17 @@ impl PostProcessor {
         });
 
         compute_pass.set_pipeline(&self.compute_pipeline);
+
         compute_pass.set_bind_group(0, &self.bind_group, &[]);
+        let control_uniform = ColorUniform {
+            color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
+        };
+        queue.write_buffer(
+            &self.control_uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[control_uniform]),
+        );
+        compute_pass.set_bind_group(1, &self.control_bg, &[]);
         compute_pass.dispatch_workgroups((width + 7) / 8, (height + 7) / 8, 1);
 
         drop(compute_pass);
@@ -107,4 +130,40 @@ fn create_bind_group(
     });
 
     (bind_group_layout, bind_group)
+}
+
+fn create_control_bind_group(device: &Device) -> (Buffer, BindGroupLayout, BindGroup) {
+    let control_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("control_uniform_buffer"),
+        size: mem::size_of::<ColorUniform>() as wgpu::BufferAddress,
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+    let control_uniform_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: Some("control_uniform_bind_group_layout"),
+        entries: &[wgpu::BindGroupLayoutEntry {
+            binding: 0,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer {
+                ty: wgpu::BufferBindingType::Uniform,
+                has_dynamic_offset: false,
+                min_binding_size: None,
+            },
+            count: None,
+        }],
+    });
+    let control_uniform_bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("control_uniform_bind_group"),
+        layout: &control_uniform_bgl,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: control_uniform_buffer.as_entire_binding(),
+        }],
+    });
+
+    (
+        control_uniform_buffer,
+        control_uniform_bgl,
+        control_uniform_bg,
+    )
 }

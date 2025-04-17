@@ -4,6 +4,14 @@ var img: texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(1)
 var src: texture_2d<f32>;
 
+// A uniform to pass arbitrary values to the shader
+struct ControlUniform {
+    values: vec4<f32>,
+};
+
+@group(1) @binding(0)
+var<uniform> control_uniform: ControlUniform;
+
 @compute @workgroup_size(8, 8)
 fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     let dims = textureDimensions(img);
@@ -14,14 +22,14 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     let color = textureLoad(src, vec2<i32>(id.xy), 0);
     let i = id.x;
     let j = id.y;
-    let mixed = vec2(i ^ (i << 13), j ^ (j << 12)); // bit-mix
-    let noise = vec3(hash2(id.xy) / 20.0);
+    let noise = vec3(hash2(id.xy, control_uniform.values[0]) / 20.0);
     let new_color = vec4(color.rgb + noise, 1.0);
     textureStore(img, vec2<i32>(id.xy), new_color);
 }
 
-fn hash2(p: vec2<u32>) -> f32 {
-    let x = f32(p.x);
-    let y = f32(p.y);
-    return fract(sin(dot(vec2(x, y), vec2(12.9898, 78.233))) * 43758.5453);
+fn hash2(p: vec2<u32>, time: f32) -> f32 {
+    let f = vec2<f32>(p) / 10.0;
+    let k = vec2(0.3183099, 0.3678794); // 1/π and 1/e
+    let v = f * k + time * 0.05;
+    return fract(23.0 * fract(v.x * v.y * (v.x + v.y)));
 }
