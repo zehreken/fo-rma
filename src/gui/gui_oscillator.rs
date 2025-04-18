@@ -2,7 +2,7 @@ use crate::audio::sequencer::Sequencer;
 use kopek::oscillator::WaveType;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) {
-    egui::Window::new("oscillator")
+    egui::Window::new("Oscillator")
         .open(is_open)
         .show(ctx, |ui| {
             ctx.request_repaint();

@@ -53,7 +53,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let ambient_strength = 0.1;
     let ambient = vec3(1.0, 1.0, 1.0) * ambient_strength;
 
-    // Diffuse
+    // Diffuse, light.color.a = intensity
     let diff = max(dot(normal, light_dir), 0.0);
     let diffuse = light.color.rgb * diff * light.color.a * clamp(in.color.a, 0.0, in.color.a) * 2.0;
 

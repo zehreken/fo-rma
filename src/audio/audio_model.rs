@@ -112,7 +112,7 @@ impl AudioModel {
             sample_rate,
             output_config.channels.into(),
             // vec![utils::A_FREQ],
-            songs::TEST.to_vec(),
+            songs::SPYBREAK.to_vec(),
         );
 
         let sequencer_2 = Sequencer::new(

@@ -118,7 +118,7 @@ pub const BILLIE_JEAN_2: [f32; 16] = [
     utils::REST,
 ];
 
-pub const TEST: [f32; 32] = [
+pub const ON_MY_OWN: [f32; 32] = [
     utils::G_FREQ,
     utils::G_FREQ,
     utils::G_FREQ,
@@ -148,6 +148,25 @@ pub const TEST: [f32; 32] = [
     utils::C_FREQ * 2.0,
     utils::C_FREQ * 2.0,
     utils::C_FREQ * 2.0,
+    utils::C_FREQ * 2.0,
+    utils::C_FREQ * 2.0,
+    utils::C_FREQ * 2.0,
+];
+
+pub const SPYBREAK: [f32; 16] = [
+    utils::FS_FREQ,
+    utils::FS_FREQ,
+    utils::FS_FREQ,
+    utils::FS_FREQ,
+    utils::FS_FREQ,
+    utils::FS_FREQ,
+    utils::A_FREQ,
+    utils::A_FREQ,
+    utils::A_FREQ,
+    utils::A_FREQ,
+    utils::B_FREQ,
+    utils::B_FREQ,
+    utils::B_FREQ,
     utils::C_FREQ * 2.0,
     utils::C_FREQ * 2.0,
     utils::C_FREQ * 2.0,

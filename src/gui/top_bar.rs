@@ -19,19 +19,19 @@ impl TopBar {
             egui::menu::bar(ui, |ui| {
                 ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::GREEN));
                 ui.menu_button("File", |ui| {
-                    if ui.button("About...").clicked() {
-                        self.is_window_open = true;
-                        ui.close_menu();
-                    }
-                    if ui.button("oscillator").clicked() {
+                    // if ui.button("About...").clicked() {
+                    //     self.is_window_open = true;
+                    //     ui.close_menu();
+                    // }
+                    if ui.button("Oscillator").clicked() {
                         settings.show_oscillator_inspector = true;
                         ui.close_menu();
                     }
-                    if ui.button("sequencer list").clicked() {
+                    if ui.button("Sequencers").clicked() {
                         settings.show_sequencer_list = true;
                         ui.close_menu();
                     }
-                    if ui.button("vfx").clicked() {
+                    if ui.button("VFX").clicked() {
                         settings.show_vfx = true;
                         ui.close_menu();
                     }
