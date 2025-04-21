@@ -55,13 +55,8 @@ impl Transform {
         self.rotation *= rotation;
     }
 
-    pub fn set_rotation(&mut self, euler_angles: Vec3) {
-        self.rotation = Quat::from_euler(
-            glam::EulerRot::XYZ,
-            euler_angles.x.to_radians(),
-            euler_angles.y.to_radians(),
-            euler_angles.z.to_radians(),
-        );
+    pub fn set_rotation(&mut self, v: Quat) {
+        self.rotation = v;
     }
 
     pub fn scale(&mut self, scale: Vec3) {

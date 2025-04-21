@@ -105,14 +105,14 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; VERTEX_COU
         for _ in 0..SECTOR_COUNT {
             if i != 0 {
                 indices.push(k1);
-                indices.push(k2);
                 indices.push(k1 + 1);
+                indices.push(k2);
             }
 
             if i != (STACK_COUNT - 1) {
                 indices.push(k1 + 1);
-                indices.push(k2);
                 indices.push(k2 + 1);
+                indices.push(k2);
             }
 
             k1 += 1;

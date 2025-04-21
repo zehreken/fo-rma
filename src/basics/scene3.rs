@@ -6,12 +6,13 @@ use super::{
     quad::Quad,
     scene_loader::SceneData,
     sphere::Sphere,
+    triangle::Triangle,
     uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
 };
 use crate::{
     color_utils::{self, ToVec4},
     material::{
-        diffuse_color_material::{self, DiffuseColorMaterial, DiffuseColorUniforms},
+        diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
         equalizer_material::EqualizerUniforms,
         wave_material::{WaveMaterial, WaveUniforms},
         MaterialType,
@@ -38,7 +39,7 @@ impl Scene {
         scene_data: &SceneData,
     ) -> Self {
         let camera = camera::Camera::new(
-            vec3(0.0, 1.0, -10.0),
+            vec3(0.0, 1.0, 10.0),
             vec3(0.0, 0.0, 0.0),
             size.width as f32 / size.height as f32,
             scene_data.camera.fov,
@@ -162,7 +163,7 @@ impl Scene {
         // material_object_map.insert(MaterialType::DiffuseColorMaterial, objects);
 
         let mut light = Light::new(color_utils::CCP.palette[1]);
-        light.update_position(vec3(0.0, 2.5, 0.1));
+        light.update_position(vec3(0.0, 5.0, 0.0));
         let lights = vec![light];
 
         Self {

@@ -46,8 +46,8 @@ impl Camera {
         );
         let target = self.eye + forward;
         let up = Vec3::Y;
-        let view = Mat4::look_at_rh(self.eye, target, up);
-        let proj = Mat4::perspective_rh(
+        let view = Mat4::look_at_lh(self.eye, target, up);
+        let proj = Mat4::perspective_lh(
             self.fov_y.to_radians(),
             self.aspect,
             self.z_near,
@@ -67,14 +67,14 @@ impl Camera {
 
     pub fn rotate(&mut self, diff_x: f32, diff_y: f32) {
         let sensitivity = 0.0014;
-        self.yaw += diff_x * sensitivity;
+        self.yaw -= diff_x * sensitivity;
         self.pitch -= diff_y * sensitivity;
 
         self.pitch = self.pitch.clamp(-1.0, 1.0);
     }
 
     pub fn move_x(&mut self, plus: bool) {
-        let factor = if plus { 0.5 } else { -0.5 };
+        let factor = if plus { -0.5 } else { 0.5 };
         let forward = Vec3::new(
             self.yaw.cos() * self.pitch.cos(),
             self.pitch.sin(),

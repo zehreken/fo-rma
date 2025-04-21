@@ -8,6 +8,7 @@ pub mod quad;
 // pub mod scene2;
 pub mod scene3;
 pub mod scene_loader;
+pub mod screen_quad;
 pub mod sphere;
 pub mod triangle;
 pub mod uniforms;

@@ -16,7 +16,7 @@ pub struct SceneData {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Camera {
     pub position: Vec3,
-    pub rotation: Vec3,
+    pub rotation: Quat,
     pub fov: f32,
 }
 
@@ -25,7 +25,7 @@ pub struct Light {
     pub color: Vec3,
     pub intensity: f32,
     pub position: Vec3,
-    pub rotation: Vec3,
+    pub rotation: Quat,
     pub scale: Vec3,
 }
 
@@ -34,7 +34,7 @@ pub struct Object {
     pub mesh: String,
     pub material: String,
     pub position: Vec3,
-    pub rotation: Vec3,
+    pub rotation: Quat,
     pub scale: Vec3,
 }
 
@@ -48,5 +48,19 @@ pub struct Vec3 {
 impl From<Vec3> for glam::Vec3 {
     fn from(v: Vec3) -> Self {
         glam::Vec3::new(v.x, v.y, v.z)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct Quat {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
+impl From<Quat> for glam::Quat {
+    fn from(v: Quat) -> Self {
+        glam::quat(v.x, v.y, v.z, v.w)
     }
 }

@@ -1,21 +1,15 @@
 use crate::{
-    basics::{primitive::Primitive, quad::Quad},
-    material::{
-        post_process_material::PostProcessMaterial, unlit_color_material::UnlitColorMaterial,
-    },
+    basics::screen_quad::ScreenQuad, material::post_process_material::PostProcessMaterial,
 };
-use wgpu::{
-    Color, Device, Operations, Queue, RenderPassColorAttachment, SurfaceConfiguration, TextureView,
-};
+use wgpu::{Color, Device, Operations, Queue, RenderPassColorAttachment, TextureView};
 
 pub struct ScreenRenderer {
-    screen_quad: Box<dyn Primitive>,
+    screen_quad: ScreenQuad,
 }
 
 impl ScreenRenderer {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let mock_material = UnlitColorMaterial::new(device, surface_config);
-        let screen_quad = Box::new(Quad::new(&device, Box::new(mock_material)));
+    pub fn new(device: &Device) -> Self {
+        let screen_quad = ScreenQuad::new(device);
 
         Self { screen_quad }
     }
