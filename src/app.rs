@@ -1,6 +1,6 @@
 use crate::{
     audio::audio_model::AudioModel,
-    basics::{scene3::Scene, scene_constructor},
+    basics::{scene3::Scene, scene_loader},
     renderer, save_image,
 };
 use std::{
@@ -53,10 +53,15 @@ impl<'a> App<'a> {
         let renderer = renderer::Renderer::new(window).await;
 
         let json = include_str!("../scenes/scene_01.json");
-        let pseudo_scene = scene_constructor::construct_scene_from_json(json);
-        dbg!(pseudo_scene);
+        let scene_data = scene_loader::construct_scene_from_json(json);
 
-        let scene = Scene::new(&renderer.device, &renderer.surface_config, size);
+        let scene = Scene::new(
+            &renderer.device,
+            &renderer.surface_config,
+            size,
+            &scene_data,
+        );
+        dbg!(scene_data);
 
         let audio_model = AudioModel::new().unwrap();
 

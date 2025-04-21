@@ -100,13 +100,13 @@ impl<'a> Renderer<'a> {
             scene,
         );
 
-        // self.line_renderer.render(
-        //     &self.device,
-        //     &self.queue,
-        //     &self.depth_texture,
-        //     &self.render_texture_material.render_texture_view,
-        //     scene,
-        // );
+        self.line_renderer.render(
+            &self.device,
+            &self.queue,
+            &self.depth_texture,
+            &self.render_texture_material.render_texture_view,
+            scene,
+        );
 
         self.post_processor
             .run(&self.device, &self.queue, self.size.width, self.size.height);

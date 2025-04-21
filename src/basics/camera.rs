@@ -93,8 +93,8 @@ impl Camera {
         let factor = if plus { -0.5 } else { 0.5 };
         let forward = Vec3::new(
             self.yaw.cos() * self.pitch.cos(),
-            // self.pitch.sin(),
-            0.0,
+            self.pitch.sin(),
+            // 0.0,
             self.yaw.sin() * self.pitch.cos(),
         );
         self.eye = self.eye + forward * factor;
