@@ -17,7 +17,6 @@ use crate::{
         wave_material::{WaveMaterial, WaveUniforms},
         MaterialType,
     },
-    // rendering::temp_renderer::create_wave_material,
 };
 use glam::vec3;
 use std::{collections::HashMap, sync::Arc};
@@ -55,6 +54,8 @@ impl Scene {
                 Box::new(Cube::new(device, Box::new(material)))
             } else if object_data.mesh == "sphere" {
                 Box::new(Sphere::new(device, Box::new(material)))
+            } else if object_data.mesh == "triangle" {
+                Box::new(Triangle::new(device, Box::new(material)))
             } else {
                 Box::new(Quad::new(device, Box::new(material)))
             };
@@ -65,102 +66,6 @@ impl Scene {
             objects.push(object);
         }
         material_object_map.insert(MaterialType::DiffuseColorMaterial, objects);
-        // for i in 0..5 {
-        //     let material = WaveMaterial::new(device, surface_config);
-        //     let mut quad = Quad::new(device, Box::new(material));
-        //     quad.state.set_position(Vec3 {
-        //         x: -4.0 + i as f32 * 2.0,
-        //         y: 2.5,
-        //         z: 0.0,
-        //     });
-        //     quad.state.scale(Vec3 {
-        //         x: 2.0,
-        //         y: 5.0,
-        //         z: 1.0,
-        //     });
-        //     objects.push(Box::new(quad));
-        // }
-        // material_object_map.insert(MaterialType::WaveMaterial, objects);
-
-        // floor and ceiling
-        // objects = vec![];
-        // let material = DiffuseColorMaterial::new(device, surface_config);
-        // let mut quad = Quad::new(device, Box::new(material));
-        // quad.state.set_position(Vec3 {
-        //     x: 0.0,
-        //     y: 0.0,
-        //     z: 0.0,
-        // });
-        // quad.state.rotate(Vec3 {
-        //     x: -90.0,
-        //     y: 0.0,
-        //     z: 0.0,
-        // });
-        // quad.state.scale(Vec3 {
-        //     x: 100.0,
-        //     y: 100.0,
-        //     z: 100.0,
-        // });
-        // objects.push(Box::new(quad));
-
-        // let material = DiffuseColorMaterial::new(device, surface_config);
-        // let mut quad = Quad::new(device, Box::new(material));
-        // quad.state.set_position(Vec3 {
-        //     x: 0.0,
-        //     y: 5.0,
-        //     z: 0.0,
-        // });
-        // quad.state.rotate(Vec3 {
-        //     x: 90.0,
-        //     y: 0.0,
-        //     z: 0.0,
-        // });
-        // quad.state.scale(Vec3 {
-        //     x: 100.0,
-        //     y: 100.0,
-        //     z: 100.0,
-        // });
-        // objects.push(Box::new(quad));
-
-        // let material = DiffuseColorMaterial::new(device, surface_config);
-        // let mut quad = Quad::new(device, Box::new(material));
-        // quad.state.set_position(Vec3 {
-        //     x: 5.0,
-        //     y: 2.5,
-        //     z: 0.0,
-        // });
-        // quad.state.rotate(Vec3 {
-        //     x: 0.0,
-        //     y: -90.0,
-        //     z: 0.0,
-        // });
-        // quad.state.scale(Vec3 {
-        //     x: 100.0,
-        //     y: 5.0,
-        //     z: 100.0,
-        // });
-        // objects.push(Box::new(quad));
-
-        // let material = DiffuseColorMaterial::new(device, surface_config);
-        // let mut quad = Quad::new(device, Box::new(material));
-        // quad.state.set_position(Vec3 {
-        //     x: -5.0,
-        //     y: 2.5,
-        //     z: 0.0,
-        // });
-        // quad.state.rotate(Vec3 {
-        //     x: 0.0,
-        //     y: 90.0,
-        //     z: 0.0,
-        // });
-        // quad.state.scale(Vec3 {
-        //     x: 100.0,
-        //     y: 5.0,
-        //     z: 100.0,
-        // });
-        // objects.push(Box::new(quad));
-
-        // material_object_map.insert(MaterialType::DiffuseColorMaterial, objects);
 
         let mut light = Light::new(color_utils::CCP.palette[1]);
         light.update_position(vec3(0.0, 5.0, 0.0));
@@ -184,7 +89,7 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        // self.lights[0].update_position(vec3(5.0 * el.cos(), 0.0, 5.0 * el.sin()));
+        self.lights[0].update_position(vec3(10.0 * el.cos(), 0.0, 10.0 * el.sin()));
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
