@@ -1,6 +1,7 @@
+use crate::material::MaterialType;
 use wgpu::{
-    BindGroup, BindGroupLayout, Device, Extent3d, SurfaceCapabilities, Texture, TextureFormat,
-    TextureView,
+    BindGroup, BindGroupLayout, Device, Extent3d, ShaderModule, SurfaceCapabilities, Texture,
+    TextureFormat, TextureView,
 };
 use winit::dpi::PhysicalSize;
 
@@ -87,6 +88,30 @@ pub async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, 
         .await
         .unwrap();
     (device, queue)
+}
+
+pub fn create_shader_module(device: &Device, material_type: MaterialType) -> ShaderModule {
+    let (name, shader_main) = match material_type {
+        MaterialType::DebugMaterial => ("debug", include_str!("shaders/debug.wgsl")),
+        MaterialType::DiffuseColorMaterial => ("diffuse", include_str!("shaders/basic_light.wgsl")),
+        MaterialType::EqualizerMaterial => ("equalizer", include_str!("shaders/equalizer.wgsl")),
+        MaterialType::PostProcessMaterial => {
+            ("screen_quad", include_str!("shaders/equalizer.wgsl"))
+        }
+        MaterialType::UnlitColorMaterial => {
+            ("unlit_color", include_str!("shaders/unlit_color.wgsl"))
+        }
+        MaterialType::WaveMaterial => ("wave", include_str!("shaders/wave.wgsl")),
+    };
+
+    let shader_utils = include_str!("shaders/utils.wgsl");
+    let shader_combined = format!("{}\n{}", shader_main, shader_utils);
+    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some(name),
+        source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
+    });
+
+    shader
 }
 
 pub fn create_render_texture(
