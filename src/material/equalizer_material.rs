@@ -1,7 +1,10 @@
 use super::{MaterialTrait, MaterialType};
-use crate::basics::{
-    core::Vertex,
-    uniforms::{EqualizerUniform, LightUniform, ObjectUniform},
+use crate::{
+    basics::{
+        core::Vertex,
+        uniforms::{EqualizerUniform, LightUniform, ObjectUniform},
+    },
+    rendering_utils,
 };
 use std::mem;
 use wgpu::{BindGroup, Buffer, Device, Queue, RenderPipeline, SurfaceConfiguration};
@@ -46,13 +49,7 @@ impl MaterialTrait for EqualizerMaterial {
 
 impl EqualizerMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader_main = include_str!("../shaders/equalizer.wgsl");
-        let shader_utils = include_str!("../shaders/utils.wgsl");
-        let shader_combined = format!("{}\n{}", shader_main, shader_utils);
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("unlit_color"),
-            source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
-        });
+        let shader = rendering_utils::create_shader_module(device, MaterialType::EqualizerMaterial);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

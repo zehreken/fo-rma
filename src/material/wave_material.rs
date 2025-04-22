@@ -73,13 +73,8 @@ impl MaterialTrait for WaveMaterial {
 
 impl WaveMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader_main = include_str!("../shaders/wave.wgsl");
-        let shader_utils = include_str!("../shaders/utils.wgsl");
-        let shader_combined = format!("{}\n{}", shader_main, shader_utils);
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("wave_shader"),
-            source: wgpu::ShaderSource::Wgsl(shader_combined.into()),
-        });
+        let shader =
+            rendering_utils::create_shader_module(device, super::MaterialType::WaveMaterial);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
