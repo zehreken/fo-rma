@@ -93,10 +93,12 @@ pub async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, 
 pub fn create_shader_module(device: &Device, material_type: MaterialType) -> ShaderModule {
     let (name, shader_main) = match material_type {
         MaterialType::DebugMaterial => ("debug", include_str!("shaders/debug.wgsl")),
-        MaterialType::DiffuseColorMaterial => ("diffuse", include_str!("shaders/basic_light.wgsl")),
+        MaterialType::DiffuseColorMaterial => {
+            ("diffuse_color", include_str!("shaders/diffuse_color.wgsl"))
+        }
         MaterialType::EqualizerMaterial => ("equalizer", include_str!("shaders/equalizer.wgsl")),
         MaterialType::PostProcessMaterial => {
-            ("screen_quad", include_str!("shaders/equalizer.wgsl"))
+            ("screen_quad", include_str!("shaders/screen_quad.wgsl"))
         }
         MaterialType::UnlitColorMaterial => {
             ("unlit_color", include_str!("shaders/unlit_color.wgsl"))

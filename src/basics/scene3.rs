@@ -89,7 +89,7 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.lights[0].update_position(vec3(10.0 * el.cos(), 0.0, 10.0 * el.sin()));
+        self.lights[0].update_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));

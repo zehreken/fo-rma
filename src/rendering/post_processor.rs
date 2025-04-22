@@ -1,5 +1,4 @@
 use std::{mem, time::Instant};
-
 use wgpu::{
     BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, Texture, TextureView,
 };
