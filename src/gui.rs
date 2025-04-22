@@ -12,6 +12,7 @@ use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
 
+pub mod gui_envelope;
 pub mod gui_oscillator;
 pub mod gui_sequencer_list;
 pub mod gui_temp;
@@ -33,6 +34,7 @@ pub struct Settings {
     pub show_sequencer_list: bool,
     pub show_oscillator_inspector: bool,
     pub show_vfx: bool,
+    pub show_envelope: bool,
 }
 
 impl Gui {
@@ -72,9 +74,10 @@ impl Gui {
             textures,
             top_bar,
             settings: Settings {
-                show_sequencer_list: true,
+                show_sequencer_list: false,
                 show_oscillator_inspector: true,
-                show_vfx: true,
+                show_vfx: false,
+                show_envelope: true,
             },
         }
     }
@@ -116,6 +119,9 @@ impl Gui {
             }
             if self.settings.show_sequencer_list {
                 gui_sequencer_list::draw(egui_ctx, &mut self.settings.show_sequencer_list);
+            }
+            if self.settings.show_envelope {
+                gui_envelope::draw(egui_ctx, &mut self.settings.show_envelope);
             }
         });
 
