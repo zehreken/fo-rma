@@ -14,8 +14,8 @@ use winit::window::Window;
 
 pub mod gui_envelope;
 pub mod gui_oscillator;
+pub mod gui_sequencer;
 pub mod gui_sequencer_list;
-pub mod gui_temp;
 pub mod gui_vfx;
 pub mod top_bar;
 
@@ -32,6 +32,7 @@ pub struct Gui {
 
 pub struct Settings {
     pub show_sequencer_list: bool,
+    pub show_sequencer: bool,
     pub show_oscillator_inspector: bool,
     pub show_vfx: bool,
     pub show_envelope: bool,
@@ -75,6 +76,7 @@ impl Gui {
             top_bar,
             settings: Settings {
                 show_sequencer_list: false,
+                show_sequencer: true,
                 show_oscillator_inspector: true,
                 show_vfx: false,
                 show_envelope: true,
@@ -119,6 +121,9 @@ impl Gui {
             }
             if self.settings.show_sequencer_list {
                 gui_sequencer_list::draw(egui_ctx, &mut self.settings.show_sequencer_list);
+            }
+            if self.settings.show_sequencer {
+                gui_sequencer::draw(egui_ctx, sequencer, &mut self.settings.show_sequencer);
             }
             if self.settings.show_envelope {
                 gui_envelope::draw(egui_ctx, &mut self.settings.show_envelope);
