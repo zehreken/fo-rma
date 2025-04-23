@@ -137,7 +137,7 @@ impl Scene {
                     };
                     let light = LightUniform {
                         position: self.lights[0].transform.position.extend(0.0).to_array(),
-                        color: self.lights[0].color.to_vec4(0.5 + signal * 0.5),
+                        color: self.lights[0].color.to_vec4(1.0 + signal * 0.5),
                     };
                     let data = DiffuseColorUniforms {
                         object,
