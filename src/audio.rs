@@ -7,4 +7,5 @@ pub mod modulated_oscillator;
 pub mod oscillator_type;
 pub mod sequencer;
 pub mod songs;
+pub mod utils;
 pub mod vco;

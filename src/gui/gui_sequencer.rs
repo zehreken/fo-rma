@@ -1,4 +1,4 @@
-use crate::audio::{modulated_oscillator::ModulatedOscillator, sequencer::Sequencer};
+use crate::audio::sequencer::Sequencer;
 use egui::Color32;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) {
@@ -8,6 +8,14 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
             ctx.request_repaint();
             ui.colored_label(Color32::RED, "MAIN TAPE ⏺");
 
+            ui.horizontal(|ui| {
+                for i in 0..16 {
+                    ui.menu_button("", |ui| {
+                        if ui.button("1").clicked() {}
+                        if ui.button("2").clicked() {}
+                    });
+                }
+            });
             ui.horizontal(|ui| {
                 for i in 0..16 {
                     ui.menu_button("", |ui| {
