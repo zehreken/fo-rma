@@ -9,7 +9,7 @@ pub struct Sequencer {
     prev_beat_index: u32,
     length: u8,
     freq: f32,
-    sequence: Vec<f32>,
+    pub sequence: Vec<f32>,
     tick_period: f32,
     beat_duration: f32,
     is_beat: bool,
