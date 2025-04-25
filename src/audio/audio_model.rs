@@ -8,12 +8,19 @@ extern crate cpal;
 extern crate ringbuf;
 
 use super::{audio_clock::AudioClock, generator::Input};
-use crate::audio::{sequencer::Sequencer, songs};
+use crate::audio::{
+    sequencer::Sequencer,
+    songs,
+    utils::{Note, Octave},
+};
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
-use kopek::{metronome::Metronome, utils};
+use kopek::{
+    metronome::Metronome,
+    utils::{self, Key},
+};
 use ringbuf::{HeapProducer, HeapRb};
 use std::{collections::VecDeque, sync::Arc};
 
@@ -120,7 +127,10 @@ impl AudioModel {
             sample_rate,
             output_config.channels.into(),
             // songs::BILLIE_JEAN_2.to_vec(),
-            vec![utils::A_FREQ],
+            vec![Note {
+                octave: Octave::First,
+                key: Key::A,
+            }],
         );
         let mut sequencers = Vec::new();
         sequencers.push(sequencer);

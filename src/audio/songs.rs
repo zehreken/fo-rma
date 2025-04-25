@@ -1,5 +1,7 @@
 use kopek::utils;
 
+use super::utils::{Note, Octave};
+
 pub const JINGLE_BELLS: [f32; 64] = [
     // Verse 1
     utils::E_FREQ,
@@ -153,21 +155,69 @@ pub const ON_MY_OWN: [f32; 32] = [
     utils::C_FREQ * 2.0,
 ];
 
-pub const SPYBREAK: [f32; 16] = [
-    utils::FS_FREQ,
-    utils::FS_FREQ,
-    utils::FS_FREQ,
-    utils::FS_FREQ,
-    utils::FS_FREQ,
-    utils::FS_FREQ,
-    utils::A_FREQ,
-    utils::A_FREQ,
-    utils::A_FREQ,
-    utils::A_FREQ,
-    utils::B_FREQ,
-    utils::B_FREQ,
-    utils::B_FREQ,
-    utils::C_FREQ * 2.0,
-    utils::C_FREQ * 2.0,
-    utils::C_FREQ * 2.0,
+pub const SPYBREAK: [Note; 16] = [
+    Note {
+        octave: Octave::First,
+        key: utils::Key::Fs,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::Fs,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::Fs,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::Fs,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::Fs,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::Fs,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::A,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::A,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::A,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::A,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::B,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::B,
+    },
+    Note {
+        octave: Octave::First,
+        key: utils::Key::B,
+    },
+    Note {
+        octave: Octave::Second,
+        key: utils::Key::C,
+    },
+    Note {
+        octave: Octave::Second,
+        key: utils::Key::C,
+    },
+    Note {
+        octave: Octave::Second,
+        key: utils::Key::C,
+    },
 ];

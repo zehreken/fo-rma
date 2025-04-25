@@ -23,7 +23,7 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
             ui.horizontal(|ui| {
                 for _ in 0..count {
                     ui.menu_button("", |ui| {
-                        for text in utils::PITCHES {
+                        for text in utils::KEYS {
                             if ui.button(text).clicked() {
                                 println!("{} selected", text);
                                 ui.close_menu();

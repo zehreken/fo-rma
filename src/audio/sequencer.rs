@@ -1,6 +1,6 @@
-use super::modulated_oscillator::ModulatedOscillator;
+use super::{modulated_oscillator::ModulatedOscillator, utils::Note};
 use crate::{audio::envelope::Envelope, basics::core::clamp};
-use kopek::oscillator::WaveType;
+use kopek::{oscillator::WaveType, utils::get_freq};
 
 pub struct Sequencer {
     pub is_running: bool,
@@ -9,7 +9,7 @@ pub struct Sequencer {
     prev_beat_index: u32,
     length: u8,
     freq: f32,
-    pub sequence: Vec<f32>,
+    pub sequence: Vec<Note>,
     tick_period: f32,
     beat_duration: f32,
     is_beat: bool,
@@ -22,7 +22,7 @@ impl Sequencer {
         bpm: u16,
         sample_rate: u32,
         channel_count: u32,
-        sequence: Vec<f32>, // song
+        sequence: Vec<Note>, // song
     ) -> Self {
         let tick_period = (sample_rate * 60) as f32 / bpm as f32;
         let beat_duration = tick_period / 3.0;
@@ -35,7 +35,7 @@ impl Sequencer {
             beat_index: 0,
             prev_beat_index: 0,
             length: sequence.len() as u8,
-            freq: sequence[0],
+            freq: sequence[0].get(),
             sequence,
             tick_period,
             beat_duration,
@@ -55,7 +55,7 @@ impl Sequencer {
             0.0
         } else {
             // Reach next freq in 50 samples
-            self.sequence[step_index] - self.sequence[step_index - 1] / 50.0
+            self.sequence[step_index].get() - self.sequence[step_index - 1].get() / 50.0
         };
 
         // Ramp between steps
@@ -63,7 +63,7 @@ impl Sequencer {
         //     self.freq += freq_diff;
         // }
 
-        self.freq = self.sequence[step_index];
+        self.freq = self.sequence[step_index].get();
         self.modulated_oscillator
             .set_frequency(self.freq * TEMP_OCTAVE as f32);
         let mut value = self.modulated_oscillator.run();
