@@ -8,18 +8,14 @@ extern crate cpal;
 extern crate ringbuf;
 
 use super::{audio_clock::AudioClock, generator::Input};
-use crate::audio::{
-    sequencer::Sequencer,
-    songs,
-    utils::{Note, Octave},
-};
+use crate::audio::{sequencer::Sequencer, songs, utils::Note};
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
 use kopek::{
     metronome::Metronome,
-    utils::{self, Key},
+    utils::{self, Key, Octave},
 };
 use ringbuf::{HeapProducer, HeapRb};
 use std::{collections::VecDeque, sync::Arc};
