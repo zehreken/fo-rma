@@ -8,14 +8,16 @@ pub struct Note {
 
 impl Note {
     fn get_octave(&self) -> f32 {
-        match self.octave {
-            Octave::First => 1.0,
-            Octave::Second => 2.0,
-            Octave::Third => 4.0,
-            Octave::Fourth => 8.0,
-            Octave::Fifth => 16.0,
-        }
+        let shift = match self.octave {
+            Octave::First => 0,
+            Octave::Second => 1,
+            Octave::Third => 2,
+            Octave::Fourth => 3,
+            Octave::Fifth => 4,
+        };
+        2.0_f32.powi(shift)
     }
+
     fn get_freq(&self) -> f32 {
         get_freq(self.key)
     }
