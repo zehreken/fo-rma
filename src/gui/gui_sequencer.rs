@@ -9,8 +9,8 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
             ui.colored_label(Color32::RED, "MAIN TAPE ⏺");
             let count = sequencer.sequence.len();
             ui.horizontal(|ui| {
-                for _ in 0..count {
-                    ui.menu_button("", |ui| {
+                for i in 0..count {
+                    ui.menu_button(format!("{}", sequencer.sequence[i].get()), |ui| {
                         for text in utils::OCTAVES {
                             if ui.button(text).clicked() {
                                 println!("{} selected", text);

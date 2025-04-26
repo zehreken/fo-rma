@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use kopek::utils::{get_freq, Key};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -9,6 +11,12 @@ pub enum Octave {
     Fifth,
 }
 pub const OCTAVES: [&str; 5] = ["First", "Second", "Third", "Fourth", "Fifth"];
+
+impl Display for Octave {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
 
 pub const KEYS: [&str; 12] = [
     "C", "Cs", "D", "Ds", "E", "F", "Fs", "G", "Gs", "A", "As", "B",
