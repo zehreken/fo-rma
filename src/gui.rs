@@ -36,6 +36,7 @@ pub struct Settings {
     pub show_oscillator_inspector: bool,
     pub show_vfx: bool,
     pub show_envelope: bool,
+    pub selected: u8,
 }
 
 impl Gui {
@@ -75,11 +76,12 @@ impl Gui {
             textures,
             top_bar,
             settings: Settings {
-                show_sequencer_list: false,
+                show_sequencer_list: true,
                 show_sequencer: true,
                 show_oscillator_inspector: true,
                 show_vfx: false,
                 show_envelope: true,
+                selected: 0,
             },
         }
     }
@@ -103,7 +105,7 @@ impl Gui {
         render_target: &wgpu::TextureView,
         device: &Device,
         queue: &Queue,
-        sequencer: &mut Sequencer,
+        sequencers: &mut Vec<Sequencer>,
         fps: f32,
     ) {
         let raw_input = self.state.take_egui_input(window);
@@ -112,7 +114,7 @@ impl Gui {
             if self.settings.show_oscillator_inspector {
                 gui_oscillator::draw(
                     egui_ctx,
-                    sequencer,
+                    &mut sequencers[self.settings.selected as usize],
                     &mut self.settings.show_oscillator_inspector,
                 );
             }
@@ -120,10 +122,18 @@ impl Gui {
                 gui_vfx::draw(egui_ctx, &mut self.settings.show_vfx);
             }
             if self.settings.show_sequencer_list {
-                gui_sequencer_list::draw(egui_ctx, &mut self.settings.show_sequencer_list);
+                gui_sequencer_list::draw(
+                    egui_ctx,
+                    &mut self.settings.selected,
+                    &mut self.settings.show_sequencer_list,
+                );
             }
             if self.settings.show_sequencer {
-                gui_sequencer::draw(egui_ctx, sequencer, &mut self.settings.show_sequencer);
+                gui_sequencer::draw(
+                    egui_ctx,
+                    &mut sequencers[self.settings.selected as usize],
+                    &mut self.settings.show_sequencer,
+                );
             }
             if self.settings.show_envelope {
                 gui_envelope::draw(egui_ctx, &mut self.settings.show_envelope);

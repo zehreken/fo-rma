@@ -82,7 +82,7 @@ impl<'a> Renderer<'a> {
         &mut self,
         window: &Window,
         scene: &Scene,
-        sequencer: &mut Sequencer,
+        sequencers: &mut Vec<Sequencer>,
         fps: f32,
         settings: &Settings,
     ) -> Result<(), SurfaceError> {
@@ -117,7 +117,7 @@ impl<'a> Renderer<'a> {
                 &self.render_texture_material.post_process_texture_view,
                 &self.device,
                 &self.queue,
-                sequencer,
+                sequencers,
                 fps,
             );
         }

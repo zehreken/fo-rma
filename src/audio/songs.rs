@@ -220,3 +220,70 @@ pub const SPYBREAK: [Note; 16] = [
         key: Key::C,
     },
 ];
+
+pub const TEMPLATE_16: [Note; 16] = [
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+    Note {
+        octave: Octave::Third,
+        key: Key::Rest,
+    },
+];

@@ -104,33 +104,23 @@ impl AudioModel {
         );
         output_stream.play().expect("Can't play output stream");
 
-        // let mut generator =
-        //     Generator::new(producer, input_consumer, view_producer, sample_rate as f32).unwrap();
-        // std::thread::spawn(move || loop {
-        //     generator.update();
-        // });
-
         let sequencer = Sequencer::new(
-            440,
+            280,
             sample_rate,
             output_config.channels.into(),
-            // vec![utils::A_FREQ],
-            songs::SPYBREAK.to_vec(),
+            songs::TEMPLATE_16.to_vec(),
         );
 
         let sequencer_2 = Sequencer::new(
-            110,
+            280,
             sample_rate,
             output_config.channels.into(),
-            // songs::BILLIE_JEAN_2.to_vec(),
-            vec![Note {
-                octave: Octave::First,
-                key: Key::A,
-            }],
+            songs::TEMPLATE_16.to_vec(),
         );
         let mut sequencers = Vec::new();
         sequencers.push(sequencer);
-        // sequencers.push(sequencer_2);
+        sequencers.push(sequencer_2);
+
         // std::thread::spawn(move || loop {
         //     let elapsed_samples = audio_clock.get_elapsed_samples();
         //     sequencer.update(elapsed_samples);

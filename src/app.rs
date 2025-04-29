@@ -114,7 +114,7 @@ impl<'a> App<'a> {
         let _ = self.renderer.render(
             self.window,
             &self.scene,
-            &mut self.audio_model.get_sequencers()[0],
+            &mut self.audio_model.get_sequencers(),
             fps,
             &self.settings,
         );
