@@ -80,7 +80,7 @@ impl Gui {
                 show_sequencer: true,
                 show_oscillator_inspector: true,
                 show_vfx: false,
-                show_envelope: true,
+                show_envelope: false,
                 selected: 0,
             },
         }
