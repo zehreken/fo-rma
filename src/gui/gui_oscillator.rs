@@ -53,19 +53,25 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
 
             ui.horizontal(|ui| {
                 ui.label("attack: ");
-                ui.add(egui::Slider::new(&mut 1.0, 0.0..=1.0));
+                ui.add(egui::Slider::new(&mut sequencer.envelope.attack, 0.0..=0.5));
             });
             ui.horizontal(|ui| {
                 ui.label("decay: ");
-                ui.add(egui::Slider::new(&mut 1.0, 0.0..=1.0));
+                ui.add(egui::Slider::new(&mut sequencer.envelope.decay, 0.0..=0.5));
             });
             ui.horizontal(|ui| {
                 ui.label("sustain: ");
-                ui.add(egui::Slider::new(&mut 1.0, 0.0..=1.0));
+                ui.add(egui::Slider::new(
+                    &mut sequencer.envelope.sustain,
+                    0.0..=0.5,
+                ));
             });
             ui.horizontal(|ui| {
                 ui.label("release: ");
-                ui.add(egui::Slider::new(&mut 1.0, 0.0..=1.0));
+                ui.add(egui::Slider::new(
+                    &mut sequencer.envelope.release,
+                    0.0..=0.5,
+                ));
             });
             if ui.button("play").clicked() {
                 println!("try envelope");

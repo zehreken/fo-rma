@@ -1,10 +1,10 @@
 pub struct Envelope {
     time: f32,
     state: EnvelopeState,
-    attack: f32,
-    decay: f32,
-    sustain: f32,
-    release: f32,
+    pub attack: f32,
+    pub decay: f32,
+    pub sustain: f32,
+    pub release: f32,
 }
 
 impl Envelope {

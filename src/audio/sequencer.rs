@@ -14,7 +14,7 @@ pub struct Sequencer {
     beat_duration: f32,
     is_beat: bool,
     volume: f32,
-    envelope: Envelope,
+    pub envelope: Envelope,
 }
 
 impl Sequencer {
