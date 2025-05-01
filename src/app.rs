@@ -1,6 +1,6 @@
 use crate::{
     audio::audio_model::AudioModel,
-    basics::{scene3::Scene, scene_loader},
+    basics::{scene::Scene, scene_loader},
     renderer, save_image,
 };
 use std::{

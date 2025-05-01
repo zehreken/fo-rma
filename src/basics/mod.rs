@@ -6,7 +6,7 @@ pub mod primitive;
 pub mod quad;
 // pub mod scene;
 // pub mod scene2;
-pub mod scene3;
+pub mod scene;
 pub mod scene_loader;
 pub mod screen_quad;
 pub mod sphere;

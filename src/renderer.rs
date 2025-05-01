@@ -1,7 +1,7 @@
 use crate::{
     app::Settings,
     audio::sequencer::Sequencer,
-    basics::scene3::Scene,
+    basics::scene::Scene,
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
