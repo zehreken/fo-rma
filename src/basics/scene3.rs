@@ -13,9 +13,10 @@ use crate::{
     color_utils::{self, ToVec4},
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
-        equalizer_material::EqualizerUniforms,
+        equalizer_material::{EqualizerMaterial, EqualizerUniforms},
+        unlit_color_material::UnlitColorMaterial,
         wave_material::{WaveMaterial, WaveUniforms},
-        MaterialType,
+        MaterialTrait, MaterialType,
     },
 };
 use glam::vec3;
@@ -46,26 +47,51 @@ impl Scene {
             1000.0,
         );
 
-        let mut material_object_map = HashMap::new();
-        let mut objects: Vec<Box<dyn Primitive>> = vec![];
+        let mut material_object_map: HashMap<MaterialType, Vec<Box<dyn Primitive>>> =
+            HashMap::new();
         for object_data in &scene_data.objects {
-            let material = DiffuseColorMaterial::new(device, surface_config);
-            let mut object: Box<dyn Primitive> = if object_data.mesh == "cube" {
-                Box::new(Cube::new(device, Box::new(material)))
-            } else if object_data.mesh == "sphere" {
-                Box::new(Sphere::new(device, Box::new(material)))
-            } else if object_data.mesh == "triangle" {
-                Box::new(Triangle::new(device, Box::new(material)))
+            let material_type: MaterialType;
+            let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
+            {
+                material_type = MaterialType::DiffuseColorMaterial;
+                Box::new(DiffuseColorMaterial::new(device, surface_config))
+            } else if object_data.material == "EqualizerMaterial" {
+                material_type = MaterialType::EqualizerMaterial;
+                Box::new(EqualizerMaterial::new(device, surface_config))
+            } else if object_data.material == "UnlitColorMaterial" {
+                material_type = MaterialType::UnlitColorMaterial;
+                Box::new(UnlitColorMaterial::new(device, surface_config))
+            } else if object_data.material == "WaveMaterial" {
+                material_type = MaterialType::WaveMaterial;
+                Box::new(WaveMaterial::new(device, surface_config))
             } else {
-                Box::new(Quad::new(device, Box::new(material)))
+                material_type = MaterialType::DiffuseColorMaterial;
+                Box::new(DiffuseColorMaterial::new(device, surface_config))
+            };
+            let mut object: Box<dyn Primitive> = if object_data.mesh == "cube" {
+                Box::new(Cube::new(device, material))
+            } else if object_data.mesh == "sphere" {
+                Box::new(Sphere::new(device, material))
+            } else if object_data.mesh == "triangle" {
+                Box::new(Triangle::new(device, material))
+            } else {
+                Box::new(Quad::new(device, material))
             };
             object.transform().set_position(object_data.position.into());
             object.transform().set_rotation(object_data.rotation.into());
             object.transform().set_scale(object_data.scale.into());
 
-            objects.push(object);
+            // objects.push(object);
+            if material_object_map.contains_key(&material_type) {
+                material_object_map
+                    .get_mut(&material_type)
+                    .unwrap()
+                    .push(object);
+            } else {
+                material_object_map.insert(material_type, vec![object]);
+            }
         }
-        material_object_map.insert(MaterialType::DiffuseColorMaterial, objects);
+        // material_object_map.insert(MaterialType::WaveMaterial, objects);
 
         let mut light = Light::new(color_utils::CCP.palette[1]);
         light.update_position(vec3(0.0, 5.0, 0.0));

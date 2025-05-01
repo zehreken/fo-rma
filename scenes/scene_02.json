@@ -43,7 +43,7 @@
     "objects": [
         {
             "mesh": "quad",
-            "material": "",
+            "material": "DiffuseColorMaterial",
             "position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -63,11 +63,11 @@
         },
         {
             "mesh": "cube",
-            "material": "",
+            "material": "WaveMaterial",
             "position": {
                 "x": 0.0,
                 "y": 5.0,
-                "z": 15.0
+                "z": 0.0
             },
             "rotation": {
                 "x": 0.0,
@@ -83,11 +83,11 @@
         },
         {
             "mesh": "sphere",
-            "material": "",
+            "material": "EqualizerMaterial",
             "position": {
-                "x": 2.0,
-                "y": 8.0,
-                "z": 9.0
+                "x": -15.0,
+                "y": 3.0,
+                "z": -5.0
             },
             "rotation": {
                 "x": 0.0,
@@ -96,9 +96,29 @@
                 "w": 1.0
             },
             "scale": {
-                "x": 2.0,
-                "y": 2.0,
-                "z": 2.0
+                "x": 5.0,
+                "y": 5.0,
+                "z": 5.0
+            }
+        },
+        {
+            "mesh": "sphere",
+            "material": "EqualizerMaterial",
+            "position": {
+                "x": 15.0,
+                "y": 3.0,
+                "z": -5.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 5.0,
+                "y": 5.0,
+                "z": 5.0
             }
         }
     ]
