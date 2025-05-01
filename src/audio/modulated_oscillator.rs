@@ -1,6 +1,5 @@
-use kopek::oscillator::WaveType;
-
 use super::{lfo::LFO, oscillator_type::OscillatorType, vco::VCO};
+use kopek::oscillator::WaveType;
 
 pub struct ModulatedOscillator {
     vco: VCO,

@@ -63,6 +63,7 @@ impl Envelope {
         }
     }
 
+    // Obsolete
     pub fn reset(&mut self) {
         self.time = 0.0;
         self.state = EnvelopeState::Attack;

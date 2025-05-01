@@ -18,7 +18,7 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
             let mut vco_frequency = sequencer.get_frequency();
             ui.horizontal(|ui| {
                 ui.label("vco: ");
-                ui.add(egui::widgets::Slider::new(&mut vco_frequency, 10.0..=400.0));
+                ui.add(egui::widgets::Slider::new(&mut vco_frequency, 0.0..=800.0));
             });
             sequencer.set_frequency(vco_frequency);
             // lfo freq

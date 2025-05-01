@@ -50,27 +50,14 @@ impl Sequencer {
         self.is_beat = remainder > 0 && remainder < self.beat_duration as u32;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
-        const TEMP_OCTAVE: u8 = 2u8.pow(1);
-        let freq_diff: f32 = if step_index == 0 {
-            0.0
-        } else {
-            // Reach next freq in 50 samples
-            self.sequence[step_index].get() - self.sequence[step_index - 1].get() / 50.0
-        };
-
-        // Ramp between steps
-        // if self.freq != self.freqs[step_index] {
-        //     self.freq += freq_diff;
-        // }
 
         self.freq = self.sequence[step_index].get();
-        self.modulated_oscillator
-            .set_frequency(self.freq * TEMP_OCTAVE as f32);
+        self.modulated_oscillator.set_frequency(self.freq);
         let mut value = self.modulated_oscillator.run();
 
         if self.prev_beat_index != self.beat_index {
             self.prev_beat_index = self.beat_index;
-            self.envelope.reset();
+            self.envelope.reset(); // envelope should never reset actually
         }
         const DELTA_TIME: f32 = 1 as f32 / 44100 as f32;
         let envelope = self.envelope.update(DELTA_TIME);
