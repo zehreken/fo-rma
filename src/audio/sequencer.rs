@@ -40,7 +40,7 @@ impl Sequencer {
             tick_period,
             beat_duration,
             is_beat: false,
-            volume: 0.91,
+            volume: 0.9,
             envelope: Envelope::new(0.1 * factor, 0.1 * factor, 0.2 * factor, 0.1 * factor),
         }
     }

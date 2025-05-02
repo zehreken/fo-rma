@@ -115,7 +115,7 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.lights[0].update_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
+        // self.lights[0].update_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
 
         // self.camera
         //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
@@ -134,7 +134,7 @@ impl Scene {
                         color1: color_utils::CCP.palette[0].to_vec4(1.0),
                         color2: color_utils::CCP.palette[1].to_vec4(1.0),
                         color3: color_utils::CCP.palette[2].to_vec4(1.0),
-                        signal,
+                        signal: signal * 5.0,
                         _padding: [0.0, 0.0, 0.0],
                     };
                     let light = LightUniform {
@@ -163,7 +163,7 @@ impl Scene {
                     };
                     let light = LightUniform {
                         position: self.lights[0].transform.position.extend(0.0).to_array(),
-                        color: self.lights[0].color.to_vec4(1.0 + signal * 0.5),
+                        color: self.lights[0].color.to_vec4(0.5 + signal * 0.5),
                     };
                     let data = DiffuseColorUniforms {
                         object,

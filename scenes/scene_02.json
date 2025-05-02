@@ -82,12 +82,92 @@
             }
         },
         {
-            "mesh": "sphere",
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 14.0,
+                "y": 10.0,
+                "z": -7.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 10.0,
+                "y": 20.0,
+                "z": 2.0
+            }
+        },
+        {
+            "mesh": "cube",
             "material": "EqualizerMaterial",
+            "position": {
+                "x": 5.0,
+                "y": 15.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 10.0,
+                "y": 30.0,
+                "z": 2.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -4.0,
+                "y": 12.0,
+                "z": -12.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 10.0,
+                "y": 24.0,
+                "z": 2.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -13.0,
+                "y": 11.0,
+                "z": -7.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 10.0,
+                "y": 22.0,
+                "z": 2.0
+            }
+        },
+        {
+            "mesh": "sphere",
+            "material": "DiffuseColorMaterial",
             "position": {
                 "x": -15.0,
                 "y": 3.0,
-                "z": -5.0
+                "z": 5.0
             },
             "rotation": {
                 "x": 0.0,
@@ -103,11 +183,11 @@
         },
         {
             "mesh": "sphere",
-            "material": "EqualizerMaterial",
+            "material": "DiffuseColorMaterial",
             "position": {
                 "x": 15.0,
                 "y": 3.0,
-                "z": -5.0
+                "z": 5.0
             },
             "rotation": {
                 "x": 0.0,
