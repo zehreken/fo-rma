@@ -27,12 +27,8 @@ impl TopBar {
                         settings.show_oscillator_inspector = true;
                         ui.close_menu();
                     }
-                    if ui.button("Envelope").clicked() {
-                        settings.show_envelope = true;
-                        ui.close_menu();
-                    }
                     if ui.button("Sequencers").clicked() {
-                        settings.show_sequencer_list = true;
+                        settings.show_sequencers = true;
                         ui.close_menu();
                     }
                     if ui.button("VFX").clicked() {

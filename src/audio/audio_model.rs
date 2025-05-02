@@ -117,9 +117,17 @@ impl AudioModel {
             output_config.channels.into(),
             songs::TEMPLATE_16.to_vec(),
         );
+
+        let sequencer_3 = Sequencer::new(
+            280,
+            sample_rate,
+            output_config.channels.into(),
+            songs::TEMPLATE_16.to_vec(),
+        );
         let mut sequencers = Vec::new();
         sequencers.push(sequencer);
         sequencers.push(sequencer_2);
+        sequencers.push(sequencer_3);
 
         // std::thread::spawn(move || loop {
         //     let elapsed_samples = audio_clock.get_elapsed_samples();
