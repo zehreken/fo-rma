@@ -38,12 +38,18 @@ pub struct App<'a> {
 }
 
 pub struct Settings {
+    pub draw_debug_lines: bool,
     pub draw_ui: bool,
+    pub lock_camera: bool,
 }
 
 impl Settings {
     pub fn new() -> Self {
-        Settings { draw_ui: true }
+        Settings {
+            draw_debug_lines: false,
+            draw_ui: true,
+            lock_camera: false,
+        }
     }
 }
 
@@ -52,7 +58,7 @@ impl<'a> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
 
-        let json = include_str!("../scenes/scene_01.json");
+        let json = include_str!("../scenes/scene_02.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let scene = Scene::new(
@@ -161,46 +167,57 @@ fn run_event_loop(
                 elwt.exit();
                 return;
             }
-            if input.key_held(KeyCode::KeyW) {
-                app.scene.camera.move_z(false);
-            }
-            if input.key_held(KeyCode::KeyA) {
-                app.scene.camera.move_x(false);
-            }
-            if input.key_held(KeyCode::KeyS) {
-                app.scene.camera.move_z(true);
-            }
-            if input.key_held(KeyCode::KeyD) {
-                app.scene.camera.move_x(true);
-            }
-            if input.key_held(KeyCode::KeyQ) {
-                app.scene.camera.move_y(true);
-            }
-            if input.key_held(KeyCode::KeyE) {
-                app.scene.camera.move_y(false);
-            }
-            if input.held_shift() {
+            if !app.settings.lock_camera {
                 if input.key_held(KeyCode::KeyW) {
-                    app.scene.camera.orbit_z(false);
+                    app.scene.camera.move_z(false);
                 }
                 if input.key_held(KeyCode::KeyA) {
-                    app.scene.camera.orbit_x(false);
+                    app.scene.camera.move_x(false);
                 }
                 if input.key_held(KeyCode::KeyS) {
-                    app.scene.camera.orbit_z(true);
+                    app.scene.camera.move_z(true);
                 }
                 if input.key_held(KeyCode::KeyD) {
-                    app.scene.camera.orbit_x(true);
+                    app.scene.camera.move_x(true);
                 }
                 if input.key_held(KeyCode::KeyQ) {
-                    app.scene.camera.orbit_y(true);
+                    app.scene.camera.move_y(true);
                 }
                 if input.key_held(KeyCode::KeyE) {
-                    app.scene.camera.orbit_y(false);
+                    app.scene.camera.move_y(false);
                 }
+                if input.held_shift() {
+                    if input.key_held(KeyCode::KeyW) {
+                        app.scene.camera.orbit_z(false);
+                    }
+                    if input.key_held(KeyCode::KeyA) {
+                        app.scene.camera.orbit_x(false);
+                    }
+                    if input.key_held(KeyCode::KeyS) {
+                        app.scene.camera.orbit_z(true);
+                    }
+                    if input.key_held(KeyCode::KeyD) {
+                        app.scene.camera.orbit_x(true);
+                    }
+                    if input.key_held(KeyCode::KeyQ) {
+                        app.scene.camera.orbit_y(true);
+                    }
+                    if input.key_held(KeyCode::KeyE) {
+                        app.scene.camera.orbit_y(false);
+                    }
+                }
+                app.scene
+                    .camera
+                    .rotate(input.mouse_diff().0, input.mouse_diff().1);
             }
             if input.key_pressed(KeyCode::KeyU) {
                 app.settings.draw_ui = !app.settings.draw_ui;
+            }
+            if input.key_pressed(KeyCode::KeyL) {
+                app.settings.draw_debug_lines = !app.settings.draw_debug_lines;
+            }
+            if input.key_pressed(KeyCode::KeyC) {
+                app.settings.lock_camera = !app.settings.lock_camera;
             }
             if input.key_pressed(KeyCode::KeyR) {
                 save_image::save_image(
@@ -210,9 +227,6 @@ fn run_event_loop(
                     &app.renderer.render_texture_material.post_process_texture,
                 );
             }
-            app.scene
-                .camera
-                .rotate(input.mouse_diff().0, input.mouse_diff().1);
         }
 
         match event {
