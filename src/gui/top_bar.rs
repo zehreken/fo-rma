@@ -36,6 +36,10 @@ impl TopBar {
                         ui.close_menu();
                     }
                 });
+                ui.menu_button("Song", |ui| {
+                    if ui.button("Save").clicked() {}
+                    if ui.button("Load").clicked() {}
+                })
             });
         });
 

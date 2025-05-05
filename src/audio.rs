@@ -6,6 +6,7 @@ pub mod lfo;
 pub mod modulated_oscillator;
 pub mod oscillator_type;
 pub mod sequencer;
+pub mod song;
 pub mod songs;
 pub mod utils;
 pub mod vco;
