@@ -1,5 +1,5 @@
 use crate::{
-    app::Settings,
+    app::{Settings, UiEvent},
     audio::sequencer::Sequencer,
     basics::scene::Scene,
     gui::Gui,
@@ -85,6 +85,7 @@ impl<'a> Renderer<'a> {
         sequencers: &mut Vec<Sequencer>,
         fps: f32,
         settings: &Settings,
+        ui_events: &mut Vec<UiEvent>,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
@@ -121,6 +122,7 @@ impl<'a> Renderer<'a> {
                 &self.queue,
                 sequencers,
                 fps,
+                ui_events,
             );
         }
 

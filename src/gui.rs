@@ -1,3 +1,4 @@
+use crate::app::UiEvent;
 use crate::audio::sequencer::Sequencer;
 use egui::epaint::Shadow;
 use egui::ViewportId;
@@ -102,10 +103,12 @@ impl Gui {
         queue: &Queue,
         sequencers: &mut Vec<Sequencer>,
         fps: f32,
+        ui_events: &mut Vec<UiEvent>,
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
-            self.top_bar.draw(egui_ctx, &mut self.settings, fps);
+            self.top_bar
+                .draw(egui_ctx, &mut self.settings, ui_events, fps);
             if self.settings.show_oscillator_inspector {
                 gui_oscillator::draw(
                     egui_ctx,

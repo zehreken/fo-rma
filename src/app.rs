@@ -36,6 +36,7 @@ pub struct App<'a> {
     elapsed: f32,
     last_frame_time: Instant,
     settings: Settings,
+    ui_events: Vec<UiEvent>,
 }
 
 pub struct Settings {
@@ -83,6 +84,7 @@ impl<'a> App<'a> {
             elapsed: 0.0,
             last_frame_time: Instant::now(),
             settings: Settings::new(),
+            ui_events: vec![],
         }
     }
 
@@ -124,7 +126,22 @@ impl<'a> App<'a> {
             &mut self.audio_model.get_sequencers(),
             fps,
             &self.settings,
+            &mut self.ui_events,
         );
+
+        // Process ui events
+        for ui_event in self.ui_events.iter() {
+            match ui_event {
+                UiEvent::SaveSong => {
+                    self.save_song();
+                }
+                UiEvent::LoadSong => {
+                    self.load_song();
+                }
+            }
+        }
+        self.ui_events.clear();
+        // =-=-=-=-=-=-=-=-=-=
 
         self.audio_model.update();
 
@@ -142,14 +159,14 @@ impl<'a> App<'a> {
         self.window.request_redraw();
     }
 
-    fn save_song() -> Result<(), Error> {
+    fn save_song(&self) -> Result<(), Error> {
         println!("save song");
-        todo!()
+        Ok(())
     }
 
-    fn load_song() -> Result<(), Error> {
+    fn load_song(&self) -> Result<(), Error> {
         println!("load song");
-        todo!()
+        Ok(())
     }
 }
 
@@ -276,4 +293,9 @@ pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
 
     let average_time = sum / times.len() as f32;
     return 1.0 / average_time;
+}
+
+pub enum UiEvent {
+    SaveSong,
+    LoadSong,
 }

@@ -1,6 +1,8 @@
 use egui::{Color32, RichText};
 use egui_winit::egui::{self, Context};
 
+use crate::app::UiEvent;
+
 use super::Settings;
 
 pub struct TopBar {
@@ -14,7 +16,13 @@ impl TopBar {
         }
     }
 
-    pub fn draw(&mut self, ctx: &Context, settings: &mut Settings, fps: f32) {
+    pub fn draw(
+        &mut self,
+        ctx: &Context,
+        settings: &mut Settings,
+        ui_events: &mut Vec<UiEvent>,
+        fps: f32,
+    ) {
         egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::GREEN));
@@ -37,8 +45,12 @@ impl TopBar {
                     }
                 });
                 ui.menu_button("Song", |ui| {
-                    if ui.button("Save").clicked() {}
-                    if ui.button("Load").clicked() {}
+                    if ui.button("Save").clicked() {
+                        ui_events.push(UiEvent::SaveSong);
+                    }
+                    if ui.button("Load").clicked() {
+                        ui_events.push(UiEvent::LoadSong)
+                    }
                 })
             });
         });
