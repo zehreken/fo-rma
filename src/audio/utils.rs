@@ -1,4 +1,5 @@
 use kopek::utils::{get_freq, Key, Octave};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Note {

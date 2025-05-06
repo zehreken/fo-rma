@@ -5,6 +5,7 @@ use crate::{
 };
 use std::{
     collections::VecDeque,
+    fmt::Error,
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -139,6 +140,16 @@ impl<'a> App<'a> {
         self.scene.camera.update();
 
         self.window.request_redraw();
+    }
+
+    fn save_song() -> Result<(), Error> {
+        println!("save song");
+        todo!()
+    }
+
+    fn load_song() -> Result<(), Error> {
+        println!("load song");
+        todo!()
     }
 }
 
