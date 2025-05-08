@@ -122,14 +122,14 @@ impl<'a> App<'a> {
         let _ = self.renderer.render(
             self.window,
             &self.scene,
-            &mut self.audio_model.get_sequencer_mut(),
+            &mut self.audio_model.sequencers_mut(),
             fps,
             &self.settings,
             &mut self.ui_events,
         );
 
         // Process ui events
-        let sequencers = self.audio_model.get_sequencer_mut();
+        let sequencers = self.audio_model.sequencers_mut();
         for ui_event in self.ui_events.iter() {
             match ui_event {
                 UiEvent::SaveSong => {
