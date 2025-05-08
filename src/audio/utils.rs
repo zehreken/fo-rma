@@ -1,4 +1,4 @@
-use kopek::utils::{get_freq, Key, Octave};
+use kopek::utils::{key_to_frequency, Key, Octave};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Note {
@@ -7,7 +7,7 @@ pub struct Note {
 }
 
 impl Note {
-    fn get_octave(&self) -> f32 {
+    fn octave(&self) -> f32 {
         let shift = match self.octave {
             Octave::First => 0,
             Octave::Second => 1,
@@ -18,11 +18,11 @@ impl Note {
         2.0_f32.powi(shift)
     }
 
-    fn get_freq(&self) -> f32 {
-        get_freq(self.key)
+    fn frequency(&self) -> f32 {
+        key_to_frequency(self.key)
     }
 
     pub fn get(&self) -> f32 {
-        self.get_octave() * self.get_freq()
+        self.octave() * self.frequency()
     }
 }

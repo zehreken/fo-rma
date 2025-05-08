@@ -32,7 +32,7 @@ impl UniformTrait for ColorUniform {
         bytemuck::cast_slice(std::slice::from_ref(self))
     }
 
-    fn get_size(&self) -> usize {
+    fn size(&self) -> usize {
         std::mem::size_of::<Self>()
     }
 
@@ -56,7 +56,7 @@ impl UniformTrait for EqualizerUniform {
         bytemuck::cast_slice(std::slice::from_ref(self))
     }
 
-    fn get_size(&self) -> usize {
+    fn size(&self) -> usize {
         std::mem::size_of::<Self>()
     }
 
@@ -80,7 +80,7 @@ impl UniformTrait for WaveWorldUniform {
         bytemuck::cast_slice(std::slice::from_ref(self))
     }
 
-    fn get_size(&self) -> usize {
+    fn size(&self) -> usize {
         std::mem::size_of::<Self>()
     }
 
@@ -100,7 +100,7 @@ impl UniformTrait for ScreenQuadUniform {
         bytemuck::cast_slice(std::slice::from_ref(self))
     }
 
-    fn get_size(&self) -> usize {
+    fn size(&self) -> usize {
         std::mem::size_of::<Self>()
     }
 
@@ -112,7 +112,7 @@ impl UniformTrait for ScreenQuadUniform {
 pub trait UniformTrait {
     fn as_bytes(&self) -> &[u8];
 
-    fn get_size(&self) -> usize;
+    fn size(&self) -> usize;
 
     fn set_signal(&mut self, signal: f32);
 }

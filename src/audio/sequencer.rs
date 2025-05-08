@@ -1,6 +1,6 @@
 use super::{modulated_oscillator::ModulatedOscillator, utils::Note};
 use crate::{audio::envelope::Envelope, basics::core::clamp};
-use kopek::{oscillator::WaveType, utils::get_freq};
+use kopek::{oscillator::WaveType, utils::key_to_frequency};
 
 pub struct Sequencer {
     pub is_running: bool,
