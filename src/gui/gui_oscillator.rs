@@ -8,28 +8,28 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
             ctx.request_repaint();
             // ui.label(format!("Running: {}", sequencer.is_running));
             // volume
-            let mut volume = sequencer.get_volume();
+            let mut volume = sequencer.volume();
             ui.horizontal(|ui| {
                 ui.label("vol: ");
                 ui.add(egui::Slider::new(&mut volume, 0.0..=1.0));
             });
             sequencer.set_volume(volume);
             // vco freq
-            let mut vco_frequency = sequencer.get_frequency();
+            let mut vco_frequency = sequencer.frequency();
             ui.horizontal(|ui| {
                 ui.label("vco: ");
                 ui.add(egui::widgets::Slider::new(&mut vco_frequency, 0.0..=800.0));
             });
             sequencer.set_frequency(vco_frequency);
             // lfo freq
-            let mut lfo_frequency = sequencer.get_lfo_frequency();
+            let mut lfo_frequency = sequencer.lfo_frequency();
             ui.horizontal(|ui| {
                 ui.label("lfo: ");
                 ui.add(egui::widgets::Slider::new(&mut lfo_frequency, 0.0..=20.0));
             });
             sequencer.set_lfo_frequency(lfo_frequency);
 
-            let mut selected: WaveType = sequencer.get_vco_wave_type();
+            let mut selected: WaveType = sequencer.vco_wave_type();
             ui.horizontal(|ui| {
                 ui.label("wave type: ");
                 egui::ComboBox::from_label("")
@@ -45,7 +45,7 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
                         ui.selectable_value(&mut selected, WaveType::Sawtooth, "Sawtooth")
                     });
             });
-            if selected != sequencer.get_vco_wave_type() {
+            if selected != sequencer.vco_wave_type() {
                 sequencer.set_vco_wave_type(selected);
             }
 

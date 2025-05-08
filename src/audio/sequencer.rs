@@ -52,7 +52,7 @@ impl Sequencer {
         let step_index = (self.beat_index % self.length as u32) as usize;
 
         self.freq = self.sequence[step_index].get();
-        self.modulated_oscillator.set_frequency(self.freq);
+        self.modulated_oscillator.frequency_mut(self.freq);
         let mut value = self.modulated_oscillator.run();
 
         if self.prev_beat_index != self.beat_index {
@@ -72,7 +72,7 @@ impl Sequencer {
     }
 
     // Current number of beats played, similar to elapsed time
-    pub fn get_beat_index(&self) -> u32 {
+    pub fn beat_index(&self) -> u32 {
         self.beat_index
     }
 
@@ -81,24 +81,24 @@ impl Sequencer {
         self.is_beat
     }
 
-    pub fn get_frequency(&self) -> f32 {
-        self.modulated_oscillator.get_frequency()
+    pub fn frequency(&self) -> f32 {
+        self.modulated_oscillator.frequency()
     }
 
     pub fn set_frequency(&mut self, frequency: f32) {
-        self.modulated_oscillator.set_frequency(frequency);
+        self.modulated_oscillator.frequency_mut(frequency);
     }
 
     pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
-        self.modulated_oscillator.set_vco_wave_type(wave_type);
+        self.modulated_oscillator.vco_wave_type_mut(wave_type);
     }
 
-    pub fn get_vco_wave_type(&mut self) -> WaveType {
-        self.modulated_oscillator.get_vco_wave_type()
+    pub fn vco_wave_type(&mut self) -> WaveType {
+        self.modulated_oscillator.vco_wave_type()
     }
 
-    pub fn get_lfo_frequency(&self) -> f32 {
-        self.modulated_oscillator.get_lfo_frequency()
+    pub fn lfo_frequency(&self) -> f32 {
+        self.modulated_oscillator.lfo_frequency()
     }
 
     pub fn set_lfo_frequency(&mut self, frequency: f32) {
@@ -106,10 +106,10 @@ impl Sequencer {
     }
 
     pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
-        self.modulated_oscillator.set_lfo_wave_type(wave_type);
+        self.modulated_oscillator.lfo_wave_type_mut(wave_type);
     }
 
-    pub fn get_volume(&self) -> f32 {
+    pub fn volume(&self) -> f32 {
         self.volume
     }
 
