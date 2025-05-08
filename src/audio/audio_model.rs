@@ -181,7 +181,11 @@ impl AudioModel {
         // }
     }
 
-    pub fn get_sequencers(&mut self) -> &mut Vec<Sequencer> {
+    pub fn get_sequencers(&self) -> &Vec<Sequencer> {
+        &self.sequencers
+    }
+
+    pub fn get_sequencer_mut(&mut self) -> &mut Vec<Sequencer> {
         &mut self.sequencers
     }
 }

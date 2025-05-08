@@ -1,11 +1,10 @@
 use crate::{
-    audio::audio_model::AudioModel,
+    audio::{audio_model::AudioModel, song},
     basics::{scene::Scene, scene_loader},
     renderer, save_image,
 };
 use std::{
     collections::VecDeque,
-    fmt::Error,
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -123,20 +122,21 @@ impl<'a> App<'a> {
         let _ = self.renderer.render(
             self.window,
             &self.scene,
-            &mut self.audio_model.get_sequencers(),
+            &mut self.audio_model.get_sequencer_mut(),
             fps,
             &self.settings,
             &mut self.ui_events,
         );
 
         // Process ui events
+        let sequencers = self.audio_model.get_sequencer_mut();
         for ui_event in self.ui_events.iter() {
             match ui_event {
                 UiEvent::SaveSong => {
-                    self.save_song();
+                    song::save_song(sequencers);
                 }
                 UiEvent::LoadSong => {
-                    self.load_song();
+                    song::load_song(sequencers);
                 }
             }
         }
@@ -157,16 +157,6 @@ impl<'a> App<'a> {
         self.scene.camera.update();
 
         self.window.request_redraw();
-    }
-
-    fn save_song(&self) -> Result<(), Error> {
-        println!("save song");
-        Ok(())
-    }
-
-    fn load_song(&self) -> Result<(), Error> {
-        println!("load song");
-        Ok(())
     }
 }
 
