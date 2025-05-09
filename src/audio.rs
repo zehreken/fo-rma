@@ -4,6 +4,7 @@ pub mod envelope;
 pub mod generator;
 pub mod lfo;
 pub mod modulated_oscillator;
+pub mod noise_generator;
 pub mod oscillator_type;
 pub mod sequencer;
 pub mod song;
