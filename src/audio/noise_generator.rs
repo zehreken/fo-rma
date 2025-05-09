@@ -20,6 +20,10 @@ impl NoiseGenerator {
             NoiseType::White => self.noise.white_noise(),
         }
     }
+
+    pub fn noise_type_mut(&mut self) -> &mut NoiseType {
+        &mut self.noise_type
+    }
 }
 
 pub enum NoiseType {

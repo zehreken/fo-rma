@@ -1,10 +1,16 @@
-use super::{modulated_oscillator::ModulatedOscillator, utils::Note};
-use crate::{audio::envelope::Envelope, basics::core::clamp};
+use super::{
+    modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator, utils::Note,
+};
+use crate::{
+    audio::{envelope::Envelope, noise_generator::NoiseType},
+    basics::core::clamp,
+};
 use kopek::{oscillator::WaveType, utils::key_to_frequency};
 
 pub struct Sequencer {
     pub is_running: bool,
     modulated_oscillator: ModulatedOscillator,
+    noise_generator: NoiseGenerator,
     beat_index: u32,
     prev_beat_index: u32,
     length: u8,
@@ -28,10 +34,14 @@ impl Sequencer {
         let beat_duration = tick_period / 3.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
 
+        let mut noise_generator = NoiseGenerator::new();
+        *noise_generator.noise_type_mut() = NoiseType::Random;
+
         const factor: f32 = 0.2;
         Self {
             is_running: false,
             modulated_oscillator: ModulatedOscillator::new(sample_rate),
+            noise_generator,
             beat_index: 0,
             prev_beat_index: 0,
             length: sequence.len() as u8,
@@ -54,6 +64,7 @@ impl Sequencer {
         self.freq = self.sequence[step_index].get();
         self.modulated_oscillator.frequency_mut(self.freq);
         let mut value = self.modulated_oscillator.run();
+        value = self.noise_generator.run();
 
         if self.prev_beat_index != self.beat_index {
             self.prev_beat_index = self.beat_index;
