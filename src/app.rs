@@ -59,7 +59,7 @@ impl<'a> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
 
-        let json = include_str!("../scenes/scene_02.json");
+        let json = include_str!("../scenes/scene_03.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let scene = Scene::new(
@@ -137,6 +137,9 @@ impl<'a> App<'a> {
                 }
                 UiEvent::LoadSong => {
                     song::load_song(sequencers);
+                }
+                UiEvent::ClearSong => {
+                    song::clear_song(sequencers);
                 }
             }
         }
@@ -288,4 +291,5 @@ pub fn calculate_fps(times: &VecDeque<f32>) -> f32 {
 pub enum UiEvent {
     SaveSong,
     LoadSong,
+    ClearSong,
 }

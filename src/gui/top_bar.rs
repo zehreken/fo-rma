@@ -47,9 +47,15 @@ impl TopBar {
                 ui.menu_button("Song", |ui| {
                     if ui.button("Save").clicked() {
                         ui_events.push(UiEvent::SaveSong);
+                        ui.close_menu();
                     }
                     if ui.button("Load").clicked() {
-                        ui_events.push(UiEvent::LoadSong)
+                        ui_events.push(UiEvent::LoadSong);
+                        ui.close_menu();
+                    }
+                    if ui.button("Clear").clicked() {
+                        ui_events.push(UiEvent::ClearSong);
+                        ui.close_menu();
                     }
                 })
             });

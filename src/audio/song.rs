@@ -45,6 +45,14 @@ pub fn load_song(sequencers: &mut Vec<Sequencer>) {
     }
 }
 
+pub fn clear_song(sequencers: &mut Vec<Sequencer>) {
+    for sequencer in sequencers {
+        for note in &mut sequencer.sequence {
+            note.octave = Octave::Third;
+            note.key = Key::Rest;
+        }
+    }
+}
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Song {
     pub sequences: [[NoteData; 16]; 3],

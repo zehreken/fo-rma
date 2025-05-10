@@ -94,7 +94,7 @@ impl Scene {
         // material_object_map.insert(MaterialType::WaveMaterial, objects);
 
         let mut light = Light::new(color_utils::CCP.palette[1]);
-        light.update_position(vec3(0.0, 5.0, 0.0));
+        light.set_position(vec3(0.0, 5.0, 0.0));
         let lights = vec![light];
 
         Self {
@@ -115,10 +115,13 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        // self.lights[0].update_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
+        self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
 
-        // self.camera
-        //     .update_position(vec3(5.0 * elapsed.cos(), 0.0, 5.0 * elapsed.sin()));
+        // self.camera.set_position(vec3(
+        //     8.0 * self.elapsed.cos(),
+        //     5.0,
+        //     8.0 * self.elapsed.sin(),
+        // ));
         for (material_id, objects) in &mut self.material_object_map {
             if *material_id == MaterialType::EqualizerMaterial {
                 for primitive in objects {
