@@ -128,6 +128,10 @@ impl<'a> Renderer<'a> {
             );
         }
 
+        if self.gui.settings.effect != self.post_processor.effect {
+            self.set_effect(self.gui.settings.effect);
+        }
+
         let output_view = output_frame
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());

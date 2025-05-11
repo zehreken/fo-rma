@@ -9,6 +9,7 @@ pub struct PostProcessor {
     pub control_uniform_buffer: Buffer,
     pub control_bg: BindGroup,
     pub instant: Instant,
+    pub effect: Effect,
 }
 
 impl PostProcessor {
@@ -41,6 +42,7 @@ impl PostProcessor {
             control_uniform_buffer,
             control_bg,
             instant: Instant::now(),
+            effect: Effect::None,
         }
     }
 
@@ -84,6 +86,7 @@ impl PostProcessor {
         read_view: &TextureView,
         effect: Effect,
     ) {
+        self.effect = effect;
         let source = match effect {
             Effect::None => {
                 wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/none.comp.wgsl").into())

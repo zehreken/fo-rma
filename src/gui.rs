@@ -26,7 +26,7 @@ pub struct Gui {
     screen_descriptor: ScreenDescriptor,
     paint_jobs: Vec<ClippedPrimitive>,
     textures: TexturesDelta,
-    settings: Settings,
+    pub settings: Settings,
 }
 
 pub struct Settings {
