@@ -10,7 +10,7 @@ use super::{
     uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
 };
 use crate::{
-    color_utils::{self, ToVec4},
+    color_utils::{self, ColorPalette, ToVec4},
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
         equalizer_material::{EqualizerMaterial, EqualizerUniforms},
@@ -93,8 +93,8 @@ impl Scene {
         }
         // material_object_map.insert(MaterialType::WaveMaterial, objects);
 
-        let mut light = Light::new(color_utils::CCP.palette[1]);
-        light.set_position(vec3(0.0, 5.0, 0.0));
+        let mut light = Light::new(color_utils::CP0.palette[1]);
+        light.set_position(vec3(20.0, 5.0, 20.0));
         let lights = vec![light];
 
         Self {
@@ -112,10 +112,11 @@ impl Scene {
         signal: f32,
         show_beat: bool,
         wave: Arc<Vec<f32>>,
+        color_palette: &ColorPalette<f32, 4>,
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
+        // self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
 
         // self.camera.set_position(vec3(
         //     8.0 * self.elapsed.cos(),
@@ -134,9 +135,9 @@ impl Scene {
                         normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
                     };
                     let equalizer = EqualizerUniform {
-                        color1: color_utils::CCP.palette[0].to_vec4(1.0),
-                        color2: color_utils::CCP.palette[1].to_vec4(1.0),
-                        color3: color_utils::CCP.palette[2].to_vec4(1.0),
+                        color1: color_palette.palette[0].to_vec4(1.0),
+                        color2: color_palette.palette[1].to_vec4(1.0),
+                        color3: color_palette.palette[2].to_vec4(1.0),
                         signal: signal * 5.0,
                         _padding: [0.0, 0.0, 0.0],
                     };
@@ -162,7 +163,7 @@ impl Scene {
                         normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
                     };
                     let color = ColorUniform {
-                        color: color_utils::CCP.palette[0].to_vec4(1.0),
+                        color: color_palette.palette[0].to_vec4(1.0),
                     };
                     let light = LightUniform {
                         position: self.lights[0].transform.position.extend(0.0).to_array(),
@@ -186,10 +187,10 @@ impl Scene {
                         normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
                     };
                     let color1 = ColorUniform {
-                        color: color_utils::CCP.palette[1].to_vec4(1.0),
+                        color: color_palette.palette[1].to_vec4(1.0),
                     };
                     let color2 = ColorUniform {
-                        color: color_utils::CCP.palette[2].to_vec4(1.0),
+                        color: color_palette.palette[2].to_vec4(1.0),
                     };
                     let data = WaveUniforms {
                         object,

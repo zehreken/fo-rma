@@ -1,6 +1,6 @@
 use crate::{
     basics::scene::Scene,
-    color_utils::{self},
+    color_utils::{self, ColorPalette},
     material::MaterialType,
 };
 use wgpu::{
@@ -8,7 +8,7 @@ use wgpu::{
     RenderPassDescriptor, StoreOp, TextureView,
 };
 
-const BG_COLOR: [f32; 3] = color_utils::CCP.palette[0];
+// const BG_COLOR: [f32; 3] = color_utils::CCP.palette[0];
 
 pub struct FillRenderer {}
 
@@ -24,12 +24,13 @@ impl FillRenderer {
         depth_texture: &TextureView,
         output_view: &TextureView,
         level: &Scene,
+        color_palette: &ColorPalette<f32, 4>,
     ) {
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("fill_render_encoder"),
         });
 
-        let c_bg_color = color_utils::srgb_to_linear(BG_COLOR, color_utils::GAMMA);
+        let c_bg_color = color_utils::srgb_to_linear(color_palette.palette[0], color_utils::GAMMA);
         let bg_color = Color {
             r: c_bg_color[0] as f64,
             g: c_bg_color[1] as f64,

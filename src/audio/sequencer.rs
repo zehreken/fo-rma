@@ -1,10 +1,7 @@
 use super::{
     modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator, utils::Note,
 };
-use crate::{
-    audio::{envelope::Envelope, noise_generator::NoiseType},
-    basics::core::clamp,
-};
+use crate::audio::{envelope::Envelope, noise_generator::NoiseType};
 use kopek::{oscillator::WaveType, utils::key_to_frequency};
 
 pub struct Sequencer {

@@ -1,6 +1,7 @@
 use crate::{
     audio::{audio_model::AudioModel, song},
     basics::{scene::Scene, scene_loader},
+    color_utils::{self, ColorPalette},
     renderer,
     rendering::post_processor::Effect,
     save_image,
@@ -44,6 +45,7 @@ pub struct Settings {
     pub draw_debug_lines: bool,
     pub draw_ui: bool,
     pub lock_camera: bool,
+    pub color_palette: ColorPalette<f32, 4>,
 }
 
 impl Settings {
@@ -52,6 +54,7 @@ impl Settings {
             draw_debug_lines: false,
             draw_ui: true,
             lock_camera: false,
+            color_palette: color_utils::CP0,
         }
     }
 }
@@ -61,7 +64,7 @@ impl<'a> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
 
-        let json = include_str!("../scenes/scene_03.json");
+        let json = include_str!("../scenes/scene_01.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let scene = Scene::new(
@@ -120,6 +123,7 @@ impl<'a> App<'a> {
             signal_peak,
             self.audio_model.show_beat(),
             Arc::new(rolling_wave),
+            &self.settings.color_palette,
         );
         let _ = self.renderer.render(
             self.window,
@@ -128,6 +132,7 @@ impl<'a> App<'a> {
             fps,
             &self.settings,
             &mut self.ui_events,
+            &self.settings.color_palette,
         );
 
         // Process ui events
@@ -248,19 +253,35 @@ fn run_event_loop(
                     &app.renderer.queue,
                     &app.renderer.surface_config,
                     &app.renderer.render_texture_material.post_process_texture,
+                    &app.settings.color_palette,
                 );
             }
+            if input.key_pressed(KeyCode::Numpad0) {
+                app.settings.color_palette = color_utils::CP0;
+            }
             if input.key_pressed(KeyCode::Numpad1) {
-                app.renderer.set_effect(Effect::None);
+                app.settings.color_palette = color_utils::CP1;
             }
             if input.key_pressed(KeyCode::Numpad2) {
-                app.renderer.set_effect(Effect::Pixelate);
+                app.settings.color_palette = color_utils::CP2;
             }
             if input.key_pressed(KeyCode::Numpad3) {
-                app.renderer.set_effect(Effect::InvertColor);
+                app.settings.color_palette = color_utils::CP3;
             }
             if input.key_pressed(KeyCode::Numpad4) {
-                app.renderer.set_effect(Effect::Noise);
+                app.settings.color_palette = color_utils::CP4;
+            }
+            if input.key_pressed(KeyCode::Numpad5) {
+                app.settings.color_palette = color_utils::CP5;
+            }
+            if input.key_pressed(KeyCode::Numpad6) {
+                app.settings.color_palette = color_utils::CP6;
+            }
+            if input.key_pressed(KeyCode::Numpad7) {
+                app.settings.color_palette = color_utils::CP7;
+            }
+            if input.key_pressed(KeyCode::Numpad8) {
+                app.settings.color_palette = color_utils::CP8;
             }
         }
 

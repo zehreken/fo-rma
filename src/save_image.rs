@@ -1,13 +1,14 @@
 use rand::Rng;
 use wgpu::{Device, Queue, SurfaceConfiguration, Texture, TextureView};
 
-use crate::color_utils;
+use crate::color_utils::{self, ColorPalette};
 
 pub fn save_image(
     device: &Device,
     queue: &Queue,
     surface_config: &SurfaceConfiguration,
     texture: &Texture,
+    color_palette: &ColorPalette<f32, 4>,
 ) {
     let width = surface_config.width;
     let height = surface_config.height;
@@ -84,7 +85,7 @@ pub fn save_image(
         ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
 
     // Save the image
-    let color_palette_name = color_utils::CCP.name;
+    let color_palette_name = color_palette.name;
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
