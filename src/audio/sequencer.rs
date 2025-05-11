@@ -64,7 +64,7 @@ impl Sequencer {
         self.freq = self.sequence[step_index].get();
         self.modulated_oscillator.frequency_mut(self.freq);
         let mut value = self.modulated_oscillator.run();
-        value = self.noise_generator.run();
+        // value = self.noise_generator.run();
 
         if self.prev_beat_index != self.beat_index {
             self.prev_beat_index = self.beat_index;

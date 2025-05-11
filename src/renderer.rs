@@ -5,7 +5,9 @@ use crate::{
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
-        fill_renderer::FillRenderer, line_renderer::LineRenderer, post_processor::PostProcessor,
+        fill_renderer::FillRenderer,
+        line_renderer::LineRenderer,
+        post_processor::{Effect, PostProcessor},
         screen_renderer::ScreenRenderer,
     },
     rendering_utils::{self},
@@ -138,6 +140,15 @@ impl<'a> Renderer<'a> {
         output_frame.present();
 
         Ok(())
+    }
+
+    pub fn set_effect(&mut self, effect: Effect) {
+        self.post_processor.set_effect(
+            &self.device,
+            &self.render_texture_material.post_process_texture_view,
+            &self.render_texture_material.render_texture_view,
+            effect,
+        );
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>, scale_factor: f64) {

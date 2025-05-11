@@ -1,7 +1,5 @@
 use std::{mem, time::Instant};
-use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, Texture, TextureView,
-};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, TextureView};
 
 use crate::basics::uniforms::ColorUniform;
 
@@ -18,7 +16,7 @@ impl PostProcessor {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
             source: wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/pixelate.comp.wgsl").into(),
+                include_str!("../shaders/compute/none.comp.wgsl").into(),
             ),
         });
         let (layout, bind_group) = create_bind_group(device, write_view, read_view);
@@ -77,6 +75,48 @@ impl PostProcessor {
 
     pub fn resize(&mut self, device: &Device, write_view: &TextureView, read_view: &TextureView) {
         self.bind_group = create_bind_group(device, write_view, read_view).1;
+    }
+
+    pub fn set_effect(
+        &mut self,
+        device: &Device,
+        write_view: &TextureView,
+        read_view: &TextureView,
+        effect: Effect,
+    ) {
+        let source = match effect {
+            Effect::None => {
+                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/none.comp.wgsl").into())
+            }
+            Effect::Noise => {
+                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/noise.comp.wgsl").into())
+            }
+            Effect::Pixelate => wgpu::ShaderSource::Wgsl(
+                include_str!("../shaders/compute/pixelate.comp.wgsl").into(),
+            ),
+            Effect::InvertColor => wgpu::ShaderSource::Wgsl(
+                include_str!("../shaders/compute/invert_color.comp.wgsl").into(),
+            ),
+        };
+        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("compute_shader"),
+            source,
+        });
+        let (layout, bind_group) = create_bind_group(device, write_view, read_view);
+        let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
+
+        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("post_process_pipeline_layout"),
+            bind_group_layouts: &[&layout, &control_bgl],
+            push_constant_ranges: &[],
+        });
+
+        self.compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+            label: Some("post_process_pipeline"),
+            layout: Some(&pipeline_layout),
+            module: &shader,
+            entry_point: "cs_main",
+        });
     }
 }
 
@@ -165,4 +205,12 @@ fn create_control_bind_group(device: &Device) -> (Buffer, BindGroupLayout, BindG
         control_uniform_bgl,
         control_uniform_bg,
     )
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Effect {
+    None,
+    Noise,
+    Pixelate,
+    InvertColor,
 }

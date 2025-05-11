@@ -1,7 +1,9 @@
 use crate::{
     audio::{audio_model::AudioModel, song},
     basics::{scene::Scene, scene_loader},
-    renderer, save_image,
+    renderer,
+    rendering::post_processor::Effect,
+    save_image,
 };
 use std::{
     collections::VecDeque,
@@ -247,6 +249,18 @@ fn run_event_loop(
                     &app.renderer.surface_config,
                     &app.renderer.render_texture_material.post_process_texture,
                 );
+            }
+            if input.key_pressed(KeyCode::Numpad1) {
+                app.renderer.set_effect(Effect::None);
+            }
+            if input.key_pressed(KeyCode::Numpad2) {
+                app.renderer.set_effect(Effect::Pixelate);
+            }
+            if input.key_pressed(KeyCode::Numpad3) {
+                app.renderer.set_effect(Effect::InvertColor);
+            }
+            if input.key_pressed(KeyCode::Numpad4) {
+                app.renderer.set_effect(Effect::Noise);
             }
         }
 

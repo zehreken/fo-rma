@@ -1,14 +1,14 @@
 use crate::app::UiEvent;
 use crate::audio::sequencer::Sequencer;
+use crate::rendering::post_processor::Effect;
 use egui::epaint::Shadow;
-use egui::ViewportId;
+use egui::{FullOutput, ViewportId};
 use egui_wgpu::wgpu::TextureFormat;
 use egui_wgpu::{Renderer, ScreenDescriptor};
 use egui_winit::{
     egui::{self, ClippedPrimitive, Context, TexturesDelta},
     State,
 };
-use top_bar::TopBar;
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
@@ -26,7 +26,6 @@ pub struct Gui {
     screen_descriptor: ScreenDescriptor,
     paint_jobs: Vec<ClippedPrimitive>,
     textures: TexturesDelta,
-    top_bar: TopBar,
     settings: Settings,
 }
 
@@ -35,6 +34,7 @@ pub struct Settings {
     pub show_oscillator_inspector: bool,
     pub show_vfx: bool,
     pub selected: usize,
+    pub effect: Effect,
 }
 
 impl Gui {
@@ -63,8 +63,6 @@ impl Gui {
         let renderer = Renderer::new(device, TextureFormat::Rgba8Unorm, None, 1);
         let textures = TexturesDelta::default();
 
-        let top_bar = TopBar::new();
-
         Self {
             ctx: egui_ctx,
             state: egui_state,
@@ -72,12 +70,12 @@ impl Gui {
             screen_descriptor,
             paint_jobs: vec![],
             textures,
-            top_bar,
             settings: Settings {
                 show_sequencers: true,
                 show_oscillator_inspector: true,
                 show_vfx: false,
                 selected: 0,
+                effect: Effect::None,
             },
         }
     }
@@ -107,8 +105,7 @@ impl Gui {
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
-            self.top_bar
-                .draw(egui_ctx, &mut self.settings, ui_events, fps);
+            top_bar::draw(egui_ctx, &mut self.settings, ui_events, fps);
             if self.settings.show_oscillator_inspector {
                 gui_oscillator::draw(
                     egui_ctx,
@@ -117,7 +114,11 @@ impl Gui {
                 );
             }
             if self.settings.show_vfx {
-                gui_vfx::draw(egui_ctx, &mut self.settings.show_vfx);
+                gui_vfx::draw(
+                    egui_ctx,
+                    &mut self.settings.show_vfx,
+                    &mut self.settings.effect,
+                );
             }
             if self.settings.show_sequencers {
                 gui_sequencer::draw(
