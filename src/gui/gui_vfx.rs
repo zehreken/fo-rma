@@ -1,6 +1,11 @@
 use crate::rendering::post_processor::Effect;
 
-pub fn draw(ctx: &egui::Context, is_open: &mut bool, effect: &mut Effect) {
+pub fn draw(
+    ctx: &egui::Context,
+    is_open: &mut bool,
+    effect: &mut Effect,
+    color_palette: &mut usize,
+) {
     egui::Window::new("VFX").open(is_open).show(ctx, |ui| {
         ctx.request_repaint();
 
@@ -14,6 +19,16 @@ pub fn draw(ctx: &egui::Context, is_open: &mut bool, effect: &mut Effect) {
                     ui.selectable_value(effect, Effect::Pixelate, "Pixelate");
                     ui.selectable_value(effect, Effect::InvertColor, "InvertColor")
                 });
+        });
+        ui.horizontal(|ui| {
+            ui.label("color palette: ");
+            if ui.button("<").clicked() {
+                *color_palette -= 1;
+            }
+            ui.label(format!("{}", color_palette));
+            if ui.button(">").clicked() {
+                *color_palette += 1;
+            }
         });
     });
 }

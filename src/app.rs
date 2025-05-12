@@ -46,6 +46,7 @@ pub struct Settings {
     pub draw_ui: bool,
     pub lock_camera: bool,
     pub color_palette: ColorPalette<f32, 4>,
+    pub selected_color: usize,
 }
 
 impl Settings {
@@ -55,6 +56,7 @@ impl Settings {
             draw_ui: true,
             lock_camera: false,
             color_palette: color_utils::CP0,
+            selected_color: 0,
         }
     }
 }
@@ -64,7 +66,7 @@ impl<'a> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
 
-        let json = include_str!("../scenes/scene_01.json");
+        let json = include_str!("../scenes/scene_03.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let scene = Scene::new(
@@ -130,9 +132,8 @@ impl<'a> App<'a> {
             &self.scene,
             &mut self.audio_model.sequencers_mut(),
             fps,
-            &self.settings,
+            &mut self.settings,
             &mut self.ui_events,
-            &self.settings.color_palette,
         );
 
         // Process ui events
@@ -180,7 +181,6 @@ pub async fn start() {
     let window = create_window(size, &event_loop);
     let app = App::new(&window).await;
 
-    // let r = run_event_loop(event_loop, app);
     let r = run_event_loop(event_loop, app, input);
 }
 

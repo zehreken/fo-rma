@@ -75,6 +75,7 @@ impl ToVec4 for [f32; 3] {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ColorPalette<T: Float, const N: usize> {
     pub name: &'static str,
     pub palette: [[T; 3]; N],
@@ -170,4 +171,4 @@ pub const CP8: ColorPalette<f32, 4> = ColorPalette {
     ],
 };
 
-// pub const CCP: ColorPalette<f32, 4> = CP8;
+pub const COLORS: [ColorPalette<f32, 4>; 9] = [CP0, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8];

@@ -35,6 +35,7 @@ pub struct Settings {
     pub show_vfx: bool,
     pub selected: usize,
     pub effect: Effect,
+    pub selected_color: usize,
 }
 
 impl Gui {
@@ -76,6 +77,7 @@ impl Gui {
                 show_vfx: false,
                 selected: 0,
                 effect: Effect::None,
+                selected_color: 0,
             },
         }
     }
@@ -118,6 +120,7 @@ impl Gui {
                     egui_ctx,
                     &mut self.settings.show_vfx,
                     &mut self.settings.effect,
+                    &mut self.settings.selected_color,
                 );
             }
             if self.settings.show_sequencers {

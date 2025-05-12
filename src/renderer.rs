@@ -2,7 +2,7 @@ use crate::{
     app::{Settings, UiEvent},
     audio::sequencer::Sequencer,
     basics::scene::Scene,
-    color_utils::ColorPalette,
+    color_utils::{self, ColorPalette},
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
@@ -87,9 +87,8 @@ impl<'a> Renderer<'a> {
         scene: &Scene,
         sequencers: &mut Vec<Sequencer>,
         fps: f32,
-        settings: &Settings,
+        settings: &mut Settings,
         ui_events: &mut Vec<UiEvent>,
-        color_palette: &ColorPalette<f32, 4>,
     ) -> Result<(), SurfaceError> {
         let output_frame = match self.surface.get_current_texture() {
             Ok(frame) => frame,
@@ -103,7 +102,7 @@ impl<'a> Renderer<'a> {
             &self.depth_texture,
             &self.render_texture_material.render_texture_view,
             scene,
-            color_palette,
+            &settings.color_palette,
         );
 
         if settings.draw_debug_lines {
@@ -133,6 +132,10 @@ impl<'a> Renderer<'a> {
 
         if self.gui.settings.effect != self.post_processor.effect {
             self.set_effect(self.gui.settings.effect);
+        }
+        if self.gui.settings.selected_color != settings.selected_color {
+            settings.selected_color = self.gui.settings.selected_color;
+            settings.color_palette = color_utils::COLORS[settings.selected_color];
         }
 
         let output_view = output_frame
