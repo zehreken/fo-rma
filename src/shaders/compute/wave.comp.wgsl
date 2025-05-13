@@ -13,7 +13,7 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
 
     let color = textureLoad(src, vec2<i32>(id.xy), 0);
-    let inverted_rgb = vec3(1.0) - color.rgb;
-    let inverted = vec4(inverted_rgb, 1.0);
-    textureStore(img, vec2<i32>(id.xy), inverted);
+    let desaturated_rgb = color.rgb / 2.0;
+    let desaturated = vec4(desaturated_rgb, 1.0);
+    textureStore(img, vec2<i32>(id.xy), desaturated);
 }
