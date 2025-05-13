@@ -1,4 +1,4 @@
-use crate::rendering::post_processor::Effect;
+use crate::{color_utils, rendering::post_processor::Effect};
 
 pub fn draw(
     ctx: &egui::Context,
@@ -24,10 +24,12 @@ pub fn draw(
             ui.label("color palette: ");
             if ui.button("<").clicked() {
                 *color_palette -= 1;
+                *color_palette = (*color_palette).clamp(0, color_utils::COLORS.len() - 1);
             }
             ui.label(format!("{}", color_palette));
             if ui.button(">").clicked() {
                 *color_palette += 1;
+                *color_palette = (*color_palette).clamp(0, color_utils::COLORS.len() - 1);
             }
         });
     });
