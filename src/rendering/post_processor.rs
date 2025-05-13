@@ -100,6 +100,9 @@ impl PostProcessor {
             Effect::InvertColor => wgpu::ShaderSource::Wgsl(
                 include_str!("../shaders/compute/invert_color.comp.wgsl").into(),
             ),
+            Effect::Wave => {
+                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/wave.comp.wgsl").into())
+            }
         };
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
@@ -216,4 +219,5 @@ pub enum Effect {
     Noise,
     Pixelate,
     InvertColor,
+    Wave,
 }

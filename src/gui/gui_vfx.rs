@@ -17,7 +17,8 @@ pub fn draw(
                     ui.selectable_value(effect, Effect::None, "None");
                     ui.selectable_value(effect, Effect::Noise, "Noise");
                     ui.selectable_value(effect, Effect::Pixelate, "Pixelate");
-                    ui.selectable_value(effect, Effect::InvertColor, "InvertColor")
+                    ui.selectable_value(effect, Effect::InvertColor, "InvertColor");
+                    ui.selectable_value(effect, Effect::Wave, "Wave");
                 });
         });
         ui.horizontal(|ui| {
