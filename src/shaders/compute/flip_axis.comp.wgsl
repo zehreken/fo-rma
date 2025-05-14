@@ -1,4 +1,3 @@
-// A new idea, a post processing effect that makes the screen move like a wave based on the audio signal.
 @group(0) @binding(0)
 var img: texture_storage_2d<rgba8unorm, write>;
 
@@ -13,7 +12,11 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
 
     let color = textureLoad(src, vec2<i32>(id.xy), 0);
-    let f = select(1.0, 0.0, (id.y % 2u) == 0);
-    let result = vec4(color.rgb * f, color.a);
-    textureStore(img, vec2<i32>(id.xy), result);
+    // Flip coordinates on the x=y axis
+    var p = id;
+    let t = p.x;
+    p.x = p.y;
+    p.y = t;
+
+    textureStore(img, vec2<i32>(p.xy), color);
 }

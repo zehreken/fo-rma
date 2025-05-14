@@ -14,11 +14,13 @@ pub fn draw(
             egui::ComboBox::from_label("")
                 .selected_text(format!("{:?}", effect))
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(effect, Effect::None, "None");
-                    ui.selectable_value(effect, Effect::Noise, "Noise");
-                    ui.selectable_value(effect, Effect::Pixelate, "Pixelate");
-                    ui.selectable_value(effect, Effect::InvertColor, "InvertColor");
-                    ui.selectable_value(effect, Effect::Wave, "Wave");
+                    ui.selectable_value(effect, Effect::None, "none");
+                    ui.selectable_value(effect, Effect::Noise, "noise");
+                    ui.selectable_value(effect, Effect::Pixelate, "pixelate");
+                    ui.selectable_value(effect, Effect::InvertColor, "invertColor");
+                    ui.selectable_value(effect, Effect::Wave, "wave");
+                    ui.selectable_value(effect, Effect::Interlace, "interlace");
+                    ui.selectable_value(effect, Effect::FlipAxis, "flip axis");
                 });
         });
         ui.horizontal(|ui| {

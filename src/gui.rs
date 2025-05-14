@@ -74,7 +74,7 @@ impl Gui {
             settings: Settings {
                 show_sequencers: true,
                 show_oscillator_inspector: true,
-                show_vfx: false,
+                show_vfx: true,
                 selected: 0,
                 effect: Effect::None,
                 selected_color: 0,

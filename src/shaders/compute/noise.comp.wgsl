@@ -20,8 +20,6 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
 
     let color = textureLoad(src, vec2<i32>(id.xy), 0);
-    let i = id.x;
-    let j = id.y;
     let noise = vec3(hash2(id.xy, control_uniform.values[0]) / 20.0);
     let new_color = vec4(color.rgb + noise, 1.0);
     textureStore(img, vec2<i32>(id.xy), new_color);
