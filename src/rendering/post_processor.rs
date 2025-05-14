@@ -1,7 +1,6 @@
+use crate::basics::uniforms::ColorUniform;
 use std::{mem, time::Instant};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, TextureView};
-
-use crate::basics::uniforms::ColorUniform;
 
 pub struct PostProcessor {
     compute_pipeline: ComputePipeline,

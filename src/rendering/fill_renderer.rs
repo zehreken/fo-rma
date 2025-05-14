@@ -8,8 +8,6 @@ use wgpu::{
     RenderPassDescriptor, StoreOp, TextureView,
 };
 
-// const BG_COLOR: [f32; 3] = color_utils::CCP.palette[0];
-
 pub struct FillRenderer {}
 
 impl FillRenderer {

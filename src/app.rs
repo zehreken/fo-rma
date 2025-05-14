@@ -2,9 +2,7 @@ use crate::{
     audio::{audio_model::AudioModel, song},
     basics::{scene::Scene, scene_loader},
     color_utils::{self, ColorPalette},
-    renderer,
-    rendering::post_processor::Effect,
-    save_image,
+    renderer, save_image,
 };
 use std::{
     collections::VecDeque,

@@ -2,7 +2,7 @@ use crate::app::UiEvent;
 use crate::audio::sequencer::Sequencer;
 use crate::rendering::post_processor::Effect;
 use egui::epaint::Shadow;
-use egui::{FullOutput, ViewportId};
+use egui::ViewportId;
 use egui_wgpu::wgpu::TextureFormat;
 use egui_wgpu::{Renderer, ScreenDescriptor};
 use egui_winit::{
@@ -15,8 +15,8 @@ use winit::window::Window;
 
 pub mod gui_envelope;
 pub mod gui_oscillator;
+pub mod gui_post_process;
 pub mod gui_sequencer;
-pub mod gui_vfx;
 pub mod top_bar;
 
 pub struct Gui {
@@ -116,7 +116,7 @@ impl Gui {
                 );
             }
             if self.settings.show_vfx {
-                gui_vfx::draw(
+                gui_post_process::draw(
                     egui_ctx,
                     &mut self.settings.show_vfx,
                     &mut self.settings.effect,

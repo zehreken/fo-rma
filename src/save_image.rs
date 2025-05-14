@@ -1,7 +1,6 @@
-use rand::Rng;
-use wgpu::{Device, Queue, SurfaceConfiguration, Texture, TextureView};
-
 use crate::color_utils::{self, ColorPalette};
+use rand::Rng;
+use wgpu::{Device, Queue, SurfaceConfiguration, Texture};
 
 pub fn save_image(
     device: &Device,

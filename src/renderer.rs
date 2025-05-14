@@ -2,7 +2,7 @@ use crate::{
     app::{Settings, UiEvent},
     audio::sequencer::Sequencer,
     basics::scene::Scene,
-    color_utils::{self, ColorPalette},
+    color_utils::{self},
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
