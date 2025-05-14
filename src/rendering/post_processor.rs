@@ -109,6 +109,9 @@ impl PostProcessor {
             Effect::FlipAxis => wgpu::ShaderSource::Wgsl(
                 include_str!("../shaders/compute/flip_axis.comp.wgsl").into(),
             ),
+            Effect::Grayscale => wgpu::ShaderSource::Wgsl(
+                include_str!("../shaders/compute/grayscale.comp.wgsl").into(),
+            ),
         };
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
@@ -228,4 +231,5 @@ pub enum Effect {
     Wave,
     Interlace,
     FlipAxis,
+    Grayscale,
 }

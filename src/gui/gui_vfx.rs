@@ -21,6 +21,7 @@ pub fn draw(
                     ui.selectable_value(effect, Effect::Wave, "wave");
                     ui.selectable_value(effect, Effect::Interlace, "interlace");
                     ui.selectable_value(effect, Effect::FlipAxis, "flip axis");
+                    ui.selectable_value(effect, Effect::Grayscale, "grayscale");
                 });
         });
         ui.horizontal(|ui| {
