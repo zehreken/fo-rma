@@ -13,7 +13,16 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
 
     let color = textureLoad(src, vec2<i32>(id.xy), 0);
-    let f = select(1.0, 0.0, (id.y % 2u) == 0);
-    let result = vec4(color.rgb * f, color.a);
-    textureStore(img, vec2<i32>(id.xy), result);
+    let y = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+    var saturated = vec4(y, y, y, 1.0);
+    if (color.r > 0.4) {
+        saturated = vec4(1.0, 0.1, 0.1, 1.0);
+    }
+    if (color.g > 0.4) {
+        saturated = vec4(0.1, 1.0, 0.1, 1.0);
+    }
+    if (color.b > 0.4) {
+        saturated = vec4(0.1, 0.1, 1.0, 1.0);
+    }
+    textureStore(img, vec2<i32>(id.xy), saturated);
 }
