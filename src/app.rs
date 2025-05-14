@@ -64,7 +64,7 @@ impl<'a> App<'a> {
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
 
-        let json = include_str!("../scenes/scene_03.json");
+        let json = include_str!("../scenes/scene_04.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let scene = Scene::new(
