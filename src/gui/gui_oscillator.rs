@@ -1,4 +1,4 @@
-use crate::audio::sequencer::Sequencer;
+use crate::audio::sequencer::{Sequencer, SequencerMode};
 use kopek::oscillator::WaveType;
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) {
@@ -7,46 +7,75 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
         .show(ctx, |ui| {
             ctx.request_repaint();
             // ui.label(format!("Running: {}", sequencer.is_running));
-            // volume
+            // mode
+            let mut selected_mode: SequencerMode = sequencer.mode;
+            ui.horizontal(|ui| {
+                ui.label("mode: ");
+                egui::ComboBox::from_label("_")
+                    .selected_text(format!("{:?}", selected_mode))
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(&mut selected_mode, SequencerMode::Wave, "Wave");
+                        ui.selectable_value(&mut selected_mode, SequencerMode::Noise, "Noise");
+                    });
+            });
+            if selected_mode != sequencer.mode {
+                sequencer.mode = selected_mode;
+            }
+            ui.separator();
             let mut volume = sequencer.volume();
             ui.horizontal(|ui| {
                 ui.label("vol: ");
                 ui.add(egui::Slider::new(&mut volume, 0.0..=1.0));
             });
             sequencer.set_volume(volume);
-            // vco freq
-            let mut vco_frequency = sequencer.frequency();
-            ui.horizontal(|ui| {
-                ui.label("vco: ");
-                ui.add(egui::widgets::Slider::new(&mut vco_frequency, 0.0..=800.0));
-            });
-            sequencer.set_frequency(vco_frequency);
-            // lfo freq
-            let mut lfo_frequency = sequencer.lfo_frequency();
-            ui.horizontal(|ui| {
-                ui.label("lfo: ");
-                ui.add(egui::widgets::Slider::new(&mut lfo_frequency, 0.0..=20.0));
-            });
-            sequencer.set_lfo_frequency(lfo_frequency);
-
-            let mut selected: WaveType = sequencer.vco_wave_type();
-            ui.horizontal(|ui| {
-                ui.label("wave type: ");
-                egui::ComboBox::from_label("")
-                    .selected_text(format!("{:?}", selected))
-                    .show_ui(ui, |ui| {
-                        ui.selectable_value(&mut selected, WaveType::Sine, "Sine");
-                        ui.selectable_value(&mut selected, WaveType::Triangle, "Triangle");
-                        ui.selectable_value(
-                            &mut selected,
-                            WaveType::Square { duty: 0.5 },
-                            "Square",
-                        );
-                        ui.selectable_value(&mut selected, WaveType::Sawtooth, "Sawtooth")
+            // volume
+            match sequencer.mode {
+                SequencerMode::Wave => {
+                    // vco freq
+                    let mut vco_frequency = sequencer.frequency();
+                    ui.horizontal(|ui| {
+                        ui.label("vco: ");
+                        ui.add(egui::widgets::Slider::new(&mut vco_frequency, 0.0..=800.0));
                     });
-            });
-            if selected != sequencer.vco_wave_type() {
-                sequencer.set_vco_wave_type(selected);
+                    sequencer.set_frequency(vco_frequency);
+                    // lfo freq
+                    let mut lfo_frequency = sequencer.lfo_frequency();
+                    ui.horizontal(|ui| {
+                        ui.label("lfo: ");
+                        ui.add(egui::widgets::Slider::new(&mut lfo_frequency, 0.0..=20.0));
+                    });
+                    sequencer.set_lfo_frequency(lfo_frequency);
+
+                    let mut selected_wave: WaveType = sequencer.vco_wave_type();
+                    ui.horizontal(|ui| {
+                        ui.label("wave type: ");
+                        egui::ComboBox::from_label("")
+                            .selected_text(format!("{:?}", selected_wave))
+                            .show_ui(ui, |ui| {
+                                ui.selectable_value(&mut selected_wave, WaveType::Sine, "Sine");
+                                ui.selectable_value(
+                                    &mut selected_wave,
+                                    WaveType::Triangle,
+                                    "Triangle",
+                                );
+                                ui.selectable_value(
+                                    &mut selected_wave,
+                                    WaveType::Square { duty: 0.5 },
+                                    "Square",
+                                );
+                                ui.selectable_value(
+                                    &mut selected_wave,
+                                    WaveType::Sawtooth,
+                                    "Sawtooth",
+                                )
+                            });
+                    });
+                    if selected_wave != sequencer.vco_wave_type() {
+                        sequencer.set_vco_wave_type(selected_wave);
+                    }
+                }
+
+                SequencerMode::Noise => {}
             }
 
             ui.separator();

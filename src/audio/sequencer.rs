@@ -2,11 +2,21 @@ use super::{
     modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator, utils::Note,
 };
 use crate::audio::{envelope::Envelope, noise_generator::NoiseType};
-use kopek::{oscillator::WaveType, utils::key_to_frequency};
+use kopek::{
+    oscillator::WaveType,
+    utils::{key_to_frequency, Key},
+};
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum SequencerMode {
+    Wave,
+    Noise,
+}
 
 pub struct Sequencer {
     pub is_running: bool,
-    modulated_oscillator: ModulatedOscillator,
+    pub mode: SequencerMode,
+    pub modulated_oscillator: ModulatedOscillator,
     noise_generator: NoiseGenerator,
     beat_index: u32,
     prev_beat_index: u32,
@@ -32,11 +42,12 @@ impl Sequencer {
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
 
         let mut noise_generator = NoiseGenerator::new();
-        *noise_generator.noise_type_mut() = NoiseType::Random;
+        *noise_generator.noise_type_mut() = NoiseType::White;
 
         const factor: f32 = 0.2;
         Self {
             is_running: false,
+            mode: SequencerMode::Wave,
             modulated_oscillator: ModulatedOscillator::new(sample_rate),
             noise_generator,
             beat_index: 0,
@@ -58,9 +69,23 @@ impl Sequencer {
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
 
-        self.freq = self.sequence[step_index].get();
-        self.modulated_oscillator.frequency_mut(self.freq);
-        let mut value = self.modulated_oscillator.run();
+        let mut value = match self.mode {
+            SequencerMode::Wave => {
+                self.freq = self.sequence[step_index].get();
+                self.modulated_oscillator.frequency_mut(self.freq);
+                self.modulated_oscillator.run()
+            }
+            SequencerMode::Noise => {
+                if self.sequence[step_index].key != Key::Rest {
+                    self.noise_generator.run()
+                } else {
+                    0.0
+                }
+            }
+        };
+        // self.freq = self.sequence[step_index].get();
+        // self.modulated_oscillator.frequency_mut(self.freq);
+        // let mut value = self.modulated_oscillator.run();
         // value = self.noise_generator.run();
 
         if self.prev_beat_index != self.beat_index {
