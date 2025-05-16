@@ -26,6 +26,7 @@ impl NoiseGenerator {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum NoiseType {
     None,
     Random,

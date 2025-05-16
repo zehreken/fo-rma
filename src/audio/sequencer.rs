@@ -17,7 +17,7 @@ pub struct Sequencer {
     pub is_running: bool,
     pub mode: SequencerMode,
     pub modulated_oscillator: ModulatedOscillator,
-    noise_generator: NoiseGenerator,
+    pub noise_generator: NoiseGenerator,
     beat_index: u32,
     prev_beat_index: u32,
     length: u8,
