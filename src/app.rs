@@ -73,7 +73,6 @@ impl<'a> App<'a> {
             size,
             &scene_data,
         );
-        dbg!(scene_data);
 
         let audio_model = AudioModel::new().unwrap();
 
