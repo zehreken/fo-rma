@@ -111,6 +111,9 @@ impl PostProcessor {
             Effect::Grayscale => wgpu::ShaderSource::Wgsl(
                 include_str!("../shaders/compute/grayscale.comp.wgsl").into(),
             ),
+            Effect::Step => {
+                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/step.comp.wgsl").into())
+            }
         };
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
@@ -231,4 +234,5 @@ pub enum Effect {
     Interlace,
     FlipAxis,
     Grayscale,
+    Step,
 }

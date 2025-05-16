@@ -24,6 +24,7 @@ pub fn draw(
                         ui.selectable_value(effect, Effect::Interlace, "interlace");
                         ui.selectable_value(effect, Effect::FlipAxis, "flip axis");
                         ui.selectable_value(effect, Effect::Grayscale, "grayscale");
+                        ui.selectable_value(effect, Effect::Step, "step");
                     });
             });
             ui.horizontal(|ui| {
