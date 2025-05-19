@@ -8,7 +8,7 @@ pub fn draw(
     selected: &mut usize,
     is_open: &mut bool,
 ) {
-    egui::Window::new("Sequencers")
+    egui::Window::new("sequencers")
         .open(is_open)
         .show(ctx, |ui| {
             ctx.request_repaint();

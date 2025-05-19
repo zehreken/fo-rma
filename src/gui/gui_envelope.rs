@@ -1,6 +1,6 @@
 // OBSOLETE Delete later
 pub fn draw(ctx: &egui::Context, /* probably envelope will be passed */ is_open: &mut bool) {
-    egui::Window::new("Envelope").open(is_open).show(ctx, |ui| {
+    egui::Window::new("envelope").open(is_open).show(ctx, |ui| {
         ctx.request_repaint();
 
         ui.horizontal(|ui| {

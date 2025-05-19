@@ -5,7 +5,7 @@ use crate::audio::{
 use kopek::{noise::Noise, oscillator::WaveType};
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) {
-    egui::Window::new("Oscillator")
+    egui::Window::new("oscillator")
         .open(is_open)
         .show(ctx, |ui| {
             ctx.request_repaint();
@@ -53,14 +53,14 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
                     egui::ComboBox::from_label("wave")
                         .selected_text(format!("{:?}", selected_wave))
                         .show_ui(ui, |ui| {
-                            ui.selectable_value(&mut selected_wave, WaveType::Sine, "Sine");
-                            ui.selectable_value(&mut selected_wave, WaveType::Triangle, "Triangle");
+                            ui.selectable_value(&mut selected_wave, WaveType::Sine, "sine");
+                            ui.selectable_value(&mut selected_wave, WaveType::Triangle, "triangle");
                             ui.selectable_value(
                                 &mut selected_wave,
                                 WaveType::Square { duty: 0.5 },
-                                "Square",
+                                "square",
                             );
-                            ui.selectable_value(&mut selected_wave, WaveType::Sawtooth, "Sawtooth")
+                            ui.selectable_value(&mut selected_wave, WaveType::Sawtooth, "sawtooth")
                         });
                     if selected_wave != sequencer.vco_wave_type() {
                         sequencer.set_vco_wave_type(selected_wave);
@@ -72,8 +72,9 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
                     egui::ComboBox::from_label("noise")
                         .selected_text(format!("{:?}", selected_noise))
                         .show_ui(ui, |ui| {
-                            ui.selectable_value(&mut selected_noise, NoiseType::Random, "Random");
-                            ui.selectable_value(&mut selected_noise, NoiseType::White, "White");
+                            ui.selectable_value(&mut selected_noise, NoiseType::None, "none");
+                            ui.selectable_value(&mut selected_noise, NoiseType::Random, "random");
+                            ui.selectable_value(&mut selected_noise, NoiseType::White, "white");
                         });
                     if selected_noise != *sequencer.noise_generator.noise_type_mut() {
                         *sequencer.noise_generator.noise_type_mut() = selected_noise;

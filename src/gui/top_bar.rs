@@ -7,12 +7,12 @@ pub fn draw(ctx: &Context, settings: &mut Settings, ui_events: &mut Vec<UiEvent>
     egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
         egui::menu::bar(ui, |ui| {
             ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::GREEN));
-            ui.menu_button("File", |ui| {
-                if ui.button("Oscillator").clicked() {
+            ui.menu_button("file", |ui| {
+                if ui.button("oscillator").clicked() {
                     settings.show_oscillator_inspector = true;
                     ui.close_menu();
                 }
-                if ui.button("Sequencers").clicked() {
+                if ui.button("sequencers").clicked() {
                     settings.show_sequencers = true;
                     ui.close_menu();
                 }
@@ -21,16 +21,16 @@ pub fn draw(ctx: &Context, settings: &mut Settings, ui_events: &mut Vec<UiEvent>
                     ui.close_menu();
                 }
             });
-            ui.menu_button("Song", |ui| {
-                if ui.button("Save").clicked() {
+            ui.menu_button("song", |ui| {
+                if ui.button("save").clicked() {
                     ui_events.push(UiEvent::SaveSong);
                     ui.close_menu();
                 }
-                if ui.button("Load").clicked() {
+                if ui.button("load").clicked() {
                     ui_events.push(UiEvent::LoadSong);
                     ui.close_menu();
                 }
-                if ui.button("Clear").clicked() {
+                if ui.button("clear").clicked() {
                     ui_events.push(UiEvent::ClearSong);
                     ui.close_menu();
                 }
