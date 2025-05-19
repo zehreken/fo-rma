@@ -1,21 +1,11 @@
 use super::{
     modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator, utils::Note,
 };
-use crate::audio::{envelope::Envelope, noise_generator::NoiseType};
-use kopek::{
-    oscillator::WaveType,
-    utils::{key_to_frequency, Key},
-};
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum SequencerMode {
-    Wave,
-    Noise,
-}
+use crate::audio::envelope::Envelope;
+use kopek::{oscillator::WaveType, utils::Key};
 
 pub struct Sequencer {
     pub is_running: bool,
-    pub mode: SequencerMode,
     pub modulated_oscillator: ModulatedOscillator,
     pub noise_generator: NoiseGenerator,
     beat_index: u32,
@@ -26,7 +16,8 @@ pub struct Sequencer {
     tick_period: f32,
     beat_duration: f32,
     is_beat: bool,
-    volume: f32,
+    wave_volume: f32,
+    pub noise_volume: f32,
     pub envelope: Envelope,
 }
 
@@ -42,12 +33,10 @@ impl Sequencer {
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
 
         let mut noise_generator = NoiseGenerator::new();
-        *noise_generator.noise_type_mut() = NoiseType::White;
 
         const factor: f32 = 0.2;
         Self {
             is_running: false,
-            mode: SequencerMode::Wave,
             modulated_oscillator: ModulatedOscillator::new(sample_rate),
             noise_generator,
             beat_index: 0,
@@ -58,7 +47,8 @@ impl Sequencer {
             tick_period,
             beat_duration,
             is_beat: false,
-            volume: 0.9,
+            wave_volume: 0.9,
+            noise_volume: 0.1,
             envelope: Envelope::new(0.1 * factor, 0.1 * factor, 0.2 * factor, 0.1 * factor),
         }
     }
@@ -69,20 +59,17 @@ impl Sequencer {
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
 
-        let mut value = match self.mode {
-            SequencerMode::Wave => {
-                self.freq = self.sequence[step_index].get();
-                self.modulated_oscillator.frequency_mut(self.freq);
-                self.modulated_oscillator.run()
-            }
-            SequencerMode::Noise => {
-                if self.sequence[step_index].key != Key::Rest {
-                    self.noise_generator.run()
-                } else {
-                    0.0
-                }
-            }
+        self.freq = self.sequence[step_index].get();
+        self.modulated_oscillator.frequency_mut(self.freq);
+        let mut wave_value = self.modulated_oscillator.run();
+        wave_value = wave_value * self.wave_volume;
+
+        let mut noise_value = if self.sequence[step_index].key != Key::Rest {
+            self.noise_generator.run()
+        } else {
+            0.0
         };
+        noise_value = noise_value * self.noise_volume;
         // self.freq = self.sequence[step_index].get();
         // self.modulated_oscillator.frequency_mut(self.freq);
         // let mut value = self.modulated_oscillator.run();
@@ -97,9 +84,8 @@ impl Sequencer {
         // if envelope > 0.0 {
         //     println!("{:?}", envelope);
         // }
+        let mut value = wave_value + noise_value;
         value *= envelope;
-
-        value *= self.volume;
 
         value
     }
@@ -143,10 +129,10 @@ impl Sequencer {
     }
 
     pub fn volume(&self) -> f32 {
-        self.volume
+        self.wave_volume
     }
 
     pub fn set_volume(&mut self, volume: f32) {
-        self.volume = volume.clamp(0.0, 1.0);
+        self.wave_volume = volume.clamp(0.0, 1.0);
     }
 }
