@@ -13,7 +13,7 @@ impl OscillatorType for VCO {
     }
 
     fn frequency(&self) -> f32 {
-        self.oscillator.get_frequency()
+        self.oscillator.frequency()
     }
 
     fn set_frequency(&mut self, frequency: f32) {
@@ -21,7 +21,7 @@ impl OscillatorType for VCO {
     }
 
     fn wave_type(&self) -> WaveType {
-        self.oscillator.get_wave_type()
+        self.oscillator.wave_type()
     }
 
     fn set_wave_type(&mut self, wave_type: WaveType) {
