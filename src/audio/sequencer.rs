@@ -15,7 +15,7 @@ pub struct Sequencer {
     pub sequence: Vec<Note>,
     tick_period: f32,
     beat_duration: f32,
-    is_beat: bool,
+    on_beat: bool,
     wave_volume: f32,
     pub noise_volume: f32,
     pub envelope: Envelope,
@@ -46,7 +46,7 @@ impl Sequencer {
             sequence,
             tick_period,
             beat_duration,
-            is_beat: false,
+            on_beat: false,
             wave_volume: 0.9,
             noise_volume: 0.1,
             envelope: Envelope::new(0.1 * factor, 0.1 * factor, 0.2 * factor, 0.1 * factor),
@@ -55,7 +55,7 @@ impl Sequencer {
 
     pub fn update(&mut self, elapsed_samples: u32) -> f32 {
         let remainder = elapsed_samples % self.tick_period as u32;
-        self.is_beat = remainder > 0 && remainder < self.beat_duration as u32;
+        self.on_beat = remainder > 0 && remainder < self.beat_duration as u32;
         self.beat_index = elapsed_samples / self.tick_period as u32;
         let step_index = (self.beat_index % self.length as u32) as usize;
 
@@ -96,8 +96,8 @@ impl Sequencer {
     }
 
     // Used to make a sound or visualize
-    pub fn show_beat(&self) -> bool {
-        self.is_beat
+    pub fn on_beat(&self) -> bool {
+        self.on_beat
     }
 
     pub fn frequency(&self) -> f32 {

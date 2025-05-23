@@ -110,7 +110,7 @@ impl Scene {
         queue: &Queue,
         delta_time: f32,
         signal: f32,
-        show_beat: bool,
+        on_beat: bool,
         wave: Arc<Vec<f32>>,
         color_palette: &ColorPalette<f32, 4>,
     ) {

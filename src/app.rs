@@ -120,7 +120,7 @@ impl<'a> App<'a> {
             &self.renderer.queue,
             delta_time,
             signal_peak,
-            self.audio_model.show_beat(),
+            self.audio_model.on_beat(),
             Arc::new(rolling_wave),
             &self.settings.color_palette,
         );

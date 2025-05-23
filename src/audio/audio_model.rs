@@ -151,8 +151,8 @@ impl AudioModel {
         self.signal
     }
 
-    pub fn show_beat(&self) -> bool {
-        self.metronome.show_beat()
+    pub fn on_beat(&self) -> bool {
+        self.metronome.on_beat()
     }
 
     pub fn update(&mut self) {
@@ -174,7 +174,7 @@ impl AudioModel {
             self.rolling_wave.push_back(value);
         }
         self.signal = signal_peak;
-        // if self.metronome.show_beat() {
+        // if self.metronome.on_beat() {
         //     self.input_producer.push(Input::Start).unwrap();
         // } else {
         //     self.input_producer.push(Input::Stop).unwrap();
