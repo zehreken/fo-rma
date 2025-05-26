@@ -1,5 +1,4 @@
-use super::utils::Note;
-use kopek::utils::{self, Key, Octave};
+use kopek::utils::{self, Key, Note, Octave};
 
 pub const JINGLE_BELLS: [f32; 64] = [
     // Verse 1

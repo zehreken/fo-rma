@@ -2,9 +2,8 @@ use super::sequencer::Sequencer;
 use kopek::utils::{Key, Octave};
 use serde::{Deserialize, Serialize};
 use std::{
-    fmt::Error,
     fs::File,
-    io::{Read, Write},
+    io::{Error, Read, Write},
 };
 
 pub fn save_song(sequencers: &Vec<Sequencer>) -> Result<(), Error> {
@@ -23,9 +22,7 @@ pub fn save_song(sequencers: &Vec<Sequencer>) -> Result<(), Error> {
     let serialized = serde_json::to_string_pretty(&song).unwrap();
 
     let mut file = File::create("song.json").unwrap();
-    file.write_all(serialized.as_bytes());
-
-    Ok(())
+    file.write_all(serialized.as_bytes())
 }
 
 pub fn load_song(sequencers: &mut Vec<Sequencer>) {

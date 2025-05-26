@@ -146,10 +146,10 @@ fn random_noise(
             if bgra_to_rbga {
                 pixel.swap(0, 2);
             }
-            let mut rng = rand::thread_rng();
+            let mut rng = rand::rng();
             for channel in 0..3 {
                 // skip alpha channel
-                pixel[channel] = pixel[channel].saturating_add(rng.gen_range(0..50));
+                pixel[channel] = pixel[channel].saturating_add(rng.random_range(0..50));
             }
 
             tightly_packed_data.extend_from_slice(&pixel);
@@ -180,8 +180,8 @@ fn monochrome_noise(
                 pixel.swap(0, 2);
             }
 
-            let mut rng = rand::thread_rng();
-            let rnd = rng.gen_range(0..20);
+            let mut rng = rand::rng();
+            let rnd = rng.random_range(0..20);
             for channel in 0..3 {
                 pixel[channel] = pixel[channel].saturating_add(rnd);
             }

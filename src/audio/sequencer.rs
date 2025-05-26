@@ -1,8 +1,9 @@
-use super::{
-    modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator, utils::Note,
-};
+use super::{modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator};
 use crate::audio::envelope::Envelope;
-use kopek::{oscillator::WaveType, utils::Key};
+use kopek::{
+    oscillator::WaveType,
+    utils::{Key, Note},
+};
 
 pub struct Sequencer {
     pub is_running: bool,
@@ -32,9 +33,9 @@ impl Sequencer {
         let beat_duration = tick_period / 3.0;
         println!("Sequencer: {bpm}, {sample_rate}, {channel_count}, {tick_period}");
 
-        let mut noise_generator = NoiseGenerator::new();
+        let noise_generator = NoiseGenerator::new();
 
-        const factor: f32 = 0.2;
+        const FACTOR: f32 = 0.2;
         Self {
             is_running: false,
             modulated_oscillator: ModulatedOscillator::new(sample_rate),
@@ -49,7 +50,7 @@ impl Sequencer {
             on_beat: false,
             wave_volume: 0.9,
             noise_volume: 0.1,
-            envelope: Envelope::new(0.1 * factor, 0.1 * factor, 0.2 * factor, 0.1 * factor),
+            envelope: Envelope::new(0.1 * FACTOR, 0.1 * FACTOR, 0.2 * FACTOR, 0.1 * FACTOR),
         }
     }
 

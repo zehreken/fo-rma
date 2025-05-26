@@ -7,16 +7,13 @@
 extern crate cpal;
 extern crate ringbuf;
 
-use super::{audio_clock::AudioClock, generator::Input};
-use crate::audio::{sequencer::Sequencer, songs, utils::Note};
+use super::audio_clock::AudioClock;
+use crate::audio::{sequencer::Sequencer, songs};
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream,
 };
-use kopek::{
-    metronome::Metronome,
-    utils::{self, Key, Octave},
-};
+use kopek::metronome::Metronome;
 use ringbuf::{HeapProducer, HeapRb};
 use std::{collections::VecDeque, sync::Arc};
 
@@ -192,4 +189,13 @@ impl AudioModel {
 
 fn err_fn(err: cpal::StreamError) {
     eprintln!("an error occurred on stream: {}", err);
+}
+
+#[derive(Debug)]
+pub enum Input {
+    Start,
+    Stop,
+    ChangeFreq(f32),
+    ChangeOscillator(u8),
+    ChangeNoise(u8),
 }
