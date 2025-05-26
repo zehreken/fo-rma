@@ -61,7 +61,7 @@ impl Sequencer {
         let step_index = (self.beat_index % self.length as u32) as usize;
 
         self.freq = self.sequence[step_index].get();
-        self.modulated_oscillator.frequency_mut(self.freq);
+        self.modulated_oscillator.set_frequency(self.freq);
         let mut wave_value = self.modulated_oscillator.run();
         wave_value = wave_value * self.wave_volume;
 
@@ -106,15 +106,15 @@ impl Sequencer {
     }
 
     pub fn set_frequency(&mut self, frequency: f32) {
-        self.modulated_oscillator.frequency_mut(frequency);
-    }
-
-    pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
-        self.modulated_oscillator.vco_wave_type_mut(wave_type);
+        self.modulated_oscillator.set_frequency(frequency);
     }
 
     pub fn vco_wave_type(&mut self) -> WaveType {
         self.modulated_oscillator.vco_wave_type()
+    }
+
+    pub fn set_vco_wave_type(&mut self, wave_type: WaveType) {
+        self.modulated_oscillator.set_wave_type_mut(wave_type);
     }
 
     pub fn lfo_frequency(&self) -> f32 {
@@ -125,8 +125,12 @@ impl Sequencer {
         self.modulated_oscillator.set_lfo_frequency(frequency);
     }
 
+    pub fn lfo_wave_type(&self) -> WaveType {
+        self.modulated_oscillator.lfo_wave_type()
+    }
+
     pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
-        self.modulated_oscillator.lfo_wave_type_mut(wave_type);
+        self.modulated_oscillator.set_lfo_wave_type(wave_type);
     }
 
     pub fn volume(&self) -> f32 {

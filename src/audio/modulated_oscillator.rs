@@ -29,16 +29,16 @@ impl ModulatedOscillator {
         self.frequency
     }
 
-    pub fn frequency_mut(&mut self, frequency: f32) {
-        self.frequency = frequency
+    pub fn set_frequency(&mut self, frequency: f32) {
+        self.frequency = frequency;
     }
 
-    pub fn vco_wave_type_mut(&mut self, wave_type: WaveType) {
-        self.vco.set_wave_type(wave_type);
-    }
-
-    pub fn vco_wave_type(&mut self) -> WaveType {
+    pub fn vco_wave_type(&self) -> WaveType {
         self.vco.wave_type()
+    }
+
+    pub fn set_wave_type_mut(&mut self, wave_type: WaveType) {
+        self.vco.set_wave_type(wave_type);
     }
 
     pub fn lfo_frequency(&self) -> f32 {
@@ -49,7 +49,11 @@ impl ModulatedOscillator {
         self.lfo.set_frequency(frequency);
     }
 
-    pub fn lfo_wave_type_mut(&mut self, wave_type: WaveType) {
+    pub fn lfo_wave_type(&self) -> WaveType {
+        self.lfo.wave_type()
+    }
+
+    pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
         self.lfo.set_wave_type(wave_type);
     }
 }
