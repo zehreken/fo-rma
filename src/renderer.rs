@@ -16,8 +16,6 @@ use crate::{
 use wgpu::{Device, Queue, Surface, SurfaceConfiguration, SurfaceError, TextureView};
 use winit::{dpi::PhysicalSize, window::Window};
 
-pub const PRIMITIVE_COUNT: u64 = 31;
-
 pub struct Renderer<'a> {
     pub surface: Surface<'a>,
     pub device: Device,
@@ -34,7 +32,7 @@ pub struct Renderer<'a> {
 }
 
 impl<'a> Renderer<'a> {
-    pub async fn new(window: &'a Window) -> Self {
+    pub async fn new(window: &'a Window, primitive_count: usize) -> Self {
         let size = window.inner_size();
         let (instance, surface) = rendering_utils::create_instance_and_surface(window);
         let adapter = rendering_utils::create_adapter(instance, &surface).await;
@@ -57,7 +55,7 @@ impl<'a> Renderer<'a> {
         let render_texture_material = PostProcessMaterial::new(&device, &surface_config, size);
 
         let fill_renderer = FillRenderer::new();
-        let line_renderer = LineRenderer::new(&device, &surface_config);
+        let line_renderer = LineRenderer::new(&device, &surface_config, primitive_count);
         let post_processor = PostProcessor::new(
             &device,
             &render_texture_material.post_process_texture_view,

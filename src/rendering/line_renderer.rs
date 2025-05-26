@@ -5,7 +5,6 @@ use crate::{
         uniforms::{ColorUniform, ObjectUniform},
     },
     material::{debug_material::DebugMaterial, MaterialTrait},
-    renderer::PRIMITIVE_COUNT,
 };
 use wgpu::{
     CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
@@ -17,10 +16,14 @@ pub struct LineRenderer {
 }
 
 impl LineRenderer {
-    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+    pub fn new(
+        device: &Device,
+        surface_config: &SurfaceConfiguration,
+        primitive_count: usize,
+    ) -> Self {
         let mut debug_materials = vec![];
         // Create one debug material for each primitive
-        for _ in 0..PRIMITIVE_COUNT {
+        for _ in 0..primitive_count {
             let debug_material = DebugMaterial::new(device, surface_config);
             debug_materials.push(debug_material);
         }
