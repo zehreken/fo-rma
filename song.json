@@ -2,67 +2,67 @@
   "sequences": [
     [
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       },
       {
-        "octave": 1,
+        "octave": 0,
         "key": 0
       },
       {
-        "octave": 2,
+        "octave": 0,
         "key": 12
       }
     ],
@@ -72,109 +72,109 @@
         "key": 12
       },
       {
-        "octave": 4,
-        "key": 2
-      },
-      {
-        "octave": 4,
-        "key": 2
+        "octave": 2,
+        "key": 0
       },
       {
         "octave": 2,
         "key": 12
       },
       {
-        "octave": 4,
-        "key": 2
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
+        "key": 0
+      }
+    ],
+    [
+      {
+        "octave": 3,
+        "key": 7
+      },
+      {
+        "octave": 3,
+        "key": 9
       },
       {
         "octave": 3,
         "key": 2
       },
       {
-        "octave": 2,
+        "octave": 3,
         "key": 12
       },
       {
-        "octave": 2,
-        "key": 12
+        "octave": 3,
+        "key": 9
       },
       {
-        "octave": 2,
-        "key": 12
-      },
-      {
-        "octave": 2,
-        "key": 12
-      },
-      {
-        "octave": 4,
+        "octave": 3,
         "key": 2
       },
       {
-        "octave": 2,
-        "key": 12
-      },
-      {
-        "octave": 4,
-        "key": 4
-      },
-      {
-        "octave": 2,
-        "key": 12
-      },
-      {
-        "octave": 4,
-        "key": 5
-      },
-      {
-        "octave": 2,
-        "key": 12
-      }
-    ],
-    [
-      {
-        "octave": 4,
-        "key": 12
-      },
-      {
-        "octave": 4,
-        "key": 11
-      },
-      {
-        "octave": 4,
-        "key": 9
-      },
-      {
-        "octave": 4,
-        "key": 11
-      },
-      {
-        "octave": 4,
+        "octave": 3,
         "key": 7
       },
       {
-        "octave": 4,
-        "key": 5
+        "octave": 3,
+        "key": 9
       },
       {
-        "octave": 4,
-        "key": 12
+        "octave": 3,
+        "key": 2
       },
       {
-        "octave": 4,
-        "key": 5
-      },
-      {
-        "octave": 4,
-        "key": 12
-      },
-      {
-        "octave": 4,
+        "octave": 3,
         "key": 4
       },
       {
-        "octave": 4,
+        "octave": 3,
         "key": 12
       },
       {
@@ -182,7 +182,7 @@
         "key": 7
       },
       {
-        "octave": 4,
+        "octave": 3,
         "key": 12
       },
       {
@@ -190,12 +190,12 @@
         "key": 9
       },
       {
-        "octave": 4,
+        "octave": 3,
         "key": 12
       },
       {
-        "octave": 4,
-        "key": 12
+        "octave": 3,
+        "key": 9
       }
     ]
   ]

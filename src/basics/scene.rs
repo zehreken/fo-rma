@@ -94,7 +94,7 @@ impl Scene {
         // material_object_map.insert(MaterialType::WaveMaterial, objects);
 
         let mut light = Light::new(color_utils::CP0.palette[1]);
-        light.set_position(vec3(20.0, 5.0, 20.0));
+        light.set_position(vec3(0.0, 10.0, 0.0));
         let lights = vec![light];
 
         Self {
