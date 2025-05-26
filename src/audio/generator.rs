@@ -50,6 +50,7 @@ impl Generator {
             if !self.producer.is_full() {
                 let mut value = match self.oscillator_type {
                     WaveType::Sine => self.oscillator.sine(),
+                    WaveType::FakeSine => self.oscillator.fake_sine(),
                     WaveType::Sawtooth => self.oscillator.sawtooth(),
                     WaveType::Square { duty } => self.oscillator.square(duty),
                     WaveType::Triangle => self.oscillator.triangle(),
@@ -85,10 +86,12 @@ impl Generator {
                     if osc == 0 {
                         self.oscillator_type = WaveType::Sine;
                     } else if osc == 1 {
-                        self.oscillator_type = WaveType::Sawtooth;
+                        self.oscillator_type = WaveType::FakeSine;
                     } else if osc == 2 {
-                        self.oscillator_type = WaveType::Square { duty: 0.5 };
+                        self.oscillator_type = WaveType::Sawtooth;
                     } else if osc == 3 {
+                        self.oscillator_type = WaveType::Square { duty: 0.5 };
+                    } else if osc == 4 {
                         self.oscillator_type = WaveType::Triangle;
                     }
                 }

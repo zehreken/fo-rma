@@ -34,6 +34,7 @@ pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) 
                 .selected_text(format!("{:?}", selected_wave))
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut selected_wave, WaveType::Sine, "sine");
+                    ui.selectable_value(&mut selected_wave, WaveType::FakeSine, "fake sine");
                     ui.selectable_value(&mut selected_wave, WaveType::Triangle, "triangle");
                     ui.selectable_value(
                         &mut selected_wave,
