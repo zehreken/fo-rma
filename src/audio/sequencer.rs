@@ -1,6 +1,7 @@
-use super::{modulated_oscillator::ModulatedOscillator, noise_generator::NoiseGenerator};
+use super::modulated_oscillator::ModulatedOscillator;
 use crate::audio::envelope::Envelope;
 use kopek::{
+    noise_generator::{NoiseGenerator, NoiseType},
     oscillator::WaveType,
     utils::{Key, Note},
 };
@@ -109,7 +110,7 @@ impl Sequencer {
         self.modulated_oscillator.set_frequency(frequency);
     }
 
-    pub fn vco_wave_type(&mut self) -> WaveType {
+    pub fn vco_wave_type(&self) -> WaveType {
         self.modulated_oscillator.vco_wave_type()
     }
 
@@ -131,6 +132,14 @@ impl Sequencer {
 
     pub fn set_lfo_wave_type(&mut self, wave_type: WaveType) {
         self.modulated_oscillator.set_lfo_wave_type(wave_type);
+    }
+
+    pub fn noise_type(&self) -> NoiseType {
+        self.noise_generator.noise_type
+    }
+
+    pub fn set_noise_type(&mut self, noise_type: NoiseType) {
+        *self.noise_generator.noise_type_mut() = noise_type;
     }
 
     pub fn volume(&self) -> f32 {

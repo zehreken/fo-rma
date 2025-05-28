@@ -1,4 +1,41 @@
 {
+  "sequencers": [
+    {
+      "vco_wave_type": 0,
+      "lfo_wave_type": 0,
+      "noise_type": 0
+    },
+    {
+      "vco_wave_type": 0,
+      "lfo_wave_type": 0,
+      "noise_type": 0
+    },
+    {
+      "vco_wave_type": 0,
+      "lfo_wave_type": 0,
+      "noise_type": 0
+    }
+  ],
+  "envelopes": [
+    {
+      "attack": 0.3,
+      "decay": 0.47,
+      "sustain": 0.24,
+      "release": 0.38
+    },
+    {
+      "attack": 0.020000001,
+      "decay": 0.020000001,
+      "sustain": 0.040000003,
+      "release": 0.020000001
+    },
+    {
+      "attack": 0.020000001,
+      "decay": 0.020000001,
+      "sustain": 0.040000003,
+      "release": 0.020000001
+    }
+  ],
   "sequences": [
     [
       {

@@ -1,5 +1,5 @@
-use crate::audio::{noise_generator::NoiseType, sequencer::Sequencer};
-use kopek::oscillator::WaveType;
+use crate::audio::sequencer::Sequencer;
+use kopek::{noise_generator::NoiseType, oscillator::WaveType};
 
 pub fn draw(ctx: &egui::Context, sequencer: &mut Sequencer, is_open: &mut bool) {
     egui::Window::new("oscillator")
