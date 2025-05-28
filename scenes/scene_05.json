@@ -1,0 +1,1525 @@
+{
+    "name": "scene_05",
+    "camera": {
+        "position": {
+            "x": 0.0,
+            "y": 2.0,
+            "z": -12.0
+        },
+        "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+        },
+        "fov": 60.0
+    },
+    "lights": [
+        {
+            "color": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "intensity": 1.0,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    ],
+    "objects": [
+        {
+            "mesh": "quad",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.7071068286895752,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.7071068286895752
+            },
+            "scale": {
+                "x": 1000.0,
+                "y": 1000.000244140625,
+                "z": 1000.000244140625
+            }
+        },
+        {
+            "mesh": "quad",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 0.0,
+                "y": 25.0,
+                "z": 500.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1000.0,
+                "y": 50.0,
+                "z": 1000.000244140625
+            }
+        },
+        {
+            "mesh": "quad",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 500.0,
+                "y": 25.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071068286895752,
+                "z": 0.0,
+                "w": 0.7071068286895752
+            },
+            "scale": {
+                "x": 1000.0,
+                "y": 50.0,
+                "z": 1000.000244140625
+            }
+        },
+        {
+            "mesh": "quad",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -500.0,
+                "y": 25.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": -0.7071068286895752,
+                "z": 0.0,
+                "w": 0.7071068286895752
+            },
+            "scale": {
+                "x": 1000.0,
+                "y": 50.0,
+                "z": 1000.000244140625
+            }
+        },
+        {
+            "mesh": "quad",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 0.0,
+                "y": 50.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "x": -0.7071068286895752,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 0.7071068286895752
+            },
+            "scale": {
+                "x": 1000.0,
+                "y": 1000.000244140625,
+                "z": 1000.000244140625
+            }
+        },
+        {
+            "mesh": "sphere",
+            "material": "EqualizerMaterial",
+            "position": {
+                "x": 0.0,
+                "y": 10.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 14.0,
+                "y": 14.0,
+                "z": 14.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -1.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": 0.000010728836059570313
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.00000762939453,
+                "y": 25.0,
+                "z": 0.00003504753112792969
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -1.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 11.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 15.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.999988555908204,
+                "y": 25.0,
+                "z": -11.999988555908204
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99998664855957,
+                "y": 25.0,
+                "z": -15.999988555908204
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000011444091798,
+                "y": 25.0,
+                "z": -11.999964714050293
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000015258789064,
+                "y": 25.0,
+                "z": -17.99996566772461
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 11.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 15.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -9.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -13.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.999996185302736,
+                "y": 25.0,
+                "z": 8.000011444091797
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -17.0,
+                "y": 25.0,
+                "z": 14.000011444091797
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000003814697267,
+                "y": 25.0,
+                "z": 8.000035285949707
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.0,
+                "y": 25.0,
+                "z": 14.000035285949707
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -9.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -15.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 3.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": -3.9999895095825197
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.00000762939453,
+                "y": 25.0,
+                "z": -3.999965190887451
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 3.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -7.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": 6.000011444091797
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.999996185302736,
+                "y": 25.0,
+                "z": 12.000011444091797
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.0000057220459,
+                "y": 25.0,
+                "z": 6.000035762786865
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000001907348634,
+                "y": 25.0,
+                "z": 12.000036239624024
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -7.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -13.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 5.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": -5.999988555908203
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000009536743165,
+                "y": 25.0,
+                "z": -5.999964237213135
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 5.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -5.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": 4.0000104904174809
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.0000057220459,
+                "y": 25.0,
+                "z": 4.000035285949707
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -5.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 7.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": -7.999988555908203
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000009536743165,
+                "y": 25.0,
+                "z": -7.999964237213135
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.00001335144043,
+                "y": 25.0,
+                "z": -13.99996566772461
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 7.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -11.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -15.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.999996185302736,
+                "y": 25.0,
+                "z": 10.000011444091797
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -17.0,
+                "y": 25.0,
+                "z": 16.000011444091798
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000003814697267,
+                "y": 25.0,
+                "z": 10.000035285949707
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.0,
+                "y": 25.0,
+                "z": 16.00003433227539
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -11.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -17.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 1.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": -1.9999892711639405
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.00000762939453,
+                "y": 25.0,
+                "z": -1.999964952468872
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 1.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -3.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99999237060547,
+                "y": 25.0,
+                "z": 2.0000107288360597
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.00000762939453,
+                "y": 25.0,
+                "z": 2.000035047531128
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -3.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 9.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 13.0,
+                "y": 25.0,
+                "z": 16.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.999988555908204,
+                "y": 25.0,
+                "z": -9.999990463256836
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": -16.99998664855957,
+                "y": 25.0,
+                "z": -13.999990463256836
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000011444091798,
+                "y": 25.0,
+                "z": -9.999966621398926
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 17.000015258789064,
+                "y": 25.0,
+                "z": -15.999967575073243
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.7071065306663513,
+                "z": 0.0,
+                "w": 0.7071071267127991
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 9.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cube",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 13.0,
+                "y": 25.0,
+                "z": -18.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 50.0,
+                "z": 1.0
+            }
+        }
+    ]
+}
