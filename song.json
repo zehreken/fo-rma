@@ -11,17 +11,17 @@
       "noise_type": 1
     },
     {
-      "vco_wave_type": 1,
+      "vco_wave_type": 4,
       "lfo_wave_type": 2,
       "noise_type": 0
     }
   ],
   "envelopes": [
     {
-      "attack": 0.0,
-      "decay": 0.04,
-      "sustain": 0.025,
-      "release": 0.0
+      "attack": 0.01,
+      "decay": 0.02,
+      "sustain": 0.03,
+      "release": 0.03
     },
     {
       "attack": 0.01,
