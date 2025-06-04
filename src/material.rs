@@ -3,8 +3,10 @@ use wgpu::{BindGroup, Buffer, Queue, RenderPipeline};
 
 pub mod debug_material;
 pub mod diffuse_color_material;
+pub mod diffuse_texture_material;
 pub mod equalizer_material;
 pub mod post_process_material;
+pub mod texture_material;
 pub mod unlit_color_material;
 pub mod wave_material;
 
@@ -24,4 +26,5 @@ pub enum MaterialType {
     PostProcessMaterial,
     UnlitColorMaterial,
     WaveMaterial,
+    TextureMaterial,
 }

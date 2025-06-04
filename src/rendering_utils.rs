@@ -104,6 +104,7 @@ pub fn create_shader_module(device: &Device, material_type: MaterialType) -> Sha
             ("unlit_color", include_str!("shaders/unlit_color.wgsl"))
         }
         MaterialType::WaveMaterial => ("wave", include_str!("shaders/wave.wgsl")),
+        MaterialType::TextureMaterial => todo!(),
     };
 
     let shader_utils = include_str!("shaders/utils.wgsl");
