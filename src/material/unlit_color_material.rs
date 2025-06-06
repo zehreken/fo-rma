@@ -41,14 +41,13 @@ impl MaterialTrait for UnlitColorMaterial {
     }
 
     fn get_id(&self) -> MaterialType {
-        MaterialType::UnlitColorMaterial
+        MaterialType::UnlitColor
     }
 }
 
 impl UnlitColorMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader =
-            rendering_utils::create_shader_module(device, MaterialType::UnlitColorMaterial);
+        let shader = rendering_utils::create_shader_module(device, MaterialType::UnlitColor);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

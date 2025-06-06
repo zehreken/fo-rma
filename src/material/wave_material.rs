@@ -67,14 +67,13 @@ impl MaterialTrait for WaveMaterial {
     }
 
     fn get_id(&self) -> super::MaterialType {
-        super::MaterialType::WaveMaterial
+        super::MaterialType::Wave
     }
 }
 
 impl WaveMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader =
-            rendering_utils::create_shader_module(device, super::MaterialType::WaveMaterial);
+        let shader = rendering_utils::create_shader_module(device, super::MaterialType::Wave);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

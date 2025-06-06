@@ -53,19 +53,19 @@ impl Scene {
             let material_type: MaterialType;
             let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
             {
-                material_type = MaterialType::DiffuseColorMaterial;
+                material_type = MaterialType::DiffuseColor;
                 Box::new(DiffuseColorMaterial::new(device, surface_config))
             } else if object_data.material == "EqualizerMaterial" {
-                material_type = MaterialType::EqualizerMaterial;
+                material_type = MaterialType::Equalizer;
                 Box::new(EqualizerMaterial::new(device, surface_config))
             } else if object_data.material == "UnlitColorMaterial" {
-                material_type = MaterialType::UnlitColorMaterial;
+                material_type = MaterialType::UnlitColor;
                 Box::new(UnlitColorMaterial::new(device, surface_config))
             } else if object_data.material == "WaveMaterial" {
-                material_type = MaterialType::WaveMaterial;
+                material_type = MaterialType::Wave;
                 Box::new(WaveMaterial::new(device, surface_config))
             } else {
-                material_type = MaterialType::DiffuseColorMaterial;
+                material_type = MaterialType::DiffuseColor;
                 Box::new(DiffuseColorMaterial::new(device, surface_config))
             };
             let mut object: Box<dyn Primitive> = if object_data.mesh == "cube" {
@@ -124,7 +124,7 @@ impl Scene {
         //     8.0 * self.elapsed.sin(),
         // ));
         for (material_id, objects) in &mut self.material_object_map {
-            if *material_id == MaterialType::EqualizerMaterial {
+            if *material_id == MaterialType::Equalizer {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {
@@ -152,7 +152,7 @@ impl Scene {
                     };
                     primitive.material().update(queue, &data);
                 }
-            } else if *material_id == MaterialType::DiffuseColorMaterial {
+            } else if *material_id == MaterialType::DiffuseColor {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {
@@ -176,7 +176,7 @@ impl Scene {
                     };
                     primitive.material().update(queue, &data);
                 }
-            } else if *material_id == MaterialType::WaveMaterial {
+            } else if *material_id == MaterialType::Wave {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {

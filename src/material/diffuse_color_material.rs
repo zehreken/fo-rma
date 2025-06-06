@@ -43,14 +43,13 @@ impl MaterialTrait for DiffuseColorMaterial {
     }
 
     fn get_id(&self) -> MaterialType {
-        MaterialType::DiffuseColorMaterial
+        MaterialType::DiffuseColor
     }
 }
 
 impl DiffuseColorMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader =
-            rendering_utils::create_shader_module(device, MaterialType::DiffuseColorMaterial);
+        let shader = rendering_utils::create_shader_module(device, MaterialType::DiffuseColor);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

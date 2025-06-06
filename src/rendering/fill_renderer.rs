@@ -1,7 +1,7 @@
 use crate::{
     basics::scene::Scene,
     color_utils::{self, ColorPalette},
-    material::MaterialType,
+    material::{self, MaterialType},
 };
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
@@ -59,7 +59,7 @@ impl FillRenderer {
         });
 
         for (material_id, objects) in &level.material_object_map {
-            if *material_id == MaterialType::EqualizerMaterial {
+            if *material_id == MaterialType::Equalizer {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -69,7 +69,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::UnlitColorMaterial {
+            } else if *material_id == MaterialType::UnlitColor {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -78,7 +78,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::DiffuseColorMaterial {
+            } else if *material_id == MaterialType::DiffuseColor {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -88,7 +88,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::WaveMaterial {
+            } else if *material_id == MaterialType::Wave {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -99,6 +99,8 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
+            } else if *material_id == MaterialType::Texture {
+            } else if *material_id == MaterialType::DiffuseTexture {
             }
         }
 

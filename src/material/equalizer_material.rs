@@ -43,13 +43,13 @@ impl MaterialTrait for EqualizerMaterial {
     }
 
     fn get_id(&self) -> MaterialType {
-        MaterialType::EqualizerMaterial
+        MaterialType::Equalizer
     }
 }
 
 impl EqualizerMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = rendering_utils::create_shader_module(device, MaterialType::EqualizerMaterial);
+        let shader = rendering_utils::create_shader_module(device, MaterialType::Equalizer);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

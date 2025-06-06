@@ -92,19 +92,14 @@ pub async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, 
 
 pub fn create_shader_module(device: &Device, material_type: MaterialType) -> ShaderModule {
     let (name, shader_main) = match material_type {
-        MaterialType::DebugMaterial => ("debug", include_str!("shaders/debug.wgsl")),
-        MaterialType::DiffuseColorMaterial => {
-            ("diffuse_color", include_str!("shaders/diffuse_color.wgsl"))
-        }
-        MaterialType::EqualizerMaterial => ("equalizer", include_str!("shaders/equalizer.wgsl")),
-        MaterialType::PostProcessMaterial => {
-            ("screen_quad", include_str!("shaders/screen_quad.wgsl"))
-        }
-        MaterialType::UnlitColorMaterial => {
-            ("unlit_color", include_str!("shaders/unlit_color.wgsl"))
-        }
-        MaterialType::WaveMaterial => ("wave", include_str!("shaders/wave.wgsl")),
-        MaterialType::TextureMaterial => todo!(),
+        MaterialType::Debug => ("debug", include_str!("shaders/debug.wgsl")),
+        MaterialType::DiffuseColor => ("diffuse_color", include_str!("shaders/diffuse_color.wgsl")),
+        MaterialType::Equalizer => ("equalizer", include_str!("shaders/equalizer.wgsl")),
+        MaterialType::PostProcess => ("screen_quad", include_str!("shaders/screen_quad.wgsl")),
+        MaterialType::UnlitColor => ("unlit_color", include_str!("shaders/unlit_color.wgsl")),
+        MaterialType::Wave => ("wave", include_str!("shaders/wave.wgsl")),
+        MaterialType::Texture => todo!(),
+        MaterialType::DiffuseTexture => todo!(),
     };
 
     let shader_utils = include_str!("shaders/utils.wgsl");

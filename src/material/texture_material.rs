@@ -1,13 +1,13 @@
 use crate::{
-    basics::uniforms::ObjectUniform,
+    basics::uniforms::{ObjectUniform, TextureUniform},
     material::{MaterialTrait, MaterialType},
     rendering_utils,
 };
-use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration, Texture, TextureView};
 
 pub struct TextureUniforms {
     pub object: ObjectUniform,
-    // pub texture
+    pub texture: TextureUniform,
 }
 
 pub struct TextureMaterial {
@@ -34,13 +34,13 @@ impl MaterialTrait for TextureMaterial {
     }
 
     fn get_id(&self) -> MaterialType {
-        MaterialType::TextureMaterial
+        MaterialType::Texture
     }
 }
 
 impl TextureMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = rendering_utils::create_shader_module(device, MaterialType::TextureMaterial);
+        let shader = rendering_utils::create_shader_module(device, MaterialType::Texture);
 
         todo!()
     }

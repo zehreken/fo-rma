@@ -20,11 +20,12 @@ pub trait MaterialTrait {
 
 #[derive(PartialEq, Eq, Hash)]
 pub enum MaterialType {
-    DebugMaterial,
-    DiffuseColorMaterial,
-    EqualizerMaterial,
-    PostProcessMaterial,
-    UnlitColorMaterial,
-    WaveMaterial,
-    TextureMaterial,
+    Debug,
+    DiffuseColor,
+    Equalizer,
+    PostProcess,
+    UnlitColor,
+    Wave,
+    Texture,
+    DiffuseTexture,
 }

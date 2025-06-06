@@ -32,13 +32,13 @@ impl MaterialTrait for DebugMaterial {
     fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {}
 
     fn get_id(&self) -> MaterialType {
-        MaterialType::DebugMaterial
+        MaterialType::Debug
     }
 }
 
 impl DebugMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = rendering_utils::create_shader_module(device, MaterialType::DebugMaterial);
+        let shader = rendering_utils::create_shader_module(device, MaterialType::Debug);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
