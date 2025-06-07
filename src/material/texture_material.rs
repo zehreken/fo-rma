@@ -19,8 +19,6 @@ pub struct TextureMaterial {
     render_pipeline: RenderPipeline,
     buffers: [Buffer; 1],
     bind_groups: [BindGroup; 2],
-    // texture: (Texture, TextureView),
-    // image_buffer: ImageBuffer<Rgba<u8>, Vec<u8>>,
 }
 
 impl MaterialTrait for TextureMaterial {
@@ -50,7 +48,8 @@ impl MaterialTrait for TextureMaterial {
 impl TextureMaterial {
     pub fn new(device: &Device, queue: &Queue, surface_config: &SurfaceConfiguration) -> Self {
         let diffuse_bytes = include_bytes!("../../textures/uv.png");
-        let diffuse_image = image::load_from_memory(diffuse_bytes).unwrap();
+        let diffuse_image = image::load_from_memory(diffuse_bytes)
+            .expect("Failed to load texture image from memory: ../../textures/uv.png");
         let diffuse_rgba = diffuse_image.to_rgba8();
         use image::GenericImageView;
         let dimensions = diffuse_image.dimensions();
@@ -167,9 +166,9 @@ impl TextureMaterial {
             multiview: None,
         });
 
-        let size = Extent3d {
-            width: 512,
-            height: 512,
+        let texture_extent = Extent3d {
+            width: dimensions.0,
+            height: dimensions.1,
             depth_or_array_layers: 1,
         };
         queue.write_texture(
@@ -182,10 +181,10 @@ impl TextureMaterial {
             &diffuse_rgba,
             wgpu::ImageDataLayout {
                 offset: 0,
-                bytes_per_row: Some(4 * 512),
-                rows_per_image: Some(512),
+                bytes_per_row: Some(4 * dimensions.0),
+                rows_per_image: Some(dimensions.1),
             },
-            size,
+            texture_extent,
         );
 
         let buffers = [object_uniform_buffer];
@@ -195,8 +194,6 @@ impl TextureMaterial {
             render_pipeline,
             buffers,
             bind_groups,
-            // texture: (texture, texture_view),
-            // image_buffer: diffuse_rgba,
         }
     }
 }
