@@ -69,6 +69,7 @@ impl<'a> App<'a> {
 
         let scene = Scene::new(
             &renderer.device,
+            &renderer.queue,
             &renderer.surface_config,
             size,
             &scene_data,

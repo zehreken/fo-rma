@@ -95,10 +95,9 @@ pub fn create_shader_module(device: &Device, material_type: MaterialType) -> Sha
         MaterialType::Debug => ("debug", include_str!("shaders/debug.wgsl")),
         MaterialType::DiffuseColor => ("diffuse_color", include_str!("shaders/diffuse_color.wgsl")),
         MaterialType::Equalizer => ("equalizer", include_str!("shaders/equalizer.wgsl")),
-        MaterialType::PostProcess => ("screen_quad", include_str!("shaders/screen_quad.wgsl")),
         MaterialType::UnlitColor => ("unlit_color", include_str!("shaders/unlit_color.wgsl")),
         MaterialType::Wave => ("wave", include_str!("shaders/wave.wgsl")),
-        MaterialType::Texture => todo!(),
+        MaterialType::Texture => ("texture", include_str!("shaders/texture.wgsl")),
         MaterialType::DiffuseTexture => todo!(),
     };
 
@@ -110,6 +109,32 @@ pub fn create_shader_module(device: &Device, material_type: MaterialType) -> Sha
     });
 
     shader
+}
+
+pub fn create_texture(
+    device: &Device,
+    texture_format: &TextureFormat,
+    size: PhysicalSize<u32>,
+) -> (Texture, TextureView) {
+    let size = wgpu::Extent3d {
+        width: size.width,
+        height: size.height,
+        depth_or_array_layers: 1,
+    };
+    let texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("test_texture"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: *texture_format,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        view_formats: &[],
+    });
+
+    let texture_view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+    (texture, texture_view)
 }
 
 pub fn create_render_texture(

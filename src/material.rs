@@ -23,7 +23,6 @@ pub enum MaterialType {
     Debug,
     DiffuseColor,
     Equalizer,
-    PostProcess,
     UnlitColor,
     Wave,
     Texture,

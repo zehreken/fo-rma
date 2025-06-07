@@ -14,6 +14,7 @@ use crate::{
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
         equalizer_material::{EqualizerMaterial, EqualizerUniforms},
+        texture_material::{TextureMaterial, TextureUniforms},
         unlit_color_material::UnlitColorMaterial,
         wave_material::{WaveMaterial, WaveUniforms},
         MaterialTrait, MaterialType,
@@ -34,6 +35,7 @@ pub struct Scene {
 impl Scene {
     pub fn new(
         device: &Device,
+        queue: &Queue,
         surface_config: &SurfaceConfiguration,
         size: PhysicalSize<u32>,
         scene_data: &SceneData,
@@ -64,6 +66,11 @@ impl Scene {
             } else if object_data.material == "WaveMaterial" {
                 material_type = MaterialType::Wave;
                 Box::new(WaveMaterial::new(device, surface_config))
+            } else if object_data.material == "Texture" {
+                material_type = MaterialType::Texture;
+                Box::new(TextureMaterial::new(device, queue, surface_config))
+            } else if object_data.material == "DiffuseTexture" {
+                todo!()
             } else {
                 material_type = MaterialType::DiffuseColor;
                 Box::new(DiffuseColorMaterial::new(device, surface_config))
@@ -198,6 +205,19 @@ impl Scene {
                         color2,
                         wave: Arc::clone(&wave),
                     };
+                    primitive.material().update(queue, &data);
+                }
+            } else if *material_id == MaterialType::Texture {
+                for primitive in objects {
+                    primitive.update(delta_time);
+                    let object = ObjectUniform {
+                        view_proj: self.camera.build_view_projection_matrix(),
+                        model: primitive.model_matrix(),
+                        normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
+                        normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
+                        normal3: primitive.normal_matrix().z_axis.extend(0.0).to_array(),
+                    };
+                    let data = TextureUniforms { object };
                     primitive.material().update(queue, &data);
                 }
             }

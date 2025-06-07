@@ -8,7 +8,7 @@ struct Object {
 // Vertex shader
 struct VertexInput {
     @location(0) position: vec3<f32>,
-    @location(1) tex_coords: vec2<f32>,
+    @location(1) color: vec3<f32>,
     @location(2) normal: vec3<f32>,
     @location(3) uv: vec2<f32>,
 }
@@ -23,7 +23,7 @@ struct VertexOutput {
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    out.tex_coords = model.tex_coords;
+    out.tex_coords = vec2<f32>(model.uv.x, 1.0 - model.uv.y);
     let world_position = (object.model * vec4<f32>(model.position, 1.0)).xyz;
     out.world_position = world_position;
     out.world_normal = object.normal * model.normal;
