@@ -20,12 +20,12 @@ fn vs_main(model: VertexInput) -> VertexOutput {
 }
 
 @group(0) @binding(0)
-var my_texture: texture_2d<f32>;
+var t_texture: texture_2d<f32>;
 @group(0) @binding(1)
-var my_sampler: sampler;
+var t_sampler: sampler;
  
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return textureSample(my_texture, my_sampler, in.uv);
+    return textureSample(t_texture, t_sampler, in.uv);
     // return vec4<f32>(1.0, 0.0, 0.0, 1.0); // Red-Green debug visualization
 }
