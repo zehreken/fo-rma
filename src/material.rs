@@ -15,11 +15,11 @@ pub trait MaterialTrait {
     fn buffers(&self) -> &[Buffer];
     fn bind_groups(&self) -> &[BindGroup];
     fn update(&self, queue: &Queue, data: &dyn Any);
-    fn get_id(&self) -> MaterialType;
+    fn get_id(&self) -> Material;
 }
 
 #[derive(PartialEq, Eq, Hash)]
-pub enum MaterialType {
+pub enum Material {
     Debug,
     DiffuseColor,
     Equalizer,

@@ -1,4 +1,4 @@
-use crate::material::MaterialType;
+use crate::material::Material;
 use wgpu::{
     BindGroup, BindGroupLayout, Device, Extent3d, ShaderModule, SurfaceCapabilities, Texture,
     TextureFormat, TextureView,
@@ -90,15 +90,15 @@ pub async fn create_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, 
     (device, queue)
 }
 
-pub fn create_shader_module(device: &Device, material_type: MaterialType) -> ShaderModule {
+pub fn create_shader_module(device: &Device, material_type: Material) -> ShaderModule {
     let (name, shader_main) = match material_type {
-        MaterialType::Debug => ("debug", include_str!("shaders/debug.wgsl")),
-        MaterialType::DiffuseColor => ("diffuse_color", include_str!("shaders/diffuse_color.wgsl")),
-        MaterialType::Equalizer => ("equalizer", include_str!("shaders/equalizer.wgsl")),
-        MaterialType::UnlitColor => ("unlit_color", include_str!("shaders/unlit_color.wgsl")),
-        MaterialType::Wave => ("wave", include_str!("shaders/wave.wgsl")),
-        MaterialType::Texture => ("texture", include_str!("shaders/texture.wgsl")),
-        MaterialType::DiffuseTexture => todo!(),
+        Material::Debug => ("debug", include_str!("shaders/debug.wgsl")),
+        Material::DiffuseColor => ("diffuse_color", include_str!("shaders/diffuse_color.wgsl")),
+        Material::Equalizer => ("equalizer", include_str!("shaders/equalizer.wgsl")),
+        Material::UnlitColor => ("unlit_color", include_str!("shaders/unlit_color.wgsl")),
+        Material::Wave => ("wave", include_str!("shaders/wave.wgsl")),
+        Material::Texture => ("texture", include_str!("shaders/texture.wgsl")),
+        Material::DiffuseTexture => todo!(),
     };
 
     let shader_utils = include_str!("shaders/utils.wgsl");

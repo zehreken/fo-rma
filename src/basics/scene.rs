@@ -17,7 +17,7 @@ use crate::{
         texture_material::{TextureMaterial, TextureUniforms},
         unlit_color_material::UnlitColorMaterial,
         wave_material::{WaveMaterial, WaveUniforms},
-        MaterialTrait, MaterialType,
+        MaterialTrait, Material,
     },
 };
 use glam::vec3;
@@ -27,7 +27,7 @@ use winit::dpi::PhysicalSize;
 
 pub struct Scene {
     pub camera: Camera,
-    pub material_object_map: HashMap<MaterialType, Vec<Box<dyn Primitive>>>,
+    pub material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>>,
     pub lights: Vec<Light>,
     elapsed: f32,
 }
@@ -49,30 +49,30 @@ impl Scene {
             1000.0,
         );
 
-        let mut material_object_map: HashMap<MaterialType, Vec<Box<dyn Primitive>>> =
+        let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> =
             HashMap::new();
         for object_data in &scene_data.objects {
-            let material_type: MaterialType;
+            let material_type: Material;
             let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
             {
-                material_type = MaterialType::DiffuseColor;
+                material_type = Material::DiffuseColor;
                 Box::new(DiffuseColorMaterial::new(device, surface_config))
             } else if object_data.material == "EqualizerMaterial" {
-                material_type = MaterialType::Equalizer;
+                material_type = Material::Equalizer;
                 Box::new(EqualizerMaterial::new(device, surface_config))
             } else if object_data.material == "UnlitColorMaterial" {
-                material_type = MaterialType::UnlitColor;
+                material_type = Material::UnlitColor;
                 Box::new(UnlitColorMaterial::new(device, surface_config))
             } else if object_data.material == "WaveMaterial" {
-                material_type = MaterialType::Wave;
+                material_type = Material::Wave;
                 Box::new(WaveMaterial::new(device, surface_config))
             } else if object_data.material == "Texture" {
-                material_type = MaterialType::Texture;
+                material_type = Material::Texture;
                 Box::new(TextureMaterial::new(device, queue, surface_config))
             } else if object_data.material == "DiffuseTexture" {
                 todo!()
             } else {
-                material_type = MaterialType::DiffuseColor;
+                material_type = Material::DiffuseColor;
                 Box::new(DiffuseColorMaterial::new(device, surface_config))
             };
             let mut object: Box<dyn Primitive> = if object_data.mesh == "cube" {
@@ -131,7 +131,7 @@ impl Scene {
         //     8.0 * self.elapsed.sin(),
         // ));
         for (material_id, objects) in &mut self.material_object_map {
-            if *material_id == MaterialType::Equalizer {
+            if *material_id == Material::Equalizer {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {
@@ -159,7 +159,7 @@ impl Scene {
                     };
                     primitive.material().update(queue, &data);
                 }
-            } else if *material_id == MaterialType::DiffuseColor {
+            } else if *material_id == Material::DiffuseColor {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {
@@ -183,7 +183,7 @@ impl Scene {
                     };
                     primitive.material().update(queue, &data);
                 }
-            } else if *material_id == MaterialType::Wave {
+            } else if *material_id == Material::Wave {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {
@@ -207,7 +207,7 @@ impl Scene {
                     };
                     primitive.material().update(queue, &data);
                 }
-            } else if *material_id == MaterialType::Texture {
+            } else if *material_id == Material::Texture {
                 for primitive in objects {
                     primitive.update(delta_time);
                     let object = ObjectUniform {

@@ -1,4 +1,4 @@
-use super::{MaterialTrait, MaterialType};
+use super::{MaterialTrait, Material};
 use crate::{
     basics::{
         core::Vertex,
@@ -40,14 +40,14 @@ impl MaterialTrait for UnlitColorMaterial {
         }
     }
 
-    fn get_id(&self) -> MaterialType {
-        MaterialType::UnlitColor
+    fn get_id(&self) -> Material {
+        Material::UnlitColor
     }
 }
 
 impl UnlitColorMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = rendering_utils::create_shader_module(device, MaterialType::UnlitColor);
+        let shader = rendering_utils::create_shader_module(device, Material::UnlitColor);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

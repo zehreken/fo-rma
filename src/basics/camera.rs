@@ -85,7 +85,7 @@ impl Camera {
     }
 
     pub fn move_y(&mut self, plus: bool) {
-        // self.eye.y += if plus { DIST } else { -DIST };
+        self.eye.y += if plus { DIST } else { -DIST };
         // self.target.y += if plus { DIST } else { -DIST };
     }
 

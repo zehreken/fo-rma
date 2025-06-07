@@ -8,7 +8,7 @@ use crate::{
 use std::mem;
 use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
-use super::{MaterialTrait, MaterialType};
+use super::{MaterialTrait, Material};
 
 pub struct DebugMaterial {
     render_pipeline: RenderPipeline,
@@ -31,14 +31,14 @@ impl MaterialTrait for DebugMaterial {
 
     fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {}
 
-    fn get_id(&self) -> MaterialType {
-        MaterialType::Debug
+    fn get_id(&self) -> Material {
+        Material::Debug
     }
 }
 
 impl DebugMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = rendering_utils::create_shader_module(device, MaterialType::Debug);
+        let shader = rendering_utils::create_shader_module(device, Material::Debug);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {

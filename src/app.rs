@@ -100,7 +100,7 @@ impl<'a> App<'a> {
         }
     }
 
-    fn input(&mut self, event: &WindowEvent) -> bool {
+    fn _input(&mut self, _event: &WindowEvent) -> bool {
         todo!()
     }
 
@@ -139,7 +139,7 @@ impl<'a> App<'a> {
         for ui_event in self.ui_events.iter() {
             match ui_event {
                 UiEvent::SaveSong => {
-                    song::save_song(sequencers);
+                    let _r = song::save_song(sequencers);
                 }
                 UiEvent::LoadSong => {
                     song::load_song(sequencers);
@@ -179,7 +179,7 @@ pub async fn start() {
     let window = create_window(size, &event_loop);
     let app = App::new(&window).await;
 
-    let r = run_event_loop(event_loop, app, input);
+    let _r = run_event_loop(event_loop, app, input);
 }
 
 fn run_event_loop(

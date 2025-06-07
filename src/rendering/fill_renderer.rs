@@ -1,7 +1,7 @@
 use crate::{
     basics::scene::Scene,
     color_utils::{self, ColorPalette},
-    material::{self, MaterialType},
+    material::Material,
 };
 use wgpu::{
     Color, CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
@@ -59,7 +59,7 @@ impl FillRenderer {
         });
 
         for (material_id, objects) in &level.material_object_map {
-            if *material_id == MaterialType::Equalizer {
+            if *material_id == Material::Equalizer {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -69,7 +69,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::UnlitColor {
+            } else if *material_id == Material::UnlitColor {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -78,7 +78,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::DiffuseColor {
+            } else if *material_id == Material::DiffuseColor {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -88,7 +88,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::Wave {
+            } else if *material_id == Material::Wave {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -99,7 +99,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::Texture {
+            } else if *material_id == Material::Texture {
                 for primitive in objects {
                     render_pass.set_pipeline(&primitive.material().render_pipeline());
 
@@ -108,7 +108,7 @@ impl FillRenderer {
 
                     primitive.draw(&mut render_pass);
                 }
-            } else if *material_id == MaterialType::DiffuseTexture {
+            } else if *material_id == Material::DiffuseTexture {
             }
         }
 

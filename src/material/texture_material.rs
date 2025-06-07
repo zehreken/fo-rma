@@ -1,14 +1,10 @@
 use crate::{
     basics::{core::Vertex, uniforms::ObjectUniform},
-    material::{MaterialTrait, MaterialType},
+    material::{Material, MaterialTrait},
     rendering_utils,
 };
-use image::{ImageBuffer, Rgba};
 use std::mem;
-use wgpu::{
-    BindGroup, Buffer, Device, Extent3d, Queue, RenderPipeline, SurfaceConfiguration, Texture,
-    TextureView,
-};
+use wgpu::{BindGroup, Buffer, Device, Extent3d, Queue, RenderPipeline, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 
 pub struct TextureUniforms {
@@ -40,8 +36,8 @@ impl MaterialTrait for TextureMaterial {
         }
     }
 
-    fn get_id(&self) -> MaterialType {
-        MaterialType::Texture
+    fn get_id(&self) -> Material {
+        Material::Texture
     }
 }
 
@@ -54,7 +50,7 @@ impl TextureMaterial {
         use image::GenericImageView;
         let dimensions = diffuse_image.dimensions();
 
-        let shader = rendering_utils::create_shader_module(device, MaterialType::Texture);
+        let shader = rendering_utils::create_shader_module(device, Material::Texture);
 
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("object_uniform_buffer"),

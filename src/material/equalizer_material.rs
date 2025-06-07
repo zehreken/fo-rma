@@ -1,4 +1,4 @@
-use super::{MaterialTrait, MaterialType};
+use super::{MaterialTrait, Material};
 use crate::{
     basics::{
         core::Vertex,
@@ -42,14 +42,14 @@ impl MaterialTrait for EqualizerMaterial {
         }
     }
 
-    fn get_id(&self) -> MaterialType {
-        MaterialType::Equalizer
+    fn get_id(&self) -> Material {
+        Material::Equalizer
     }
 }
 
 impl EqualizerMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let shader = rendering_utils::create_shader_module(device, MaterialType::Equalizer);
+        let shader = rendering_utils::create_shader_module(device, Material::Equalizer);
 
         // Object uniform, bind group
         let object_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
