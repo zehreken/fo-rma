@@ -1,7 +1,8 @@
 use glam::{Mat4, Vec3};
 use winit::dpi::PhysicalSize;
 
-const DIST: f32 = 0.1;
+const SPEED: f32 = 0.5;
+const FAST_SPEED: f32 = 1.0;
 
 pub struct Camera {
     pub eye: Vec3,
@@ -13,6 +14,7 @@ pub struct Camera {
     pub fov_y: f32,
     pub z_near: f32,
     pub z_far: f32,
+    pub is_fast: bool,
 }
 
 impl Camera {
@@ -29,6 +31,7 @@ impl Camera {
             fov_y,
             z_near,
             z_far,
+            is_fast: false,
         };
 
         camera
@@ -73,8 +76,13 @@ impl Camera {
         self.pitch = self.pitch.clamp(-1.0, 1.0);
     }
 
+    pub fn set_fast(&mut self, is_fast: bool) {
+        self.is_fast = is_fast;
+    }
+
     pub fn move_x(&mut self, plus: bool) {
-        let factor = if plus { -0.5 } else { 0.5 };
+        let speed = if self.is_fast { FAST_SPEED } else { SPEED };
+        let factor = if plus { -speed } else { speed };
         let forward = Vec3::new(
             self.yaw.cos() * self.pitch.cos(),
             self.pitch.sin(),
@@ -85,12 +93,14 @@ impl Camera {
     }
 
     pub fn move_y(&mut self, plus: bool) {
-        self.eye.y += if plus { DIST } else { -DIST };
+        let speed = if self.is_fast { FAST_SPEED } else { SPEED };
+        self.eye.y += if plus { speed } else { -speed };
         // self.target.y += if plus { DIST } else { -DIST };
     }
 
     pub fn move_z(&mut self, plus: bool) {
-        let factor = if plus { -0.5 } else { 0.5 };
+        let speed = if self.is_fast { FAST_SPEED } else { SPEED };
+        let factor = if plus { -speed } else { speed };
         let forward = Vec3::new(
             self.yaw.cos() * self.pitch.cos(),
             self.pitch.sin(),
@@ -101,14 +111,14 @@ impl Camera {
     }
 
     pub fn orbit_x(&mut self, plus: bool) {
-        self.eye.x += if plus { DIST } else { -DIST };
+        self.eye.x += if plus { SPEED } else { -SPEED };
     }
 
     pub fn orbit_y(&mut self, plus: bool) {
-        self.eye.y += if plus { DIST } else { -DIST };
+        self.eye.y += if plus { SPEED } else { -SPEED };
     }
 
     pub fn orbit_z(&mut self, plus: bool) {
-        self.eye.z += if plus { DIST } else { -DIST };
+        self.eye.z += if plus { SPEED } else { -SPEED };
     }
 }

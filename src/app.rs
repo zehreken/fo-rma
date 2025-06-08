@@ -61,7 +61,7 @@ impl Settings {
 
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
-        let json = include_str!("../scenes/scene_05.json");
+        let json = include_str!("../scenes/scene_02.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let size = window.inner_size();
@@ -194,6 +194,7 @@ fn run_event_loop(
                 return;
             }
             if !app.settings.lock_camera {
+                app.scene.camera.set_fast(input.held_shift());
                 if input.key_held(KeyCode::KeyW) {
                     app.scene.camera.move_z(false);
                 }
@@ -212,26 +213,26 @@ fn run_event_loop(
                 if input.key_held(KeyCode::KeyE) {
                     app.scene.camera.move_y(false);
                 }
-                if input.held_shift() {
-                    if input.key_held(KeyCode::KeyW) {
-                        app.scene.camera.orbit_z(false);
-                    }
-                    if input.key_held(KeyCode::KeyA) {
-                        app.scene.camera.orbit_x(false);
-                    }
-                    if input.key_held(KeyCode::KeyS) {
-                        app.scene.camera.orbit_z(true);
-                    }
-                    if input.key_held(KeyCode::KeyD) {
-                        app.scene.camera.orbit_x(true);
-                    }
-                    if input.key_held(KeyCode::KeyQ) {
-                        app.scene.camera.orbit_y(true);
-                    }
-                    if input.key_held(KeyCode::KeyE) {
-                        app.scene.camera.orbit_y(false);
-                    }
-                }
+                // if input.held_shift() {
+                //     if input.key_held(KeyCode::KeyW) {
+                //         app.scene.camera.orbit_z(false);
+                //     }
+                //     if input.key_held(KeyCode::KeyA) {
+                //         app.scene.camera.orbit_x(false);
+                //     }
+                //     if input.key_held(KeyCode::KeyS) {
+                //         app.scene.camera.orbit_z(true);
+                //     }
+                //     if input.key_held(KeyCode::KeyD) {
+                //         app.scene.camera.orbit_x(true);
+                //     }
+                //     if input.key_held(KeyCode::KeyQ) {
+                //         app.scene.camera.orbit_y(true);
+                //     }
+                //     if input.key_held(KeyCode::KeyE) {
+                //         app.scene.camera.orbit_y(false);
+                //     }
+                // }
                 app.scene
                     .camera
                     .rotate(input.mouse_diff().0, input.mouse_diff().1);
