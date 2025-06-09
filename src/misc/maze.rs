@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    hash::Hash,
-};
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
 pub struct Cell {
@@ -52,16 +49,25 @@ pub fn GenerateMaze() {
     let mut visited: HashSet<u8> = HashSet::new();
     let mut frontier: HashSet<u8> = HashSet::new();
 
-    visited.insert(start_id);
+    dbg!(&grid);
+    dbg!(&id_to_cell);
 
-    dbg!(grid);
-    dbg!(id_to_cell);
-
-    // Dig(&mut visited, &mut frontier);
+    Dig(start_id, &id_to_cell, &mut visited, &mut frontier);
 }
 
-pub fn Dig(visited: &mut HashSet<u8>, frontier: &mut HashSet<u8>) {
-    todo!()
+pub fn Dig(
+    start_id: u8,
+    id_to_cell: &HashMap<u8, Cell>,
+    visited: &mut HashSet<u8>,
+    frontier: &mut HashSet<u8>,
+) {
+    visited.insert(start_id);
+
+    for neighbor in &id_to_cell.get(&start_id).unwrap().neighbors {
+        if !visited.contains(neighbor) {
+            Dig(*neighbor, id_to_cell, visited, frontier);
+        }
+    }
 }
 
 fn unique_id(column: u8, row: u8, width: u8) -> u8 {
