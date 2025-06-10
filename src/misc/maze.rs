@@ -24,7 +24,30 @@ impl Edge {
 }
 
 #[test]
-pub fn GenerateMaze() {
+pub fn generate_texture() {
+    let edge_to_connected = generate_maze();
+
+    const WIDTH: u32 = 4 * 300;
+    const HEIGHT: u32 = 4 * 300;
+
+    let mut tightly_packed_data: Vec<u8> = Vec::new();
+    for column in 0..WIDTH {
+        for row in 0..HEIGHT {
+            let v = (((row * column) as f32 / (WIDTH * HEIGHT) as f32) * 255.0) as u8;
+            // println!("{} {} {} {}", v, row, column, row * WIDTH + column);
+            tightly_packed_data.push(v);
+            tightly_packed_data.push(v);
+            tightly_packed_data.push(v);
+            tightly_packed_data.push(v);
+        }
+    }
+    let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
+        image::ImageBuffer::from_raw(WIDTH, HEIGHT, tightly_packed_data).unwrap();
+    let image_path = format!("out/basic-maze.png");
+    buffer.save(&image_path).unwrap();
+}
+
+pub fn generate_maze() -> HashMap<Edge, bool> {
     const WIDTH: usize = 3;
     const HEIGHT: usize = 3;
     let mut grid: [[u8; WIDTH]; HEIGHT] = [[0; WIDTH]; HEIGHT];
@@ -71,7 +94,7 @@ pub fn GenerateMaze() {
     dbg!(&id_to_cell);
     dbg!(&edges);
 
-    Dig(
+    dig(
         start_id,
         &id_to_cell,
         &edges,
@@ -80,10 +103,30 @@ pub fn GenerateMaze() {
         &mut frontier,
     );
 
-    dbg!(edge_to_connected);
+    dbg!(&edge_to_connected);
+
+    // for row in 0..HEIGHT {
+    //     let mut line = String::new();
+    //     for column in 0..WIDTH {
+    //         let u_id = unique_id(column as u8, row as u8, WIDTH as u8);
+    //         let c = if column + 1 == WIDTH {
+    //             &format!("{}", u_id)
+    //         } else {
+    //             &format!("{}-----", u_id)
+    //         };
+    //         line.push_str(c);
+    //     }
+    //     println!("{}", line);
+    //     if row + 1 < HEIGHT {
+    //         println!("|     |     |");
+    //         println!("|     |     |");
+    //     }
+    // }
+
+    edge_to_connected
 }
 
-pub fn Dig(
+pub fn dig(
     start_id: u8,
     id_to_cell: &HashMap<u8, Cell>,
     edges: &HashSet<Edge>,
@@ -100,7 +143,7 @@ pub fn Dig(
                 dbg!("connected {} {}", start_id, *neighbor);
                 *edge_to_connected.get_mut(&edge).unwrap() = true;
             }
-            Dig(
+            dig(
                 *neighbor,
                 id_to_cell,
                 edges,

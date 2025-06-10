@@ -126,6 +126,7 @@ fn unprocessed(
     tightly_packed_data
 }
 
+// Old stuff when I did post processing on the CPU
 fn random_noise(
     data: &[u8],
     width: u32,
@@ -159,6 +160,7 @@ fn random_noise(
     tightly_packed_data
 }
 
+// Old stuff when I did post processing on the CPU
 fn monochrome_noise(
     data: &[u8],
     width: u32,
@@ -193,6 +195,7 @@ fn monochrome_noise(
     tightly_packed_data
 }
 
+// Old stuff when I did post processing on the CPU
 fn pixelated(
     data: &[u8],
     width: u32,
