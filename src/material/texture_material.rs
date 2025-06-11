@@ -43,7 +43,7 @@ impl MaterialTrait for TextureMaterial {
 
 impl TextureMaterial {
     pub fn new(device: &Device, queue: &Queue, surface_config: &SurfaceConfiguration) -> Self {
-        let diffuse_bytes = include_bytes!("../../textures/uv.png");
+        let diffuse_bytes = include_bytes!("../../textures/t.png");
         let diffuse_image = image::load_from_memory(diffuse_bytes)
             .expect("Failed to load texture image from memory: ../../textures/uv.png");
         let diffuse_rgba = diffuse_image.to_rgba8();

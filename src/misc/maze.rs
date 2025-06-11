@@ -25,37 +25,41 @@ impl Edge {
 
 const WIDTH: usize = 3;
 const HEIGHT: usize = 3;
-const CHANNEL_COUNT: u32 = 4;
+const BYTES_PER_PIXEL: u32 = 4;
 const PIXEL_PER_CELL: u32 = 10;
 
 #[test]
 pub fn generate_texture() {
     let (id_to_cell, edge_to_connected) = generate_maze();
 
-    let width = CHANNEL_COUNT * WIDTH as u32 * PIXEL_PER_CELL;
-    let height = CHANNEL_COUNT * HEIGHT as u32 * PIXEL_PER_CELL;
+    let width = WIDTH as u32 * PIXEL_PER_CELL;
+    let height = HEIGHT as u32 * PIXEL_PER_CELL;
 
+    // tightly_packed_data is 4 * width * height
     let mut tightly_packed_data: Vec<u8> = Vec::new();
     for column in 0..width {
         for row in 0..height {
             let v = (((row * column) as f32 / (width * height) as f32) * 255.0) as u8;
             // println!("{} {} {} {}", v, row, column, row * WIDTH + column);
+            // I push 4 bytes per cell
+            tightly_packed_data.push(v);
             tightly_packed_data.push(0);
             tightly_packed_data.push(0);
-            tightly_packed_data.push(0);
-            tightly_packed_data.push(255); // alpha
+            tightly_packed_data.push(100); // alpha
         }
     }
-
     for (_id, cell) in id_to_cell {
-        let c_start = cell.column as u32 * PIXEL_PER_CELL;
-        let c_end = c_start as u32 + PIXEL_PER_CELL;
-        let r_start = cell.row as u32 * PIXEL_PER_CELL;
-        let r_end = r_start as u32 + PIXEL_PER_CELL;
+        let c_start = cell.column as u32 * 5;
+        let c_end = c_start as u32 + 5;
+        let r_start = cell.row as u32 * 5;
+        let r_end = r_start as u32 + 5;
         for column in c_start..c_end {
             for row in r_start..r_end {
-                let index = (row * width + column) as usize;
+                let index = BYTES_PER_PIXEL as usize * (row * width + column) as usize;
                 tightly_packed_data[index] = 255;
+                tightly_packed_data[index + 1] = 255;
+                tightly_packed_data[index + 2] = 255;
+                tightly_packed_data[index + 3] = 255;
             }
         }
     }
