@@ -11,8 +11,8 @@ pub struct Cell {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Edge {
-    a_id: u8,
-    b_id: u8,
+    pub a_id: u8,
+    pub b_id: u8,
 }
 
 impl Edge {
@@ -23,33 +23,49 @@ impl Edge {
     }
 }
 
+const WIDTH: usize = 3;
+const HEIGHT: usize = 3;
+const CHANNEL_COUNT: u32 = 4;
+const PIXEL_PER_CELL: u32 = 10;
+
 #[test]
 pub fn generate_texture() {
-    let edge_to_connected = generate_maze();
+    let (id_to_cell, edge_to_connected) = generate_maze();
 
-    const WIDTH: u32 = 4 * 300;
-    const HEIGHT: u32 = 4 * 300;
+    let width = CHANNEL_COUNT * WIDTH as u32 * PIXEL_PER_CELL;
+    let height = CHANNEL_COUNT * HEIGHT as u32 * PIXEL_PER_CELL;
 
     let mut tightly_packed_data: Vec<u8> = Vec::new();
-    for column in 0..WIDTH {
-        for row in 0..HEIGHT {
-            let v = (((row * column) as f32 / (WIDTH * HEIGHT) as f32) * 255.0) as u8;
+    for column in 0..width {
+        for row in 0..height {
+            let v = (((row * column) as f32 / (width * height) as f32) * 255.0) as u8;
             // println!("{} {} {} {}", v, row, column, row * WIDTH + column);
-            tightly_packed_data.push(v);
-            tightly_packed_data.push(v);
-            tightly_packed_data.push(v);
-            tightly_packed_data.push(v);
+            tightly_packed_data.push(0);
+            tightly_packed_data.push(0);
+            tightly_packed_data.push(0);
+            tightly_packed_data.push(255); // alpha
+        }
+    }
+
+    for (_id, cell) in id_to_cell {
+        let c_start = cell.column as u32 * PIXEL_PER_CELL;
+        let c_end = c_start as u32 + PIXEL_PER_CELL;
+        let r_start = cell.row as u32 * PIXEL_PER_CELL;
+        let r_end = r_start as u32 + PIXEL_PER_CELL;
+        for column in c_start..c_end {
+            for row in r_start..r_end {
+                let index = (row * width + column) as usize;
+                tightly_packed_data[index] = 255;
+            }
         }
     }
     let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
-        image::ImageBuffer::from_raw(WIDTH, HEIGHT, tightly_packed_data).unwrap();
+        image::ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
     let image_path = format!("out/basic-maze.png");
     buffer.save(&image_path).unwrap();
 }
 
-pub fn generate_maze() -> HashMap<Edge, bool> {
-    const WIDTH: usize = 3;
-    const HEIGHT: usize = 3;
+pub fn generate_maze() -> (HashMap<u8, Cell>, HashMap<Edge, bool>) {
     let mut grid: [[u8; WIDTH]; HEIGHT] = [[0; WIDTH]; HEIGHT];
     let mut id_to_cell: HashMap<u8, Cell> = HashMap::new();
     let mut edges: HashSet<Edge> = HashSet::new();
@@ -123,7 +139,7 @@ pub fn generate_maze() -> HashMap<Edge, bool> {
     //     }
     // }
 
-    edge_to_connected
+    (id_to_cell, edge_to_connected)
 }
 
 pub fn dig(
