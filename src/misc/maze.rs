@@ -26,7 +26,8 @@ impl Edge {
 const WIDTH: usize = 3;
 const HEIGHT: usize = 3;
 const BYTES_PER_PIXEL: u32 = 4;
-const PIXEL_PER_CELL: u32 = 10;
+const PIXEL_PER_CELL: u32 = 300;
+const OFFSET: u32 = 100;
 
 #[test]
 pub fn generate_texture() {
@@ -37,29 +38,45 @@ pub fn generate_texture() {
 
     // tightly_packed_data is 4 * width * height
     let mut tightly_packed_data: Vec<u8> = Vec::new();
-    for column in 0..width {
-        for row in 0..height {
+    for row in 0..height {
+        for column in 0..width {
             let v = (((row * column) as f32 / (width * height) as f32) * 255.0) as u8;
             // println!("{} {} {} {}", v, row, column, row * WIDTH + column);
             // I push 4 bytes per cell
-            tightly_packed_data.push(v);
+            // if row % 2 == 0 {
+            //     tightly_packed_data.push(255);
+            // } else {
+            //     tightly_packed_data.push(0);
+            // }
             tightly_packed_data.push(0);
             tightly_packed_data.push(0);
-            tightly_packed_data.push(100); // alpha
+            tightly_packed_data.push(0);
+            tightly_packed_data.push(255); // alpha
         }
     }
-    for (_id, cell) in id_to_cell {
-        let c_start = cell.column as u32 * 5;
-        let c_end = c_start as u32 + 5;
-        let r_start = cell.row as u32 * 5;
-        let r_end = r_start as u32 + 5;
-        for column in c_start..c_end {
-            for row in r_start..r_end {
-                let index = BYTES_PER_PIXEL as usize * (row * width + column) as usize;
-                tightly_packed_data[index] = 255;
-                tightly_packed_data[index + 1] = 255;
-                tightly_packed_data[index + 2] = 255;
-                tightly_packed_data[index + 3] = 255;
+    for (_id, cell) in &id_to_cell {
+        let c_start = cell.column as u32 * PIXEL_PER_CELL + OFFSET;
+        let c_end = c_start as u32 + 50;
+        let r_start = cell.row as u32 * PIXEL_PER_CELL + OFFSET;
+        let r_end = r_start as u32 + 50;
+        let stride = width * BYTES_PER_PIXEL;
+        for row in r_start..r_end {
+            let start = row * stride;
+            for column in c_start..c_end {
+                let index = (start + column * BYTES_PER_PIXEL) as usize;
+                tightly_packed_data[index] += 255;
+                tightly_packed_data[index + 1] += 255;
+                tightly_packed_data[index + 2] += 255;
+                // tightly_packed_data[index + 3] = 255; // skip alpha
+            }
+        }
+    }
+    for (edge, is_connected) in edge_to_connected {
+        let a_cell = id_to_cell.get(&edge.a_id);
+        let b_cell = id_to_cell.get(&edge.b_id);
+        if is_connected {
+            if a_cell.unwrap().column == b_cell.unwrap().column {
+            } else if a_cell.unwrap().row == b_cell.unwrap().row {
             }
         }
     }
