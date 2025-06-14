@@ -62,7 +62,7 @@
             }
         },
         {
-            "mesh": "sphere",
+            "mesh": "cube",
             "material": "Texture",
             "position": {
                 "x": 0.0,
