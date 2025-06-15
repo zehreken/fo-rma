@@ -28,10 +28,10 @@ const HEIGHT: usize = 30;
 const BYTES_PER_PIXEL: u32 = 4;
 const PIXEL_PER_CELL: u32 = 30;
 const OFFSET: u32 = 10;
-const CELL_WIDTH: u32 = 5;
+const CELL_WIDTH: u32 = 10;
 
-#[test]
-pub fn generate_texture() {
+// #[test]
+pub fn generate_texture() -> (Vec<u8>, u32, u32) {
     let (id_to_cell, edge_to_connected) = generate_maze();
 
     let width = WIDTH as u32 * PIXEL_PER_CELL;
@@ -65,9 +65,9 @@ pub fn generate_texture() {
             let start = row * stride;
             for column in c_start..c_end {
                 let index = (start + column * BYTES_PER_PIXEL) as usize;
-                // tightly_packed_data[index] = 255;
-                // tightly_packed_data[index + 1] = 255;
-                // tightly_packed_data[index + 2] = 255;
+                tightly_packed_data[index] = 255;
+                tightly_packed_data[index + 1] = 255;
+                tightly_packed_data[index + 2] = 255;
                 // tightly_packed_data[index + 3] = 255; // skip alpha
             }
         }
@@ -101,10 +101,12 @@ pub fn generate_texture() {
             }
         }
     }
-    let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
-        image::ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
-    let image_path = format!("out/basic-maze.png");
-    buffer.save(&image_path).unwrap();
+    // let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
+    //     image::ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
+    // let image_path = format!("out/basic-maze.png");
+    // buffer.save(&image_path).unwrap();
+
+    (tightly_packed_data, width, height)
 }
 
 pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
@@ -148,9 +150,9 @@ pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
     let mut visited: HashSet<u32> = HashSet::new();
     let mut frontier: HashSet<u32> = HashSet::new();
 
-    dbg!(&grid);
-    dbg!(&id_to_cell);
-    dbg!(&edges);
+    // dbg!(&grid);
+    // dbg!(&id_to_cell);
+    // dbg!(&edges);
 
     dig(
         start_id,
@@ -161,7 +163,7 @@ pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
         &mut frontier,
     );
 
-    dbg!(&edge_to_connected);
+    // dbg!(&edge_to_connected);
 
     // for row in 0..HEIGHT {
     //     let mut line = String::new();
@@ -198,7 +200,7 @@ pub fn dig(
         if !visited.contains(neighbor) {
             let edge = Edge::new(start_id, *neighbor);
             if edge_to_connected.contains_key(&edge) {
-                dbg!("connected {} {}", start_id, *neighbor);
+                // dbg!("connected {} {}", start_id, *neighbor);
                 *edge_to_connected.get_mut(&edge).unwrap() = true;
             }
             dig(

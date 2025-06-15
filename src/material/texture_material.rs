@@ -1,10 +1,14 @@
 use crate::{
     basics::{core::Vertex, uniforms::ObjectUniform},
     material::{Material, MaterialTrait},
+    misc::maze,
     rendering_utils,
 };
+use image::{ImageBuffer, Rgba};
 use std::mem;
-use wgpu::{BindGroup, Buffer, Device, Extent3d, Queue, RenderPipeline, SurfaceConfiguration};
+use wgpu::{
+    BindGroup, Buffer, Device, Extent3d, Queue, RenderPipeline, SurfaceConfiguration, Texture,
+};
 use winit::dpi::PhysicalSize;
 
 pub struct TextureUniforms {
@@ -15,6 +19,7 @@ pub struct TextureMaterial {
     render_pipeline: RenderPipeline,
     buffers: [Buffer; 1],
     bind_groups: [BindGroup; 2],
+    texture: Texture,
 }
 
 impl MaterialTrait for TextureMaterial {
@@ -33,6 +38,30 @@ impl MaterialTrait for TextureMaterial {
     fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {
         if let Some(data) = data.downcast_ref::<TextureUniforms>() {
             queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
+            let (diffuse_bytes, w, h) = maze::generate_texture();
+            let diffuse_rgba = ImageBuffer::<Rgba<u8>, _>::from_raw(w, h, diffuse_bytes)
+                .expect("Failed to create ImageBuffer from raw data");
+            let dimensions = (w, h);
+            let texture_extent = Extent3d {
+                width: dimensions.0,
+                height: dimensions.1,
+                depth_or_array_layers: 1,
+            };
+            queue.write_texture(
+                wgpu::ImageCopyTexture {
+                    texture: &self.texture,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                &diffuse_rgba,
+                wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: Some(4 * dimensions.0),
+                    rows_per_image: Some(dimensions.1),
+                },
+                texture_extent,
+            );
         }
     }
 
@@ -43,12 +72,15 @@ impl MaterialTrait for TextureMaterial {
 
 impl TextureMaterial {
     pub fn new(device: &Device, queue: &Queue, surface_config: &SurfaceConfiguration) -> Self {
-        let diffuse_bytes = include_bytes!("../../textures/t.png");
-        let diffuse_image = image::load_from_memory(diffuse_bytes)
-            .expect("Failed to load texture image from memory: ../../textures/uv.png");
-        let diffuse_rgba = diffuse_image.to_rgba8();
+        // let diffuse_bytes = include_bytes!("../../textures/t.png");
+        // let diffuse_image = image::load_from_memory(diffuse_bytes)
+        //     .expect("Failed to load texture image from memory: ../../textures/uv.png");
+        // let diffuse_rgba = diffuse_image.to_rgba8();
+        let (diffuse_bytes, w, h) = maze::generate_texture();
+        let diffuse_rgba = ImageBuffer::<Rgba<u8>, _>::from_raw(w, h, diffuse_bytes)
+            .expect("Failed to create ImageBuffer from raw data");
         use image::GenericImageView;
-        let dimensions = diffuse_image.dimensions();
+        let dimensions = (w, h);
 
         let shader = rendering_utils::create_shader_module(device, Material::Texture);
 
@@ -190,6 +222,7 @@ impl TextureMaterial {
             render_pipeline,
             buffers,
             bind_groups,
+            texture,
         }
     }
 }
