@@ -75,11 +75,11 @@ impl<'a> App<'a> {
             &scene_data,
         );
 
-        let audio_model = AudioModel::new().unwrap();
+        let audio_model = AudioModel::new().expect("Error creating audio model");
 
         Self {
             size,
-            window: &window,
+            window,
             renderer,
             scene,
             audio_model,
@@ -175,7 +175,7 @@ pub async fn start() {
         height: 1080,
     });
     let input = WinitInputHelper::new();
-    let event_loop = EventLoop::new().unwrap();
+    let event_loop = EventLoop::new().expect("Error creating event loop");
     let window = create_window(size, &event_loop);
     let app = App::new(&window).await;
 
@@ -213,26 +213,6 @@ fn run_event_loop(
                 if input.key_held(KeyCode::KeyE) {
                     app.scene.camera.move_y(false);
                 }
-                // if input.held_shift() {
-                //     if input.key_held(KeyCode::KeyW) {
-                //         app.scene.camera.orbit_z(false);
-                //     }
-                //     if input.key_held(KeyCode::KeyA) {
-                //         app.scene.camera.orbit_x(false);
-                //     }
-                //     if input.key_held(KeyCode::KeyS) {
-                //         app.scene.camera.orbit_z(true);
-                //     }
-                //     if input.key_held(KeyCode::KeyD) {
-                //         app.scene.camera.orbit_x(true);
-                //     }
-                //     if input.key_held(KeyCode::KeyQ) {
-                //         app.scene.camera.orbit_y(true);
-                //     }
-                //     if input.key_held(KeyCode::KeyE) {
-                //         app.scene.camera.orbit_y(false);
-                //     }
-                // }
                 app.scene
                     .camera
                     .rotate(input.mouse_diff().0, input.mouse_diff().1);
@@ -254,33 +234,6 @@ fn run_event_loop(
                     &app.renderer.render_texture_material.post_process_texture,
                     &app.settings.color_palette,
                 );
-            }
-            if input.key_pressed(KeyCode::Numpad0) {
-                app.settings.color_palette = color_utils::CP0;
-            }
-            if input.key_pressed(KeyCode::Numpad1) {
-                app.settings.color_palette = color_utils::CP1;
-            }
-            if input.key_pressed(KeyCode::Numpad2) {
-                app.settings.color_palette = color_utils::CP2;
-            }
-            if input.key_pressed(KeyCode::Numpad3) {
-                app.settings.color_palette = color_utils::CP3;
-            }
-            if input.key_pressed(KeyCode::Numpad4) {
-                app.settings.color_palette = color_utils::CP4;
-            }
-            if input.key_pressed(KeyCode::Numpad5) {
-                app.settings.color_palette = color_utils::CP5;
-            }
-            if input.key_pressed(KeyCode::Numpad6) {
-                app.settings.color_palette = color_utils::CP6;
-            }
-            if input.key_pressed(KeyCode::Numpad7) {
-                app.settings.color_palette = color_utils::CP7;
-            }
-            if input.key_pressed(KeyCode::Numpad8) {
-                app.settings.color_palette = color_utils::CP8;
             }
         }
 
@@ -311,7 +264,7 @@ fn create_window(size: Size, event_loop: &EventLoop<()>) -> winit::window::Windo
         .with_title("fōrma")
         .with_inner_size(size)
         .build(event_loop)
-        .unwrap();
+        .expect("Error creating the window");
     window
 }
 
