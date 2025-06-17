@@ -23,6 +23,12 @@ impl Edge {
     }
 }
 
+pub struct SaveTexture {
+    pub data: Vec<u8>,
+    pub width: u32,
+    pub height: u32,
+}
+
 const WIDTH: usize = 30;
 const HEIGHT: usize = 30;
 const BYTES_PER_PIXEL: u32 = 4;
@@ -30,15 +36,24 @@ const PIXEL_PER_CELL: u32 = 30;
 const OFFSET: u32 = 10;
 const CELL_WIDTH: u32 = 10;
 
-// #[test]
-pub fn generate_texture() -> (Vec<u8>, u32, u32) {
+#[test]
+fn test() {
+    let texture = generate_texture();
+
+    let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
+        image::ImageBuffer::from_raw(texture.width, texture.height, texture.data).unwrap();
+    let image_path = format!("out/basic-maze.png");
+    buffer.save(&image_path).unwrap();
+}
+
+pub fn generate_texture() -> SaveTexture {
     let (id_to_cell, edge_to_connected) = generate_maze();
 
     let width = WIDTH as u32 * PIXEL_PER_CELL;
     let height = HEIGHT as u32 * PIXEL_PER_CELL;
 
-    // tightly_packed_data is 4 * width * height
-    let mut tightly_packed_data: Vec<u8> = Vec::new();
+    // data lengthis 4 * width * height, it is flat
+    let mut data: Vec<u8> = Vec::new();
     for row in 0..height {
         for column in 0..width {
             let v = (((row * column) as f32 / (width * height) as f32) * 255.0) as u8;
@@ -49,10 +64,10 @@ pub fn generate_texture() -> (Vec<u8>, u32, u32) {
             // } else {
             //     tightly_packed_data.push(0);
             // }
-            tightly_packed_data.push(0);
-            tightly_packed_data.push(0);
-            tightly_packed_data.push(0);
-            tightly_packed_data.push(255); // alpha
+            data.push(v);
+            data.push(0);
+            data.push(255 - v);
+            data.push(255); // alpha
         }
     }
     for (_id, cell) in &id_to_cell {
@@ -65,9 +80,9 @@ pub fn generate_texture() -> (Vec<u8>, u32, u32) {
             let start = row * stride;
             for column in c_start..c_end {
                 let index = (start + column * BYTES_PER_PIXEL) as usize;
-                tightly_packed_data[index] = 255;
-                tightly_packed_data[index + 1] = 255;
-                tightly_packed_data[index + 2] = 255;
+                data[index] = 255;
+                data[index + 1] = 255;
+                data[index + 2] = 255;
                 // tightly_packed_data[index + 3] = 255; // skip alpha
             }
         }
@@ -93,20 +108,20 @@ pub fn generate_texture() -> (Vec<u8>, u32, u32) {
                 let start = row * stride;
                 for column in c_start..c_end {
                     let index = (start + column * BYTES_PER_PIXEL) as usize;
-                    tightly_packed_data[index] = 255;
-                    tightly_packed_data[index + 1] = 255;
-                    tightly_packed_data[index + 2] = 255;
+                    data[index] = 255;
+                    data[index + 1] = 255;
+                    data[index + 2] = 255;
                     // tightly_packed_data[index + 3] = 255; // skip alpha
                 }
             }
         }
     }
-    // let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
-    //     image::ImageBuffer::from_raw(width, height, tightly_packed_data).unwrap();
-    // let image_path = format!("out/basic-maze.png");
-    // buffer.save(&image_path).unwrap();
 
-    (tightly_packed_data, width, height)
+    SaveTexture {
+        data,
+        width,
+        height,
+    }
 }
 
 pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
@@ -164,24 +179,6 @@ pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
     );
 
     // dbg!(&edge_to_connected);
-
-    // for row in 0..HEIGHT {
-    //     let mut line = String::new();
-    //     for column in 0..WIDTH {
-    //         let u_id = unique_id(column as u32, row as u32, WIDTH as u32);
-    //         let c = if column + 1 == WIDTH {
-    //             &format!("{}", u_id)
-    //         } else {
-    //             &format!("{}-----", u_id)
-    //         };
-    //         line.push_str(c);
-    //     }
-    //     println!("{}", line);
-    //     if row + 1 < HEIGHT {
-    //         println!("|     |     |");
-    //         println!("|     |     |");
-    //     }
-    // }
 
     (id_to_cell, edge_to_connected)
 }

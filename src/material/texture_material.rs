@@ -38,10 +38,11 @@ impl MaterialTrait for TextureMaterial {
     fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {
         if let Some(data) = data.downcast_ref::<TextureUniforms>() {
             queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
-            let (diffuse_bytes, w, h) = maze::generate_texture();
-            let diffuse_rgba = ImageBuffer::<Rgba<u8>, _>::from_raw(w, h, diffuse_bytes)
-                .expect("Failed to create ImageBuffer from raw data");
-            let dimensions = (w, h);
+            let texture = maze::generate_texture();
+            let diffuse_rgba =
+                ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
+                    .expect("Failed to create ImageBuffer from raw data");
+            let dimensions = (texture.width, texture.height);
             let texture_extent = Extent3d {
                 width: dimensions.0,
                 height: dimensions.1,
@@ -76,11 +77,11 @@ impl TextureMaterial {
         // let diffuse_image = image::load_from_memory(diffuse_bytes)
         //     .expect("Failed to load texture image from memory: ../../textures/uv.png");
         // let diffuse_rgba = diffuse_image.to_rgba8();
-        let (diffuse_bytes, w, h) = maze::generate_texture();
-        let diffuse_rgba = ImageBuffer::<Rgba<u8>, _>::from_raw(w, h, diffuse_bytes)
-            .expect("Failed to create ImageBuffer from raw data");
-        use image::GenericImageView;
-        let dimensions = (w, h);
+        let texture = maze::generate_texture();
+        let diffuse_rgba =
+            ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
+                .expect("Failed to create ImageBuffer from raw data");
+        let dimensions = (texture.width, texture.height);
 
         let shader = rendering_utils::create_shader_module(device, Material::Texture);
 
