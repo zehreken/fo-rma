@@ -29,16 +29,17 @@ pub struct SaveTexture {
     pub height: u32,
 }
 
-const WIDTH: usize = 30;
-const HEIGHT: usize = 30;
 const BYTES_PER_PIXEL: u32 = 4;
+
+const WIDTH: u32 = 3;
+const HEIGHT: u32 = 300;
 const PIXEL_PER_CELL: u32 = 30;
 const OFFSET: u32 = 10;
-const CELL_WIDTH: u32 = 10;
+const CELL_SIZE: u32 = 10;
 
 #[test]
 fn test() {
-    let texture = generate_texture();
+    let texture = generate_texture(WIDTH, HEIGHT);
 
     let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
         image::ImageBuffer::from_raw(texture.width, texture.height, texture.data).unwrap();
@@ -46,47 +47,49 @@ fn test() {
     buffer.save(&image_path).unwrap();
 }
 
-pub fn generate_texture() -> SaveTexture {
-    let (id_to_cell, edge_to_connected) = generate_maze();
+/// Generates a texture from a maze.
+///
+/// # Arguments
+///
+/// * `maze_width` - The width of the maze
+/// * `maze_height` - The height of the maze
+pub fn generate_texture(maze_width: u32, maze_height: u32) -> SaveTexture {
+    let (id_to_cell, edge_to_connected) = generate_maze(maze_width, maze_height);
 
-    let width = WIDTH as u32 * PIXEL_PER_CELL;
-    let height = HEIGHT as u32 * PIXEL_PER_CELL;
+    let width = maze_width * PIXEL_PER_CELL;
+    let height = maze_height * PIXEL_PER_CELL;
 
     // data lengthis 4 * width * height, it is flat
     let mut data: Vec<u8> = Vec::new();
     for row in 0..height {
         for column in 0..width {
-            let v = (((row * column) as f32 / (width * height) as f32) * 255.0) as u8;
-            // println!("{} {} {} {}", v, row, column, row * WIDTH + column);
-            // I push 4 bytes per cell
-            // if row % 2 == 0 {
-            //     tightly_packed_data.push(255);
-            // } else {
-            //     tightly_packed_data.push(0);
-            // }
+            let v = (((row * column) as f32 / (width * height) as f32) * 255.0);
+            let v = (v + 100.0) as u8;
             data.push(v);
             data.push(0);
             data.push(255 - v);
             data.push(255); // alpha
         }
     }
+    // Paint cells
     for (_id, cell) in &id_to_cell {
         let c_start = cell.column as u32 * PIXEL_PER_CELL + OFFSET;
-        let c_end = c_start as u32 + CELL_WIDTH;
+        let c_end = c_start as u32 + CELL_SIZE;
         let r_start = cell.row as u32 * PIXEL_PER_CELL + OFFSET;
-        let r_end = r_start as u32 + CELL_WIDTH;
+        let r_end = r_start as u32 + CELL_SIZE;
         let stride = width * BYTES_PER_PIXEL;
         for row in r_start..r_end {
             let start = row * stride;
             for column in c_start..c_end {
                 let index = (start + column * BYTES_PER_PIXEL) as usize;
-                data[index] = 255;
+                data[index] = 0;
                 data[index + 1] = 255;
-                data[index + 2] = 255;
+                data[index + 2] = 0;
                 // tightly_packed_data[index + 3] = 255; // skip alpha
             }
         }
     }
+    // Paint edges
     for (edge, is_connected) in edge_to_connected {
         let a_cell = id_to_cell.get(&edge.a_id).unwrap();
         let b_cell = id_to_cell.get(&edge.b_id).unwrap();
@@ -94,14 +97,14 @@ pub fn generate_texture() -> SaveTexture {
         if is_connected {
             if a_cell.column == b_cell.column {
                 c_start = a_cell.column as u32 * PIXEL_PER_CELL + OFFSET;
-                c_end = c_start + CELL_WIDTH;
+                c_end = c_start + CELL_SIZE;
                 r_start = a_cell.row as u32 * PIXEL_PER_CELL + OFFSET;
                 r_end = b_cell.row as u32 * PIXEL_PER_CELL + OFFSET;
             } else if a_cell.row == b_cell.row {
                 c_start = a_cell.column as u32 * PIXEL_PER_CELL + OFFSET;
                 c_end = b_cell.column as u32 * PIXEL_PER_CELL + OFFSET;
                 r_start = a_cell.row as u32 * PIXEL_PER_CELL + OFFSET;
-                r_end = r_start + CELL_WIDTH;
+                r_end = r_start + CELL_SIZE;
             }
             let stride = width * BYTES_PER_PIXEL;
             for row in r_start..r_end {
@@ -124,8 +127,11 @@ pub fn generate_texture() -> SaveTexture {
     }
 }
 
-pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
-    let mut grid: [[u32; WIDTH]; HEIGHT] = [[0; WIDTH]; HEIGHT];
+pub fn generate_maze(
+    maze_width: u32,
+    maze_height: u32,
+) -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
+    let mut grid: Vec<Vec<u32>> = vec![];
     let mut id_to_cell: HashMap<u32, Cell> = HashMap::new();
     let mut edges: HashSet<Edge> = HashSet::new();
     let mut edge_to_connected: HashMap<Edge, bool> = HashMap::new();
@@ -134,15 +140,20 @@ pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
     // left, top, right, bottom
     let neighbor: [(i8, i8); 4] = [(-1, 0), (0, -1), (1, 0), (0, 1)];
 
-    for column in 0..WIDTH {
-        for row in 0..HEIGHT {
-            let u_id = unique_id(column as u32, row as u32, WIDTH as u32);
+    for column in 0..maze_width {
+        grid.push(vec![]);
+        for row in 0..maze_height {
+            let u_id = unique_id(column, row, maze_width);
             let mut neighbors = Vec::new();
             for coord in neighbor {
-                let n_column = column as i8 + coord.0;
-                let n_row = row as i8 + coord.1;
-                if n_column >= 0 && n_column < WIDTH as i8 && n_row >= 0 && n_row < HEIGHT as i8 {
-                    let neighbor_id = unique_id(n_column as u32, n_row as u32, WIDTH as u32);
+                let n_column = column as i32 + coord.0 as i32;
+                let n_row = row as i32 + coord.1 as i32;
+                if n_column >= 0
+                    && n_column < maze_width as i32
+                    && n_row >= 0
+                    && n_row < maze_height as i32
+                {
+                    let neighbor_id = unique_id(n_column as u32, n_row as u32, maze_width as u32);
                     neighbors.push(neighbor_id);
                     let edge = Edge::new(u_id, neighbor_id);
                     edges.insert(edge);
@@ -156,7 +167,7 @@ pub fn generate_maze() -> (HashMap<u32, Cell>, HashMap<Edge, bool>) {
                 row: row as u32,
                 neighbors,
             };
-            grid[row][column] = u_id;
+            grid[column as usize].push(u_id);
             id_to_cell.insert(u_id, cell);
         }
     }
