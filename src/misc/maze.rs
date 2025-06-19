@@ -1,6 +1,8 @@
 use rand::{rng, rngs::ThreadRng, seq::SliceRandom};
 use std::collections::{HashMap, HashSet};
 
+use crate::color_utils::{self, ColorPalette};
+
 #[derive(Debug)]
 pub struct Cell {
     id: u32,
@@ -39,7 +41,7 @@ const CELL_SIZE: u32 = 10;
 
 #[test]
 fn test() {
-    let texture = generate_texture(WIDTH, HEIGHT);
+    let texture = generate_texture(WIDTH, HEIGHT, color_utils::CP0.into());
 
     let buffer: image::ImageBuffer<image::Rgba<u8>, _> =
         image::ImageBuffer::from_raw(texture.width, texture.height, texture.data).unwrap();
@@ -53,7 +55,11 @@ fn test() {
 ///
 /// * `maze_width` - The width of the maze
 /// * `maze_height` - The height of the maze
-pub fn generate_texture(maze_width: u32, maze_height: u32) -> SaveTexture {
+pub fn generate_texture(
+    maze_width: u32,
+    maze_height: u32,
+    color_palette: ColorPalette<u8, 4>,
+) -> SaveTexture {
     let (id_to_cell, edge_to_connected) = generate_maze(maze_width, maze_height);
 
     let width = maze_width * PIXEL_PER_CELL;
@@ -82,10 +88,10 @@ pub fn generate_texture(maze_width: u32, maze_height: u32) -> SaveTexture {
             let start = row * stride;
             for column in c_start..c_end {
                 let index = (start + column * BYTES_PER_PIXEL) as usize;
-                data[index] = 0;
-                data[index + 1] = 255;
-                data[index + 2] = 0;
-                // tightly_packed_data[index + 3] = 255; // skip alpha
+                data[index] = color_palette.palette[0][0];
+                data[index + 1] = color_palette.palette[0][1];
+                data[index + 2] = color_palette.palette[0][2];
+                // data[index + 3] = 255; // skip alpha
             }
         }
     }
@@ -111,10 +117,10 @@ pub fn generate_texture(maze_width: u32, maze_height: u32) -> SaveTexture {
                 let start = row * stride;
                 for column in c_start..c_end {
                     let index = (start + column * BYTES_PER_PIXEL) as usize;
-                    data[index] = 255;
-                    data[index + 1] = 255;
-                    data[index + 2] = 255;
-                    // tightly_packed_data[index + 3] = 255; // skip alpha
+                    data[index] = color_palette.palette[2][0];
+                    data[index + 1] = color_palette.palette[2][1];
+                    data[index + 2] = color_palette.palette[2][2];
+                    // data[index + 3] = 255; // skip alpha
                 }
             }
         }

@@ -1,5 +1,6 @@
 use crate::{
     basics::{core::Vertex, uniforms::ObjectUniform},
+    color_utils,
     material::{Material, MaterialTrait},
     misc::maze,
     rendering_utils,
@@ -38,7 +39,7 @@ impl MaterialTrait for TextureMaterial {
     fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {
         if let Some(data) = data.downcast_ref::<TextureUniforms>() {
             queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
-            let texture = maze::generate_texture(10, 10);
+            let texture = maze::generate_texture(10, 10, color_utils::CP3.into());
             let diffuse_rgba =
                 ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
                     .expect("Failed to create ImageBuffer from raw data");
@@ -77,7 +78,7 @@ impl TextureMaterial {
         // let diffuse_image = image::load_from_memory(diffuse_bytes)
         //     .expect("Failed to load texture image from memory: ../../textures/uv.png");
         // let diffuse_rgba = diffuse_image.to_rgba8();
-        let texture = maze::generate_texture(20, 20);
+        let texture = maze::generate_texture(20, 20, color_utils::CP3.into());
         let diffuse_rgba =
             ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
                 .expect("Failed to create ImageBuffer from raw data");

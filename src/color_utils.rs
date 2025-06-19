@@ -76,9 +76,26 @@ impl ToVec4 for [f32; 3] {
 }
 
 #[derive(Clone, Copy)]
-pub struct ColorPalette<T: Float, const N: usize> {
+pub struct ColorPalette<T, const N: usize> {
     pub name: &'static str,
     pub palette: [[T; 3]; N],
+}
+
+impl<const N: usize> From<ColorPalette<f32, N>> for ColorPalette<u8, N> {
+    fn from(f32_palette: ColorPalette<f32, N>) -> Self {
+        let mut new_palette = [[0u8; 3]; N];
+        for i in 0..N {
+            new_palette[i] = [
+                (f32_palette.palette[i][0].clamp(0.0, 1.0) * 255.0).round() as u8,
+                (f32_palette.palette[i][1].clamp(0.0, 1.0) * 255.0).round() as u8,
+                (f32_palette.palette[i][2].clamp(0.0, 1.0) * 255.0).round() as u8,
+            ];
+        }
+        ColorPalette {
+            name: f32_palette.name,
+            palette: new_palette,
+        }
+    }
 }
 
 pub const CP0: ColorPalette<f32, 4> = ColorPalette {
