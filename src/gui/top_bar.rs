@@ -6,6 +6,11 @@ use egui_winit::egui::{self, Context};
 pub fn draw(ctx: &Context, settings: &mut Settings, ui_events: &mut Vec<UiEvent>, fps: f32) {
     egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
         egui::menu::bar(ui, |ui| {
+            ui.label(
+                RichText::new(format!(" ō "))
+                    .background_color(Color32::BLUE)
+                    .color(Color32::YELLOW),
+            );
             ui.label(RichText::new(format!("FPS: {0:.2}", fps)).color(Color32::GREEN));
             ui.menu_button("file", |ui| {
                 if ui.button("oscillator").clicked() {
