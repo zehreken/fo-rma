@@ -82,7 +82,7 @@
             }
         },
         {
-            "mesh": "quad",
+            "mesh": "cylinder",
             "material": "Texture",
             "position": {
                 "x": 10.0,

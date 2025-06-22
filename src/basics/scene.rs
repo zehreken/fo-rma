@@ -10,7 +10,7 @@ use super::{
     uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
 };
 use crate::{
-    basics::circle::Circle,
+    basics::{circle::Circle, cylinder::Cylinder},
     color_utils::{self, ColorPalette, ToVec4},
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
@@ -83,8 +83,8 @@ impl Scene {
                 Box::new(Triangle::new(device, material))
             } else if object_data.mesh == "circle" {
                 Box::new(Circle::new(device, material))
-            // } else if object_data.mesh == "cylinder" {
-            //     Box::new(Cylinder::new(device, material))
+            } else if object_data.mesh == "cylinder" {
+                Box::new(Cylinder::new(device, material))
             } else {
                 Box::new(Quad::new(device, material))
             };

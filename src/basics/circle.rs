@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use crate::{
     basics::{
         core::Vertex,
@@ -8,6 +6,7 @@ use crate::{
     material::MaterialTrait,
 };
 use glam::{Mat3, Mat4};
+use std::f32::consts::PI;
 use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
