@@ -39,31 +39,31 @@ impl MaterialTrait for TextureMaterial {
     fn update(&self, queue: &wgpu::Queue, data: &dyn std::any::Any) {
         if let Some(data) = data.downcast_ref::<TextureUniforms>() {
             queue.write_buffer(&self.buffers[0], 0, bytemuck::cast_slice(&[data.object]));
-            let texture = maze::generate_texture(10, 10, color_utils::CP3.into());
-            let diffuse_rgba =
-                ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
-                    .expect("Failed to create ImageBuffer from raw data");
-            let dimensions = (texture.width, texture.height);
-            let texture_extent = Extent3d {
-                width: dimensions.0,
-                height: dimensions.1,
-                depth_or_array_layers: 1,
-            };
-            queue.write_texture(
-                wgpu::ImageCopyTexture {
-                    texture: &self.texture,
-                    mip_level: 0,
-                    origin: wgpu::Origin3d::ZERO,
-                    aspect: wgpu::TextureAspect::All,
-                },
-                &diffuse_rgba,
-                wgpu::ImageDataLayout {
-                    offset: 0,
-                    bytes_per_row: Some(4 * dimensions.0),
-                    rows_per_image: Some(dimensions.1),
-                },
-                texture_extent,
-            );
+            // let texture = maze::generate_texture(10, 10, color_utils::CP3.into());
+            // let diffuse_rgba =
+            //     ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
+            //         .expect("Failed to create ImageBuffer from raw data");
+            // let dimensions = (texture.width, texture.height);
+            // let texture_extent = Extent3d {
+            //     width: dimensions.0,
+            //     height: dimensions.1,
+            //     depth_or_array_layers: 1,
+            // };
+            // queue.write_texture(
+            //     wgpu::ImageCopyTexture {
+            //         texture: &self.texture,
+            //         mip_level: 0,
+            //         origin: wgpu::Origin3d::ZERO,
+            //         aspect: wgpu::TextureAspect::All,
+            //     },
+            //     &diffuse_rgba,
+            //     wgpu::ImageDataLayout {
+            //         offset: 0,
+            //         bytes_per_row: Some(4 * dimensions.0),
+            //         rows_per_image: Some(dimensions.1),
+            //     },
+            //     texture_extent,
+            // );
         }
     }
 

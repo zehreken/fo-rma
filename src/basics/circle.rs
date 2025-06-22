@@ -72,27 +72,27 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
         let x = RADIUS * sector_angle.cos();
         let y = RADIUS * sector_angle.sin();
 
-        let s = i as f32 / SECTOR_COUNT as f32;
-        let t = i as f32 / SECTOR_COUNT as f32;
+        let s = x + 0.5;
+        let t = y + 0.5;
 
         vertices.push(Vertex {
             position: [x, y, 0.0],
             color: [0.1, 0.1, 0.1],
-            normal: [0.0, 0.0, 1.0],
+            normal: [0.0, 0.0, -1.0],
             uv: [s, t],
         });
     }
     vertices.push(Vertex {
         position: [0.0, 0.0, 0.0],
         color: [0.1, 0.1, 0.1],
-        normal: [0.0, 0.0, 1.0],
-        uv: [0.0, 0.0],
+        normal: [0.0, 0.0, -1.0],
+        uv: [0.5, 0.5],
     }); // Add center vertex last, index = SECTOR_COUNT
 
     let mut indices = Vec::new();
     for i in 0..SECTOR_COUNT {
-        indices.push((i + 1) % SECTOR_COUNT);
         indices.push(i);
+        indices.push((i + 1) % SECTOR_COUNT);
         indices.push(SECTOR_COUNT);
     }
 
