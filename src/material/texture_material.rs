@@ -74,15 +74,12 @@ impl MaterialTrait for TextureMaterial {
 
 impl TextureMaterial {
     pub fn new(device: &Device, queue: &Queue, surface_config: &SurfaceConfiguration) -> Self {
-        // let diffuse_bytes = include_bytes!("../../textures/t.png");
-        // let diffuse_image = image::load_from_memory(diffuse_bytes)
-        //     .expect("Failed to load texture image from memory: ../../textures/uv.png");
-        // let diffuse_rgba = diffuse_image.to_rgba8();
-        let texture = maze::generate_texture(20, 20, color_utils::CP3.into());
-        let diffuse_rgba =
-            ImageBuffer::<Rgba<u8>, _>::from_raw(texture.width, texture.height, texture.data)
-                .expect("Failed to create ImageBuffer from raw data");
-        let dimensions = (texture.width, texture.height);
+        let diffuse_bytes = include_bytes!("../../textures/uv.png");
+        let diffuse_image = image::load_from_memory(diffuse_bytes)
+            .expect("Failed to load texture image from memory: ../../textures/uv.png");
+        let diffuse_rgba = diffuse_image.to_rgba8();
+        use image::GenericImageView;
+        let dimensions = diffuse_image.dimensions();
 
         let shader = rendering_utils::create_shader_module(device, Material::Texture);
 

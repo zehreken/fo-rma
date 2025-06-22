@@ -10,6 +10,7 @@ use super::{
     uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
 };
 use crate::{
+    basics::circle::Circle,
     color_utils::{self, ColorPalette, ToVec4},
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
@@ -17,7 +18,7 @@ use crate::{
         texture_material::{TextureMaterial, TextureUniforms},
         unlit_color_material::UnlitColorMaterial,
         wave_material::{WaveMaterial, WaveUniforms},
-        MaterialTrait, Material,
+        Material, MaterialTrait,
     },
 };
 use glam::vec3;
@@ -49,8 +50,7 @@ impl Scene {
             1000.0,
         );
 
-        let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> =
-            HashMap::new();
+        let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> = HashMap::new();
         for object_data in &scene_data.objects {
             let material_type: Material;
             let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
@@ -81,6 +81,10 @@ impl Scene {
                 Box::new(Sphere::new(device, material))
             } else if object_data.mesh == "triangle" {
                 Box::new(Triangle::new(device, material))
+            } else if object_data.mesh == "circle" {
+                Box::new(Circle::new(device, material))
+            // } else if object_data.mesh == "cylinder" {
+            //     Box::new(Cylinder::new(device, material))
             } else {
                 Box::new(Quad::new(device, material))
             };

@@ -8,7 +8,7 @@ use crate::{
 use std::mem;
 use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
-use super::{MaterialTrait, Material};
+use super::{Material, MaterialTrait};
 
 pub struct DebugMaterial {
     render_pipeline: RenderPipeline,

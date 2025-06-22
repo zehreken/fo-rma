@@ -1,4 +1,4 @@
-use super::{MaterialTrait, Material};
+use super::{Material, MaterialTrait};
 use crate::{
     basics::{
         core::Vertex,
