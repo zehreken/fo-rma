@@ -11,7 +11,7 @@ use glam::Mat4;
 use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
-const SECTOR_COUNT: usize = 4;
+const SECTOR_COUNT: usize = 7;
 const VERTEX_COUNT: usize = (SECTOR_COUNT + 1) * 2;
 
 pub struct Cylinder {
@@ -35,14 +35,15 @@ impl Primitive for Cylinder {
     }
 
     fn update(&mut self, delta_time: f32) {
-        self.state.model_matrix = Mat4::from_scale_rotation_translation(
-            self.state.transform.scale,
-            self.state.transform.rotation,
-            self.state.transform.position,
-        );
+        // self.state.model_matrix = Mat4::from_scale_rotation_translation(
+        //     self.state.transform.scale,
+        //     self.state.transform.rotation,
+        //     self.state.transform.position,
+        // );
 
-        self.state.normal_matrix =
-            glam::Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
+        // self.state.normal_matrix =
+        //     glam::Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
+        self.state.update(delta_time);
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
@@ -66,7 +67,7 @@ impl Primitive for Cylinder {
     }
 }
 
-fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COUNT * 3 * 2]) {
+fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COUNT * 4 * 3]) {
     let mut vertices = Vec::new();
     // Front face
     for i in 0..SECTOR_COUNT {
@@ -130,12 +131,24 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
         indices.push(SECTOR_COUNT + offset);
     }
 
+    // Side faces
+    for i in 0..SECTOR_COUNT {
+        let offset = SECTOR_COUNT + 1;
+        indices.push((i + 1) % SECTOR_COUNT);
+        indices.push(i);
+        indices.push((i + 1) % SECTOR_COUNT + offset);
+
+        indices.push(i + offset);
+        indices.push((i + 1) % SECTOR_COUNT + offset);
+        indices.push(i);
+    }
+
     let mut vertices_array: [Vertex; VERTEX_COUNT] = [Vertex::default(); VERTEX_COUNT];
     for (i, vertex) in vertices.iter().enumerate() {
         vertices_array[i] = *vertex;
     }
 
-    let mut indices_array: [u16; SECTOR_COUNT * 3 * 2] = [0; SECTOR_COUNT * 3 * 2];
+    let mut indices_array: [u16; SECTOR_COUNT * 4 * 3] = [0; SECTOR_COUNT * 4 * 3];
     for (i, index) in indices.iter().enumerate() {
         indices_array[i] = *index as u16;
     }
