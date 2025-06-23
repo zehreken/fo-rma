@@ -123,10 +123,11 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
     }
 
     // Back face
-    for i in SECTOR_COUNT + 1..SECTOR_COUNT * 2 {
-        indices.push(i);
-        indices.push((i + 1) % (SECTOR_COUNT * 2 + 1));
-        indices.push(SECTOR_COUNT * 2 + 1);
+    for i in 0..SECTOR_COUNT {
+        let offset = SECTOR_COUNT + 1;
+        indices.push((i + 1) % SECTOR_COUNT + offset);
+        indices.push(i + offset);
+        indices.push(SECTOR_COUNT + offset);
     }
 
     let mut vertices_array: [Vertex; VERTEX_COUNT] = [Vertex::default(); VERTEX_COUNT];
