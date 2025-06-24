@@ -10,7 +10,7 @@ use std::f32::consts::PI;
 use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
-const SECTOR_COUNT: usize = 12;
+const SECTOR_COUNT: usize = 64;
 const VERTEX_COUNT: usize = (SECTOR_COUNT + 1) * 2 + SECTOR_COUNT * 2;
 
 pub struct Cylinder {
@@ -34,15 +34,15 @@ impl Primitive for Cylinder {
     }
 
     fn update(&mut self, delta_time: f32) {
-        // self.state.model_matrix = Mat4::from_scale_rotation_translation(
-        //     self.state.transform.scale,
-        //     self.state.transform.rotation,
-        //     self.state.transform.position,
-        // );
+        self.state.model_matrix = Mat4::from_scale_rotation_translation(
+            self.state.transform.scale,
+            self.state.transform.rotation,
+            self.state.transform.position,
+        );
 
-        // self.state.normal_matrix =
-        //     glam::Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
-        self.state.update(delta_time);
+        self.state.normal_matrix =
+            glam::Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
+        // self.state.update(delta_time);
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
@@ -128,7 +128,7 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
             position: [x, y, -0.5],
             color: [0.1, 0.1, 0.1],
             normal: side_face_normal,
-            uv: [s, t],
+            uv: [i as f32 / SECTOR_COUNT as f32, 1.0],
         });
     }
     for i in 0..SECTOR_COUNT {
@@ -144,7 +144,7 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
             position: [x, y, 0.5],
             color: [0.1, 0.1, 0.1],
             normal: side_face_normal,
-            uv: [s, t],
+            uv: [i as f32 / SECTOR_COUNT as f32, 0.0],
         });
     }
 
