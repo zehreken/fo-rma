@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use crate::{
     basics::{
         core::Vertex,
@@ -8,11 +6,12 @@ use crate::{
     material::MaterialTrait,
 };
 use glam::Mat4;
+use std::f32::consts::PI;
 use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
-const SECTOR_COUNT: usize = 7;
-const VERTEX_COUNT: usize = (SECTOR_COUNT + 1) * 2;
+const SECTOR_COUNT: usize = 4;
+const VERTEX_COUNT: usize = (SECTOR_COUNT + 1) * 2 + SECTOR_COUNT * 2;
 
 pub struct Cylinder {
     pub state: PrimitiveState,
@@ -35,15 +34,15 @@ impl Primitive for Cylinder {
     }
 
     fn update(&mut self, delta_time: f32) {
-        // self.state.model_matrix = Mat4::from_scale_rotation_translation(
-        //     self.state.transform.scale,
-        //     self.state.transform.rotation,
-        //     self.state.transform.position,
-        // );
+        self.state.model_matrix = Mat4::from_scale_rotation_translation(
+            self.state.transform.scale,
+            self.state.transform.rotation,
+            self.state.transform.position,
+        );
 
-        // self.state.normal_matrix =
-        //     glam::Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
-        self.state.update(delta_time);
+        self.state.normal_matrix =
+            glam::Mat3::from_mat4(self.state.model_matrix.inverse().transpose());
+        // self.state.update(delta_time);
     }
 
     fn model_matrix(&self) -> [[f32; 4]; 4] {
@@ -115,6 +114,31 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
         uv: [0.5, 0.5],
     }); // Add center vertex last, index = SECTOR_COUNT
 
+    // Side face vertices
+    for i in 0..SECTOR_COUNT {
+        let sector_angle = i as f32 * 2.0 * PI / SECTOR_COUNT as f32;
+        let x = RADIUS * sector_angle.cos();
+        let y = RADIUS * sector_angle.sin();
+
+        let s = x + 0.5;
+        let t = y + 0.5;
+
+        let side_face_normal = [0.0, 0.0, 0.0];
+        vertices.push(Vertex {
+            position: [x, y, -0.5],
+            color: [0.1, 0.1, 0.1],
+            normal: [0.0, 0.0, -1.0],
+            uv: [s, t],
+        });
+
+        vertices.push(Vertex {
+            position: [x, y, 0.5],
+            color: [0.1, 0.1, 0.1],
+            normal: [0.0, 0.0, 1.0],
+            uv: [s, t],
+        });
+    }
+
     // Front face
     let mut indices = Vec::new();
     for i in 0..SECTOR_COUNT {
@@ -133,14 +157,18 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
 
     // Side faces
     for i in 0..SECTOR_COUNT {
-        let offset = SECTOR_COUNT + 1;
-        indices.push((i + 1) % SECTOR_COUNT);
-        indices.push(i);
-        indices.push((i + 1) % SECTOR_COUNT + offset);
+        let offset = 2 * (SECTOR_COUNT + 1);
+        let k1 = (i + 1) % SECTOR_COUNT + offset;
+        let k2 = i + offset;
+        let k3 = (i + 1) % SECTOR_COUNT + offset + SECTOR_COUNT;
+        dbg!(i, k1, k2, k3);
+        indices.push(k1);
+        indices.push(k2);
+        indices.push(k3);
 
-        indices.push(i + offset);
-        indices.push((i + 1) % SECTOR_COUNT + offset);
-        indices.push(i);
+        // indices.push(i + start_offset);
+        // indices.push((i + 1) % SECTOR_COUNT + start_offset);
+        // indices.push(i);
     }
 
     let mut vertices_array: [Vertex; VERTEX_COUNT] = [Vertex::default(); VERTEX_COUNT];

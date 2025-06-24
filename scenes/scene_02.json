@@ -83,7 +83,7 @@
         },
         {
             "mesh": "cylinder",
-            "material": "Texture",
+            "material": "DiffuseColor",
             "position": {
                 "x": 10.0,
                 "y": 5.0,
