@@ -2,7 +2,7 @@ use crate::{
     basics::{core::Vertex, uniforms::ObjectUniform},
     color_utils,
     material::{Material, MaterialTrait},
-    misc::maze,
+    misc::maze_generator,
     rendering_utils,
 };
 use image::{ImageBuffer, Rgba};
