@@ -1,7 +1,7 @@
 use glam::{Mat4, Vec3};
 use winit::dpi::PhysicalSize;
 
-const SPEED: f32 = 0.5;
+const SPEED: f32 = 0.05;
 const FAST_SPEED: f32 = 1.0;
 
 pub struct Camera {

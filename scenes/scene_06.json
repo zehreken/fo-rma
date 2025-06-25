@@ -43,7 +43,7 @@
     "objects": [
         {
             "mesh": "quad",
-            "material": "DiffuseColor",
+            "material": "DiffuseColorMaterial",
             "position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -63,6 +63,26 @@
         },
         {
             "mesh": "cylinder",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 0.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
             "material": "Texture",
             "position": {
                 "x": 0.0,
@@ -77,15 +97,15 @@
             },
             "scale": {
                 "x": 1.0,
-                "y": 2.0,
+                "y": 1.0,
                 "z": 1.0
             }
         },
         {
             "mesh": "cylinder",
-            "material": "DiffuseColor",
+            "material": "DiffuseColorMaterial",
             "position": {
-                "x": -2.0,
+                "x": 2.0,
                 "y": 2.0,
                 "z": 0.0
             },
@@ -97,7 +117,7 @@
             },
             "scale": {
                 "x": 1.0,
-                "y": 4.0,
+                "y": 1.0,
                 "z": 1.0
             }
         },
@@ -106,7 +126,7 @@
             "material": "Texture",
             "position": {
                 "x": 2.0,
-                "y": 3.0,
+                "y": 1.0,
                 "z": 0.0
             },
             "rotation": {
@@ -117,16 +137,16 @@
             },
             "scale": {
                 "x": 1.0,
-                "y": 6.0,
+                "y": 1.0,
                 "z": 1.0
             }
         },
         {
             "mesh": "cylinder",
-            "material": "DiffuseColor",
+            "material": "DiffuseColorMaterial",
             "position": {
                 "x": 4.0,
-                "y": 4.0,
+                "y": 2.0,
                 "z": 0.0
             },
             "rotation": {
@@ -137,7 +157,147 @@
             },
             "scale": {
                 "x": 1.0,
-                "y": 8.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "Texture",
+            "position": {
+                "x": 4.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 6.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "Texture",
+            "position": {
+                "x": 6.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 8.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "Texture",
+            "position": {
+                "x": 8.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "DiffuseColorMaterial",
+            "position": {
+                "x": 10.0,
+                "y": 2.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "mesh": "cylinder",
+            "material": "Texture",
+            "position": {
+                "x": 10.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
                 "z": 1.0
             }
         }

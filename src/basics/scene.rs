@@ -50,6 +50,9 @@ impl Scene {
             1000.0,
         );
 
+        let mut cylinder_counter = 0;
+        let sector_counts: [usize; 13] = [1, 2, 2, 3, 3, 4, 4, 9, 9, 36, 36, 360, 360];
+
         let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> = HashMap::new();
         for object_data in &scene_data.objects {
             let material_type: Material;
@@ -84,7 +87,12 @@ impl Scene {
             } else if object_data.mesh == "circle" {
                 Box::new(Circle::new(device, material))
             } else if object_data.mesh == "cylinder" {
-                Box::new(Cylinder::new(device, material))
+                cylinder_counter += 1;
+                Box::new(Cylinder::new(
+                    device,
+                    material,
+                    sector_counts[cylinder_counter],
+                ))
             } else {
                 Box::new(Quad::new(device, material))
             };
