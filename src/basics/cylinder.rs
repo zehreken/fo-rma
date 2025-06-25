@@ -10,7 +10,7 @@ use std::f32::consts::PI;
 use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
-const SECTOR_COUNT: usize = 64;
+const SECTOR_COUNT: usize = 36;
 const VERTEX_COUNT: usize = (SECTOR_COUNT + 1) * 2 + SECTOR_COUNT * 2;
 
 pub struct Cylinder {
@@ -68,49 +68,49 @@ impl Primitive for Cylinder {
 
 fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COUNT * 4 * 3]) {
     let mut vertices = Vec::new();
-    // Front face
+    // Top face
     for i in 0..SECTOR_COUNT {
         let sector_angle = i as f32 * 2.0 * PI / SECTOR_COUNT as f32;
         let x = RADIUS * sector_angle.cos();
-        let y = RADIUS * sector_angle.sin();
+        let z = RADIUS * sector_angle.sin();
 
         let s = x + 0.5;
-        let t = y + 0.5;
+        let t = z + 0.5;
 
         vertices.push(Vertex {
-            position: [x, y, -0.5],
+            position: [x, 0.5, z],
             color: [0.1, 0.1, 0.1],
-            normal: [0.0, 0.0, -1.0],
+            normal: [0.0, 1.0, 0.0],
             uv: [s, t],
         });
     }
     vertices.push(Vertex {
-        position: [0.0, 0.0, -0.5],
+        position: [0.0, 0.5, 0.0],
         color: [0.1, 0.1, 0.1],
-        normal: [0.0, 0.0, -1.0],
+        normal: [0.0, 1.0, 0.0],
         uv: [0.5, 0.5],
     }); // Add center vertex last, index = SECTOR_COUNT
 
-    // Back face
+    // Bottom face
     for i in 0..SECTOR_COUNT {
         let sector_angle = i as f32 * 2.0 * PI / SECTOR_COUNT as f32;
         let x = RADIUS * sector_angle.cos();
-        let y = RADIUS * sector_angle.sin();
+        let z = RADIUS * sector_angle.sin();
 
         let s = x + 0.5;
-        let t = y + 0.5;
+        let t = z + 0.5;
 
         vertices.push(Vertex {
-            position: [x, y, 0.5],
+            position: [x, -0.5, z],
             color: [0.1, 0.1, 0.1],
-            normal: [0.0, 0.0, 1.0],
+            normal: [0.0, -1.0, 0.0],
             uv: [s, t],
         });
     }
     vertices.push(Vertex {
-        position: [0.0, 0.0, 0.5],
+        position: [0.0, -0.5, 0.0],
         color: [0.1, 0.1, 0.1],
-        normal: [0.0, 0.0, 1.0],
+        normal: [0.0, -1.0, 0.0],
         uv: [0.5, 0.5],
     }); // Add center vertex last, index = SECTOR_COUNT
 
@@ -118,14 +118,11 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
     for i in 0..SECTOR_COUNT {
         let sector_angle = i as f32 * 2.0 * PI / SECTOR_COUNT as f32;
         let x = RADIUS * sector_angle.cos();
-        let y = RADIUS * sector_angle.sin();
+        let z = RADIUS * sector_angle.sin();
 
-        let s = x + 0.5;
-        let t = y + 0.5;
-
-        let side_face_normal = [sector_angle.cos(), sector_angle.sin(), 0.0];
+        let side_face_normal = [sector_angle.cos(), 0.0, sector_angle.sin()];
         vertices.push(Vertex {
-            position: [x, y, -0.5],
+            position: [x, 0.5, z],
             color: [0.1, 0.1, 0.1],
             normal: side_face_normal,
             uv: [i as f32 / SECTOR_COUNT as f32, 1.0],
@@ -134,21 +131,18 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
     for i in 0..SECTOR_COUNT {
         let sector_angle = i as f32 * 2.0 * PI / SECTOR_COUNT as f32;
         let x = RADIUS * sector_angle.cos();
-        let y = RADIUS * sector_angle.sin();
+        let z = RADIUS * sector_angle.sin();
 
-        let s = x + 0.5;
-        let t = y + 0.5;
-
-        let side_face_normal = [sector_angle.cos(), sector_angle.sin(), 0.0];
+        let side_face_normal = [sector_angle.cos(), 0.0, sector_angle.sin()];
         vertices.push(Vertex {
-            position: [x, y, 0.5],
+            position: [x, -0.5, z],
             color: [0.1, 0.1, 0.1],
             normal: side_face_normal,
             uv: [i as f32 / SECTOR_COUNT as f32, 0.0],
         });
     }
 
-    // Front face
+    // Top face
     let mut indices = Vec::new();
     for i in 0..SECTOR_COUNT {
         indices.push(i);
@@ -156,7 +150,7 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
         indices.push(SECTOR_COUNT);
     }
 
-    // Back face
+    // Bottom face
     for i in 0..SECTOR_COUNT {
         let offset = SECTOR_COUNT + 1;
         indices.push((i + 1) % SECTOR_COUNT + offset);
