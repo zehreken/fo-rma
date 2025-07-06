@@ -64,3 +64,50 @@ impl From<Quat> for glam::Quat {
         glam::quat(v.x, v.y, v.z, v.w)
     }
 }
+
+pub fn construct_scene_from_object_data(objects: Vec<Object>) -> SceneData {
+    let camera = Camera {
+        position: Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
+        rotation: Quat {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 0.0,
+        },
+        fov: 60.0,
+    };
+    let light = Light {
+        color: Vec3 {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        },
+        intensity: 1.0,
+        position: Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
+        rotation: Quat {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 0.0,
+        },
+        scale: Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
+    };
+
+    SceneData {
+        camera,
+        lights: vec![light],
+        objects,
+    }
+}
