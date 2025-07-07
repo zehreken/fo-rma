@@ -1,13 +1,11 @@
 pub mod camera;
+pub mod circle;
 pub mod core;
 pub mod cube;
+pub mod cylinder;
 pub mod light;
 pub mod primitive;
 pub mod quad;
-// pub mod scene;
-// pub mod scene2;
-pub mod circle;
-pub mod cylinder;
 pub mod scene;
 pub mod scene_loader;
 pub mod screen_quad;
