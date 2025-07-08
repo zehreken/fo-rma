@@ -37,7 +37,7 @@ impl LineRenderer {
         queue: &Queue,
         depth_texture: &TextureView,
         output_view: &TextureView,
-        level: &Scene,
+        scene: &Scene,
     ) {
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("line_renderer_encoder"),
@@ -66,7 +66,7 @@ impl LineRenderer {
         });
 
         render_pass.set_pipeline(&self.debug_materials[0].render_pipeline()); // Set pipeline once
-        let flat: Vec<&Box<dyn Primitive>> = level
+        let flat: Vec<&Box<dyn Primitive>> = scene
             .material_object_map
             .values()
             .flat_map(|v| v.iter())
@@ -76,7 +76,7 @@ impl LineRenderer {
         };
         for (i, primitive) in flat.iter().enumerate() {
             let object = ObjectUniform {
-                view_proj: level.camera.build_view_projection_matrix(),
+                view_proj: scene.camera.build_view_projection_matrix(),
                 model: primitive.model_matrix(),
                 normal1: primitive.normal_matrix().x_axis.extend(0.0).to_array(),
                 normal2: primitive.normal_matrix().y_axis.extend(0.0).to_array(),
@@ -98,6 +98,32 @@ impl LineRenderer {
             render_pass.set_bind_group(1, &self.debug_materials[i].bind_groups()[1], &[]);
 
             primitive.draw(&mut render_pass);
+        }
+
+        for debug_object in &scene.debug_objects {
+            let object = ObjectUniform {
+                view_proj: scene.camera.build_view_projection_matrix(),
+                model: debug_object.model_matrix(),
+                normal1: debug_object.normal_matrix().x_axis.extend(0.0).to_array(),
+                normal2: debug_object.normal_matrix().y_axis.extend(0.0).to_array(),
+                normal3: debug_object.normal_matrix().z_axis.extend(0.0).to_array(),
+            };
+
+            queue.write_buffer(
+                &self.debug_materials[0].buffers()[0],
+                0,
+                bytemuck::cast_slice(&[object]),
+            );
+            queue.write_buffer(
+                &self.debug_materials[0].buffers()[1],
+                0,
+                bytemuck::cast_slice(&[color]),
+            );
+
+            render_pass.set_bind_group(0, &self.debug_materials[0].bind_groups()[0], &[]);
+            render_pass.set_bind_group(1, &self.debug_materials[0].bind_groups()[1], &[]);
+
+            debug_object.draw(&mut render_pass);
         }
 
         drop(render_pass);

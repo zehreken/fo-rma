@@ -29,6 +29,7 @@ use winit::dpi::PhysicalSize;
 pub struct Scene {
     pub camera: Camera,
     pub material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>>,
+    pub debug_objects: Vec<Box<dyn Primitive>>,
     pub lights: Vec<Light>,
     elapsed: f32,
 }
@@ -100,7 +101,6 @@ impl Scene {
             object.transform().set_rotation(object_data.rotation.into());
             object.transform().set_scale(object_data.scale.into());
 
-            // objects.push(object);
             if material_object_map.contains_key(&material_type) {
                 material_object_map
                     .get_mut(&material_type)
@@ -115,10 +115,16 @@ impl Scene {
         let mut light = Light::new(color_utils::CP0.palette[1]);
         light.set_position(vec3(0.0, 10.0, 0.0));
         let lights = vec![light];
+        // debug
+        let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
+        let light_debug_sphere: Box<dyn Primitive> = Box::new(Sphere::new(device, debug_material));
+        let debug_objects = vec![light_debug_sphere];
+        // debug
 
         Self {
             camera,
             material_object_map,
+            debug_objects,
             lights,
             elapsed: 0.0,
         }

@@ -3,6 +3,7 @@ pub mod circle;
 pub mod core;
 pub mod cube;
 pub mod cylinder;
+pub mod debug_circle;
 pub mod light;
 pub mod primitive;
 pub mod quad;

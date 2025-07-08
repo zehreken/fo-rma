@@ -44,7 +44,7 @@ fn random_circle() -> Circle {
     Circle::new(
         rng.random_range(-20.0..20.0),
         rng.random_range(-20.0..20.0),
-        rng.random_range(2.0..5.0),
+        rng.random_range(2.0..2.1),
     )
 }
 
