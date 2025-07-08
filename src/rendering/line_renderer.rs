@@ -12,23 +12,14 @@ use wgpu::{
 };
 
 pub struct LineRenderer {
-    debug_materials: Vec<DebugMaterial>,
+    debug_material: DebugMaterial,
 }
 
 impl LineRenderer {
-    pub fn new(
-        device: &Device,
-        surface_config: &SurfaceConfiguration,
-        primitive_count: usize,
-    ) -> Self {
-        let mut debug_materials = vec![];
-        // Create one debug material for each primitive
-        for _ in 0..primitive_count {
-            let debug_material = DebugMaterial::new(device, surface_config);
-            debug_materials.push(debug_material);
-        }
+    pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
+        let debug_material = DebugMaterial::new(device, surface_config);
 
-        Self { debug_materials }
+        Self { debug_material }
     }
 
     pub fn render(
@@ -39,42 +30,43 @@ impl LineRenderer {
         output_view: &TextureView,
         scene: &Scene,
     ) {
-        let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
-            label: Some("line_renderer_encoder"),
-        });
-
-        let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
-            label: Some("line_render_pass"),
-            color_attachments: &[Some(RenderPassColorAttachment {
-                view: &output_view,
-                resolve_target: None,
-                ops: Operations {
-                    load: LoadOp::Load,
-                    store: StoreOp::Store,
-                },
-            })],
-            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-                view: depth_texture,
-                depth_ops: Some(wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(1.0),
-                    store: wgpu::StoreOp::Store,
-                }),
-                stencil_ops: None,
-            }),
-            timestamp_writes: None,
-            occlusion_query_set: None,
-        });
-
-        render_pass.set_pipeline(&self.debug_materials[0].render_pipeline()); // Set pipeline once
-        let flat: Vec<&Box<dyn Primitive>> = scene
+        let mut flat: Vec<&Box<dyn Primitive>> = scene
             .material_object_map
             .values()
             .flat_map(|v| v.iter())
             .collect();
+        flat.extend(scene.debug_objects.iter());
         let color = ColorUniform {
             color: [1.0, 0.0, 0.0, 1.0],
         };
-        for (i, primitive) in flat.iter().enumerate() {
+        for primitive in flat {
+            let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
+                label: Some("line_renderer_encoder"),
+            });
+
+            let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
+                label: Some("line_render_pass"),
+                color_attachments: &[Some(RenderPassColorAttachment {
+                    view: &output_view,
+                    resolve_target: None,
+                    ops: Operations {
+                        load: LoadOp::Load,
+                        store: StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                    view: depth_texture,
+                    depth_ops: Some(wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(1.0),
+                        store: wgpu::StoreOp::Store,
+                    }),
+                    stencil_ops: None,
+                }),
+                timestamp_writes: None,
+                occlusion_query_set: None,
+            });
+
+            render_pass.set_pipeline(&self.debug_material.render_pipeline()); // Set pipeline once
             let object = ObjectUniform {
                 view_proj: scene.camera.build_view_projection_matrix(),
                 model: primitive.model_matrix(),
@@ -84,50 +76,23 @@ impl LineRenderer {
             };
 
             queue.write_buffer(
-                &self.debug_materials[i].buffers()[0],
+                &self.debug_material.buffers()[0],
                 0,
                 bytemuck::cast_slice(&[object]),
             );
             queue.write_buffer(
-                &self.debug_materials[i].buffers()[1],
+                &self.debug_material.buffers()[1],
                 0,
                 bytemuck::cast_slice(&[color]),
             );
 
-            render_pass.set_bind_group(0, &self.debug_materials[i].bind_groups()[0], &[]);
-            render_pass.set_bind_group(1, &self.debug_materials[i].bind_groups()[1], &[]);
+            render_pass.set_bind_group(0, &self.debug_material.bind_groups()[0], &[]);
+            render_pass.set_bind_group(1, &self.debug_material.bind_groups()[1], &[]);
 
             primitive.draw(&mut render_pass);
+            drop(render_pass);
+
+            queue.submit(Some(encoder.finish()));
         }
-
-        for debug_object in &scene.debug_objects {
-            let object = ObjectUniform {
-                view_proj: scene.camera.build_view_projection_matrix(),
-                model: debug_object.model_matrix(),
-                normal1: debug_object.normal_matrix().x_axis.extend(0.0).to_array(),
-                normal2: debug_object.normal_matrix().y_axis.extend(0.0).to_array(),
-                normal3: debug_object.normal_matrix().z_axis.extend(0.0).to_array(),
-            };
-
-            queue.write_buffer(
-                &self.debug_materials[0].buffers()[0],
-                0,
-                bytemuck::cast_slice(&[object]),
-            );
-            queue.write_buffer(
-                &self.debug_materials[0].buffers()[1],
-                0,
-                bytemuck::cast_slice(&[color]),
-            );
-
-            render_pass.set_bind_group(0, &self.debug_materials[0].bind_groups()[0], &[]);
-            render_pass.set_bind_group(1, &self.debug_materials[0].bind_groups()[1], &[]);
-
-            debug_object.draw(&mut render_pass);
-        }
-
-        drop(render_pass);
-
-        queue.submit(Some(encoder.finish()));
     }
 }

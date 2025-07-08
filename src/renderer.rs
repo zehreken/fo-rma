@@ -32,7 +32,7 @@ pub struct Renderer<'a> {
 }
 
 impl<'a> Renderer<'a> {
-    pub async fn new(window: &'a Window, primitive_count: usize) -> Self {
+    pub async fn new(window: &'a Window) -> Self {
         let size = window.inner_size();
         let (instance, surface) = rendering_utils::create_instance_and_surface(window);
         let adapter = rendering_utils::create_adapter(instance, &surface).await;
@@ -55,7 +55,7 @@ impl<'a> Renderer<'a> {
         let render_texture_material = PostProcessMaterial::new(&device, &surface_config, size);
 
         let fill_renderer = FillRenderer::new();
-        let line_renderer = LineRenderer::new(&device, &surface_config, primitive_count);
+        let line_renderer = LineRenderer::new(&device, &surface_config);
         let post_processor = PostProcessor::new(
             &device,
             &render_texture_material.post_process_texture_view,

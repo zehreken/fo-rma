@@ -2,6 +2,7 @@ use crate::{
     audio::{audio_model::AudioModel, song},
     basics::{scene::Scene, scene_loader},
     color_utils::{self, ColorPalette},
+    misc::bicycle_generator,
     renderer, save_image,
 };
 use std::{
@@ -62,10 +63,11 @@ impl Settings {
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
         let json = include_str!("../scenes/scene_06.json");
-        let scene_data = scene_loader::construct_scene_from_json(json);
+        // let scene_data = scene_loader::construct_scene_from_json(json);
+        let scene_data = bicycle_generator::generate_bicycle_scene();
 
         let size = window.inner_size();
-        let renderer = renderer::Renderer::new(window, scene_data.objects.len()).await;
+        let renderer = renderer::Renderer::new(window).await;
 
         let scene = Scene::new(
             &renderer.device,
