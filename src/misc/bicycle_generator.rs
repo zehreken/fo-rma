@@ -4,9 +4,9 @@ use rand::Rng;
 /// https://en.wikipedia.org/wiki/Vitruvian_Man
 /// It was a search for the proportions of ideal man
 /// A Vitruvian bike can be a similar search
-use crate::basics::scene_loader::{
+use crate::{basics::{ circle, debug_circle::DebugCircle, primitive::Primitive, scene_loader::{
     construct_scene_from_object_data, Object, Quat, SceneData, Vec3,
-};
+}}, material::debug_material::DebugMaterial};
 
 pub fn generate_bicycle_scene() -> SceneData {
     let circles = [random_circle(), random_circle(), random_circle()];
@@ -39,7 +39,7 @@ pub fn generate_bicycle_scene() -> SceneData {
     construct_scene_from_object_data(objects)
 }
 
-fn random_circle() -> Circle {
+pub fn random_circle() -> Circle {
     let mut rng = rand::rng();
     Circle::new(
         rng.random_range(-20.0..20.0),
@@ -48,7 +48,7 @@ fn random_circle() -> Circle {
     )
 }
 
-struct Circle {
+pub struct Circle {
     pub x: f32,
     pub y: f32,
     pub r: f32,
