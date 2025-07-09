@@ -19,7 +19,8 @@ use crate::{
         unlit_color_material::UnlitColorMaterial,
         wave_material::{WaveMaterial, WaveUniforms},
         Material, MaterialTrait,
-    }, misc::bicycle_generator,
+    },
+    misc::bicycle_generator,
 };
 use glam::vec3;
 use std::{collections::HashMap, sync::Arc};
@@ -120,12 +121,20 @@ impl Scene {
         let light_debug_sphere: Box<dyn Primitive> = Box::new(Sphere::new(device, debug_material));
         let mut debug_objects: Vec<Box<dyn Primitive>> = vec![light_debug_sphere];
 
-        let circles = vec![bicycle_generator::random_circle(), bicycle_generator::random_circle(), bicycle_generator::random_circle()];
+        let circles = vec![
+            bicycle_generator::random_circle(),
+            bicycle_generator::random_circle(),
+            bicycle_generator::random_circle(),
+        ];
         for circle in circles {
             let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
             let mut object = Box::new(DebugCircle::new(device, debug_material));
-            object.transform().set_position(vec3(circle.x, circle.y, 0.0));
-            object.transform().set_scale(vec3(circle.r, circle.r,  circle.r));
+            object
+                .transform()
+                .set_position(vec3(circle.x, circle.y, 0.0));
+            object
+                .transform()
+                .set_scale(vec3(circle.r, circle.r, circle.r));
             debug_objects.push(object);
         }
         // debug

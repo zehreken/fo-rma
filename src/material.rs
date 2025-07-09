@@ -1,6 +1,7 @@
 use std::any::Any;
 use wgpu::{BindGroup, Buffer, Queue, RenderPipeline};
 
+pub mod debug_line_material;
 pub mod debug_material;
 pub mod diffuse_color_material;
 pub mod diffuse_texture_material;

@@ -10,13 +10,13 @@ use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
 use super::{Material, MaterialTrait};
 
-pub struct DebugMaterial {
+pub struct DebugLineMaterial {
     render_pipeline: RenderPipeline,
     buffers: [Buffer; 2],
     bind_groups: [BindGroup; 2],
 }
 
-impl MaterialTrait for DebugMaterial {
+impl MaterialTrait for DebugLineMaterial {
     fn render_pipeline(&self) -> &RenderPipeline {
         &self.render_pipeline
     }
@@ -36,7 +36,7 @@ impl MaterialTrait for DebugMaterial {
     }
 }
 
-impl DebugMaterial {
+impl DebugLineMaterial {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
         let shader = rendering_utils::create_shader_module(device, Material::Debug);
 
@@ -151,7 +151,7 @@ impl DebugMaterial {
                 })],
             }),
             primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
+                topology: wgpu::PrimitiveTopology::LineStrip,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
                 cull_mode: None,

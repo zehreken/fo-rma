@@ -11,7 +11,7 @@ use wgpu::Device;
 
 const RADIUS: f32 = 0.5;
 const SECTOR_COUNT: usize = 36; // Sector is like a slice of pizza
-const VERTEX_COUNT: usize = SECTOR_COUNT + 1; // Plus is the center vertex
+const INDEX_COUNT: usize = SECTOR_COUNT + 1;
 
 pub struct DebugCircle {
     pub state: PrimitiveState,
@@ -64,7 +64,7 @@ impl Primitive for DebugCircle {
     }
 }
 
-fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COUNT * 3]) {
+fn calculate_vertices_and_indices() -> ([Vertex; SECTOR_COUNT], [u16; INDEX_COUNT]) {
     let mut vertices = Vec::new();
     for i in 0..SECTOR_COUNT {
         let sector_angle = i as f32 * 2.0 * PI / SECTOR_COUNT as f32;
@@ -81,26 +81,19 @@ fn calculate_vertices_and_indices() -> ([Vertex; VERTEX_COUNT], [u16; SECTOR_COU
             uv: [s, t],
         });
     }
-    vertices.push(Vertex {
-        position: [0.0, 0.0, 0.0],
-        color: [0.1, 0.1, 0.1],
-        normal: [0.0, 0.0, -1.0],
-        uv: [0.5, 0.5],
-    }); // Add center vertex last, index = SECTOR_COUNT
 
     let mut indices = Vec::new();
     for i in 0..SECTOR_COUNT {
         indices.push(i);
-        indices.push((i + 1) % SECTOR_COUNT);
-        indices.push(SECTOR_COUNT);
     }
+    indices.push(0); // Close the loop
 
-    let mut vertices_array: [Vertex; VERTEX_COUNT] = [Vertex::default(); VERTEX_COUNT];
+    let mut vertices_array: [Vertex; SECTOR_COUNT] = [Vertex::default(); SECTOR_COUNT];
     for (i, vertex) in vertices.iter().enumerate() {
         vertices_array[i] = *vertex;
     }
 
-    let mut indices_array: [u16; SECTOR_COUNT * 3] = [0; SECTOR_COUNT * 3];
+    let mut indices_array: [u16; INDEX_COUNT] = [0; INDEX_COUNT];
     for (i, index) in indices.iter().enumerate() {
         indices_array[i] = *index as u16;
     }
