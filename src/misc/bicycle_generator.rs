@@ -24,13 +24,13 @@ pub fn generate_bicycle() -> Bicycle {
     let pos = vec2(0.0, 20.0);
     let radius = 10.0;
     let main_circle = Circle::new(pos.x, pos.y, radius);
-    let front_point_angle = PI;
+    let front_point_angle = PI + random_pi();
     let front_point = (vec2(front_point_angle.cos(), front_point_angle.sin()) * radius) + pos;
 
-    let back_point_angle = 0.0f32;
+    let back_point_angle = 0.0f32 + random_pi();
     let back_point = (vec2(back_point_angle.cos(), back_point_angle.sin()) * radius) + pos;
 
-    let down_point_angle = 3.0 * PI / 2.0;
+    let down_point_angle = 3.0 * PI / 2.0 + random_pi();
     let down_point = (vec2(down_point_angle.cos(), down_point_angle.sin()) * radius) + pos;
 
     let front_circle =
@@ -61,7 +61,7 @@ fn find_circle_two_points_and_radius(
     }
 
     if distance == 2.0 * radius {
-        let circle = Circle::new(midpoint.x, midpoint.y, distance);
+        let circle = Circle::new(midpoint.x, midpoint.y, radius);
         return Some(circle);
     }
 
@@ -72,10 +72,14 @@ fn find_circle_two_points_and_radius(
     let circle_pos1 = midpoint + perpendicular * h;
     let circle_pos2 = midpoint - perpendicular * h;
 
-    let distance1 = (circle_pos1 - main_pos).length();
-    let distance2 = (circle_pos2 - main_pos).length();
+    let main_to_midpoint = (midpoint - main_pos).normalize();
+    let dir1 = (circle_pos1 - main_pos).normalize();
+    let dir2 = (circle_pos2 - main_pos).normalize();
 
-    if distance > distance2 {
+    let dot1 = main_to_midpoint.dot(dir1);
+    let dot2 = main_to_midpoint.dot(dir2);
+
+    if dot1 > dot2 {
         return Some(Circle::new(circle_pos1.x, circle_pos1.y, radius));
     } else {
         return Some(Circle::new(circle_pos2.x, circle_pos2.y, radius));
@@ -89,6 +93,11 @@ pub fn random_circle() -> Circle {
         rng.random_range(-10.0..10.0),
         rng.random_range(20.0..30.0),
     )
+}
+
+fn random_pi() -> f32 {
+    let mut rng = rand::rng();
+    rng.random_range(-0.1 * PI..0.1 * PI)
 }
 
 pub struct Circle {
