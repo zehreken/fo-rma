@@ -117,14 +117,19 @@ impl Scene {
         light.set_position(vec3(0.0, 10.0, 0.0));
         let lights = vec![light];
         // debug
-        let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
-        let light_debug_sphere: Box<dyn Primitive> = Box::new(Sphere::new(device, debug_material));
-        let mut debug_objects: Vec<Box<dyn Primitive>> = vec![light_debug_sphere];
+        // let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
+        // let light_debug_sphere: Box<dyn Primitive> =
+        //     Box::new(DebugCircle::new(device, debug_material));
+        let mut debug_objects: Vec<Box<dyn Primitive>> = vec![];
 
+        let bicycle = bicycle_generator::generate_bicycle();
         let circles = vec![
-            bicycle_generator::random_circle(),
-            bicycle_generator::random_circle(),
-            bicycle_generator::random_circle(),
+            bicycle.main_circle,
+            bicycle.front_point,
+            bicycle.back_point,
+            bicycle.down_point,
+            bicycle.front_circle,
+            bicycle.back_circle,
         ];
         for circle in circles {
             let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));

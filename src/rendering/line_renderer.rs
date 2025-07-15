@@ -30,7 +30,7 @@ impl LineRenderer {
         output_view: &TextureView,
         scene: &Scene,
     ) {
-        let mut flat: Vec<&Box<dyn Primitive>> = scene
+        let flat: Vec<&Box<dyn Primitive>> = scene
             .material_object_map
             .values()
             .flat_map(|v| v.iter())

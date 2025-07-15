@@ -9,8 +9,8 @@ use glam::{Mat3, Mat4};
 use std::f32::consts::PI;
 use wgpu::Device;
 
-const RADIUS: f32 = 0.5;
-const SECTOR_COUNT: usize = 36; // Sector is like a slice of pizza
+const RADIUS: f32 = 1.0;
+const SECTOR_COUNT: usize = 60; // Sector is like a slice of pizza
 const INDEX_COUNT: usize = SECTOR_COUNT + 1;
 
 pub struct DebugCircle {

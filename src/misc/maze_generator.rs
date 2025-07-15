@@ -69,7 +69,7 @@ pub fn generate_texture(
     let mut data: Vec<u8> = Vec::new();
     for row in 0..height {
         for column in 0..width {
-            let v = (((row * column) as f32 / (width * height) as f32) * 255.0);
+            let v = ((row * column) as f32 / (width * height) as f32) * 255.0;
             let v = (v + 100.0) as u8;
             data.push(v);
             data.push(0);
