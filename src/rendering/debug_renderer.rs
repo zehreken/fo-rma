@@ -1,23 +1,22 @@
 use crate::{
     basics::{
-        primitive::Primitive,
         scene::Scene,
         uniforms::{ColorUniform, ObjectUniform},
     },
-    material::{debug_material::DebugMaterial, MaterialTrait},
+    material::{debug_line_material::DebugLineMaterial, MaterialTrait},
 };
 use wgpu::{
     CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,
     RenderPassDescriptor, StoreOp, SurfaceConfiguration, TextureView,
 };
 
-pub struct LineRenderer {
-    debug_material: DebugMaterial,
+pub struct DebugRenderer {
+    debug_material: DebugLineMaterial,
 }
 
-impl LineRenderer {
+impl DebugRenderer {
     pub fn new(device: &Device, surface_config: &SurfaceConfiguration) -> Self {
-        let debug_material = DebugMaterial::new(device, surface_config);
+        let debug_material = DebugLineMaterial::new(device, surface_config);
 
         Self { debug_material }
     }
@@ -30,15 +29,10 @@ impl LineRenderer {
         output_view: &TextureView,
         scene: &Scene,
     ) {
-        let mut flat: Vec<&Box<dyn Primitive>> = scene
-            .material_object_map
-            .values()
-            .flat_map(|v| v.iter())
-            .collect();
         let color = ColorUniform {
-            color: [1.0, 0.0, 0.0, 1.0],
+            color: [0.0, 1.0, 0.0, 1.0],
         };
-        for primitive in flat {
+        for primitive in &scene.debug_objects {
             let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
                 label: Some("line_renderer_encoder"),
             });

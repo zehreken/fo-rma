@@ -6,6 +6,7 @@ use crate::{
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
+        debug_renderer::DebugRenderer,
         fill_renderer::FillRenderer,
         line_renderer::LineRenderer,
         post_processor::{Effect, PostProcessor},
@@ -26,6 +27,7 @@ pub struct Renderer<'a> {
     pub render_texture_material: PostProcessMaterial,
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
+    debug_renderer: DebugRenderer,
     post_processor: PostProcessor,
     screen_renderer: ScreenRenderer,
     size: PhysicalSize<u32>,
@@ -56,6 +58,7 @@ impl<'a> Renderer<'a> {
 
         let fill_renderer = FillRenderer::new();
         let line_renderer = LineRenderer::new(&device, &surface_config);
+        let debug_renderer = DebugRenderer::new(&device, &surface_config);
         let post_processor = PostProcessor::new(
             &device,
             &render_texture_material.post_process_texture_view,
@@ -73,6 +76,7 @@ impl<'a> Renderer<'a> {
             render_texture_material,
             fill_renderer,
             line_renderer,
+            debug_renderer,
             post_processor,
             screen_renderer,
             size,
@@ -105,6 +109,13 @@ impl<'a> Renderer<'a> {
 
         if settings.draw_debug_lines {
             self.line_renderer.render(
+                &self.device,
+                &self.queue,
+                &self.depth_texture,
+                &self.render_texture_material.render_texture_view,
+                scene,
+            );
+            self.debug_renderer.render(
                 &self.device,
                 &self.queue,
                 &self.depth_texture,

@@ -1,3 +1,4 @@
+pub mod debug_renderer;
 pub mod fill_renderer;
 pub mod line_renderer;
 pub mod post_processor;
