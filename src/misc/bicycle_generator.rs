@@ -14,10 +14,10 @@ pub struct Bicycle {
     pub down_point: Circle,
     // front circle
     pub front_circle: Circle,
-    // point on front circle
+    pub point_on_front: Circle,
     // back circle
     pub back_circle: Circle,
-    // point on back circle
+    pub point_on_back: Circle,
 }
 
 pub fn generate_bicycle() -> Bicycle {
@@ -38,13 +38,18 @@ pub fn generate_bicycle() -> Bicycle {
     let back_circle =
         find_circle_two_points_and_radius(back_point, down_point, radius, pos).unwrap();
 
+    let point_on_front = find_point_on_circle(pos, &front_circle);
+    let point_on_back = find_point_on_circle(pos, &back_circle);
+
     Bicycle {
         main_circle,
         front_point: Circle::new(front_point.x, front_point.y, 1.0),
         back_point: Circle::new(back_point.x, back_point.y, 1.0),
         down_point: Circle::new(down_point.x, down_point.y, 1.0),
         front_circle,
+        point_on_front,
         back_circle,
+        point_on_back,
     }
 }
 
@@ -84,6 +89,18 @@ fn find_circle_two_points_and_radius(
     } else {
         return Some(Circle::new(circle_pos2.x, circle_pos2.y, radius));
     }
+}
+
+// Picks a random point on a circle constrained by the main_pos
+fn find_point_on_circle(main_pos: Vec2, circle: &Circle) -> Circle {
+    let direction = (vec2(circle.x, circle.y) - main_pos).normalize();
+    let point = Circle::new(
+        circle.x + direction.x * circle.r,
+        circle.y + direction.y * circle.r,
+        1.0,
+    );
+
+    return point;
 }
 
 pub fn random_circle() -> Circle {

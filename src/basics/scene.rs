@@ -129,7 +129,9 @@ impl Scene {
             bicycle.back_point,
             bicycle.down_point,
             bicycle.front_circle,
+            bicycle.point_on_front,
             bicycle.back_circle,
+            bicycle.point_on_back,
         ];
         for circle in circles {
             let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
