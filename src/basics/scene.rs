@@ -52,11 +52,10 @@ impl Scene {
             1000.0,
         );
 
-        let mut cylinder_counter = 0;
-        let sector_counts: [usize; 13] = [1, 2, 2, 3, 3, 4, 4, 9, 9, 36, 36, 360, 360];
-
         let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> = HashMap::new();
-        for object_data in &scene_data.objects {
+        // for object_data in &scene_data.objects {
+        let objects = bicycle_generator::generate_bicycle_objects();
+        for object_data in objects {
             let material_type: Material;
             let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
             {
@@ -89,12 +88,7 @@ impl Scene {
             } else if object_data.mesh == "circle" {
                 Box::new(Circle::new(device, material))
             } else if object_data.mesh == "cylinder" {
-                cylinder_counter += 1;
-                Box::new(Cylinder::new(
-                    device,
-                    material,
-                    sector_counts[cylinder_counter],
-                ))
+                Box::new(Cylinder::new(device, material, 60))
             } else {
                 Box::new(Quad::new(device, material))
             };
@@ -129,16 +123,16 @@ impl Scene {
             bicycle.back_point,
             bicycle.down_point,
             bicycle.front_circle,
-            bicycle.point_on_front,
+            bicycle.front_wheel_point,
             bicycle.back_circle,
-            bicycle.point_on_back,
+            bicycle.back_wheel_point,
         ];
         for circle in circles {
             let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
             let mut object = Box::new(DebugCircle::new(device, debug_material));
             object
                 .transform()
-                .set_position(vec3(circle.x, circle.y, 0.0));
+                .set_position(vec3(circle.pos.x, circle.pos.y, 0.0));
             object
                 .transform()
                 .set_scale(vec3(circle.r, circle.r, circle.r));

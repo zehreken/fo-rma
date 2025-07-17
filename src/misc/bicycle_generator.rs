@@ -1,6 +1,8 @@
 use glam::{vec2, Vec2};
 use rand::Rng;
-use std::f32::consts::PI;
+use std::{f32::consts::PI, vec};
+
+use crate::basics::scene_loader::{Object, Quat, Vec3};
 
 /// I want you to do some research about the Vitruvian man
 /// https://en.wikipedia.org/wiki/Vitruvian_Man
@@ -14,16 +16,16 @@ pub struct Bicycle {
     pub down_point: Circle,
     // front circle
     pub front_circle: Circle,
-    pub point_on_front: Circle,
+    pub front_wheel_point: Circle,
     // back circle
     pub back_circle: Circle,
-    pub point_on_back: Circle,
+    pub back_wheel_point: Circle,
 }
 
 pub fn generate_bicycle() -> Bicycle {
     let pos = vec2(0.0, 20.0);
     let radius = 10.0;
-    let main_circle = Circle::new(pos.x, pos.y, radius);
+    let main_circle = Circle::new(pos, radius);
     let front_point_angle = PI + random_pi();
     let front_point = (vec2(front_point_angle.cos(), front_point_angle.sin()) * radius) + pos;
 
@@ -43,14 +45,94 @@ pub fn generate_bicycle() -> Bicycle {
 
     Bicycle {
         main_circle,
-        front_point: Circle::new(front_point.x, front_point.y, 1.0),
-        back_point: Circle::new(back_point.x, back_point.y, 1.0),
-        down_point: Circle::new(down_point.x, down_point.y, 1.0),
+        front_point: Circle::new(front_point, 1.0),
+        back_point: Circle::new(back_point, 1.0),
+        down_point: Circle::new(down_point, 1.0),
         front_circle,
-        point_on_front,
+        front_wheel_point: point_on_front,
         back_circle,
-        point_on_back,
+        back_wheel_point: point_on_back,
     }
+}
+
+pub fn generate_bicycle_objects() -> Vec<Object> {
+    let bicycle = generate_bicycle();
+
+    let mut objects = vec![];
+
+    fn create_object(pos1: Vec2, pos2: Vec2) -> Object {
+        let position = (pos1 + pos2) / 2.0;
+        let direction = (pos2 - pos1).normalize();
+        let half_angle = PI / 4.0 + direction.y.atan2(direction.x) / 2.0;
+        let scale = (pos2 - pos1).length();
+        let object = Object {
+            mesh: "cylinder".to_owned(),
+            material: "EqualizerMaterial".to_owned(),
+            position: Vec3 {
+                x: position.x,
+                y: position.y,
+                z: 0.0,
+            },
+            rotation: Quat {
+                x: 0.0,
+                y: 0.0,
+                z: half_angle.sin(),
+                w: half_angle.cos(),
+            },
+            scale: Vec3 {
+                x: 1.0,
+                y: scale,
+                z: 1.0,
+            },
+        };
+        object
+    }
+    fn create_wheel(position: Vec2) -> Object {
+        let object = Object {
+            mesh: "cylinder".to_owned(),
+            material: "EqualizerMaterial".to_owned(),
+            position: Vec3 {
+                x: position.x,
+                y: position.y,
+                z: 0.0,
+            },
+            rotation: Quat {
+                x: (PI / 4.0).sin(),
+                y: 0.0,
+                z: 0.0,
+                w: (PI / 4.0).cos(),
+            },
+            scale: Vec3 {
+                x: 20.0,
+                y: 0.2,
+                z: 20.0,
+            },
+        };
+        object
+    }
+
+    let top_bar = create_object(bicycle.front_point.pos, bicycle.back_point.pos);
+    objects.push(top_bar);
+
+    let front_bar = create_object(bicycle.front_point.pos, bicycle.down_point.pos);
+    objects.push(front_bar);
+
+    let back_bar = create_object(bicycle.back_point.pos, bicycle.down_point.pos);
+    objects.push(back_bar);
+
+    let top_stay = create_object(bicycle.back_point.pos, bicycle.back_wheel_point.pos);
+    objects.push(top_stay);
+    let bottom_stay = create_object(bicycle.down_point.pos, bicycle.back_wheel_point.pos);
+    objects.push(bottom_stay);
+    let back_wheel = create_wheel(bicycle.back_wheel_point.pos);
+    objects.push(back_wheel);
+
+    let fork = create_object(bicycle.front_point.pos, bicycle.front_wheel_point.pos);
+    objects.push(fork);
+    let front_wheel = create_wheel(bicycle.front_wheel_point.pos);
+    objects.push(front_wheel);
+
+    return objects;
 }
 
 fn find_circle_two_points_and_radius(
@@ -66,7 +148,7 @@ fn find_circle_two_points_and_radius(
     }
 
     if distance == 2.0 * radius {
-        let circle = Circle::new(midpoint.x, midpoint.y, radius);
+        let circle = Circle::new(midpoint, radius);
         return Some(circle);
     }
 
@@ -85,20 +167,16 @@ fn find_circle_two_points_and_radius(
     let dot2 = main_to_midpoint.dot(dir2);
 
     if dot1 > dot2 {
-        return Some(Circle::new(circle_pos1.x, circle_pos1.y, radius));
+        return Some(Circle::new(circle_pos1, radius));
     } else {
-        return Some(Circle::new(circle_pos2.x, circle_pos2.y, radius));
+        return Some(Circle::new(circle_pos2, radius));
     }
 }
 
 // Picks a random point on a circle constrained by the main_pos
 fn find_point_on_circle(main_pos: Vec2, circle: &Circle) -> Circle {
-    let direction = (vec2(circle.x, circle.y) - main_pos).normalize();
-    let point = Circle::new(
-        circle.x + direction.x * circle.r,
-        circle.y + direction.y * circle.r,
-        1.0,
-    );
+    let direction = (circle.pos - main_pos).normalize();
+    let point = Circle::new(circle.pos + direction * circle.r, 1.0);
 
     return point;
 }
@@ -106,25 +184,24 @@ fn find_point_on_circle(main_pos: Vec2, circle: &Circle) -> Circle {
 pub fn random_circle() -> Circle {
     let mut rng = rand::rng();
     Circle::new(
-        rng.random_range(-10.0..10.0),
-        rng.random_range(-10.0..10.0),
+        vec2(rng.random_range(-10.0..10.0), rng.random_range(-10.0..10.0)),
         rng.random_range(20.0..30.0),
     )
 }
 
 fn random_pi() -> f32 {
     let mut rng = rand::rng();
-    rng.random_range(-0.1 * PI..0.1 * PI)
+    rng.random_range(-0.1 * PI..0.1 * PI);
+    0.0
 }
 
 pub struct Circle {
-    pub x: f32,
-    pub y: f32,
+    pub pos: Vec2,
     pub r: f32,
 }
 
 impl Circle {
-    pub fn new(x: f32, y: f32, r: f32) -> Self {
-        Self { x, y, r }
+    pub fn new(pos: Vec2, r: f32) -> Self {
+        Self { pos, r }
     }
 }
