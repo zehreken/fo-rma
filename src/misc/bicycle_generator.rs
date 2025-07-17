@@ -55,7 +55,7 @@ pub fn generate_bicycle() -> Bicycle {
     }
 }
 
-pub fn generate_bicycle_objects() -> Vec<Object> {
+pub fn generate_bicycle_objects() -> (Bicycle, Vec<Object>) {
     let bicycle = generate_bicycle();
 
     let mut objects = vec![];
@@ -67,7 +67,7 @@ pub fn generate_bicycle_objects() -> Vec<Object> {
         let scale = (pos2 - pos1).length();
         let object = Object {
             mesh: "cylinder".to_owned(),
-            material: "EqualizerMaterial".to_owned(),
+            material: "DiffuseColor".to_owned(),
             position: Vec3 {
                 x: position.x,
                 y: position.y,
@@ -90,7 +90,7 @@ pub fn generate_bicycle_objects() -> Vec<Object> {
     fn create_wheel(position: Vec2) -> Object {
         let object = Object {
             mesh: "cylinder".to_owned(),
-            material: "EqualizerMaterial".to_owned(),
+            material: "DiffuseColor".to_owned(),
             position: Vec3 {
                 x: position.x,
                 y: position.y,
@@ -132,7 +132,7 @@ pub fn generate_bicycle_objects() -> Vec<Object> {
     let front_wheel = create_wheel(bicycle.front_wheel_point.pos);
     objects.push(front_wheel);
 
-    return objects;
+    return (bicycle, objects);
 }
 
 fn find_circle_two_points_and_radius(
@@ -191,8 +191,8 @@ pub fn random_circle() -> Circle {
 
 fn random_pi() -> f32 {
     let mut rng = rand::rng();
-    rng.random_range(-0.1 * PI..0.1 * PI);
-    0.0
+    let limit = 0.3 * PI;
+    rng.random_range(-limit..limit)
 }
 
 pub struct Circle {

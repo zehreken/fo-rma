@@ -54,7 +54,7 @@ impl Scene {
 
         let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> = HashMap::new();
         // for object_data in &scene_data.objects {
-        let objects = bicycle_generator::generate_bicycle_objects();
+        let (bicycle, objects) = bicycle_generator::generate_bicycle_objects();
         for object_data in objects {
             let material_type: Material;
             let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
@@ -88,7 +88,7 @@ impl Scene {
             } else if object_data.mesh == "circle" {
                 Box::new(Circle::new(device, material))
             } else if object_data.mesh == "cylinder" {
-                Box::new(Cylinder::new(device, material, 60))
+                Box::new(Cylinder::new(device, material, 30))
             } else {
                 Box::new(Quad::new(device, material))
             };
@@ -116,7 +116,6 @@ impl Scene {
         //     Box::new(DebugCircle::new(device, debug_material));
         let mut debug_objects: Vec<Box<dyn Primitive>> = vec![];
 
-        let bicycle = bicycle_generator::generate_bicycle();
         let circles = vec![
             bicycle.main_circle,
             bicycle.front_point,
