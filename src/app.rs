@@ -38,6 +38,7 @@ pub struct App<'a> {
     last_frame_time: Instant,
     settings: Settings,
     ui_events: Vec<UiEvent>,
+    bicycle_timer: f32,
 }
 
 pub struct Settings {
@@ -91,6 +92,7 @@ impl<'a> App<'a> {
             last_frame_time: Instant::now(),
             settings: Settings::new(),
             ui_events: vec![],
+            bicycle_timer: 0.0,
         }
     }
 
@@ -119,6 +121,13 @@ impl<'a> App<'a> {
 
         let rolling_wave: Vec<f32> = self.audio_model.rolling_wave.iter().map(|i| *i).collect();
         signal_peak = (signal_peak - 0.05).max(0.0);
+
+        self.bicycle_timer += delta_time;
+        if self.bicycle_timer > 1.0 {
+            self.scene
+                .update_bicycle(&self.renderer.device, &self.renderer.surface_config);
+            self.bicycle_timer = 0.0;
+        }
         self.scene.update(
             &self.renderer.queue,
             delta_time,

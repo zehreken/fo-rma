@@ -108,7 +108,7 @@ impl Scene {
         // material_object_map.insert(MaterialType::WaveMaterial, objects);
 
         let mut light = Light::new(color_utils::CP0.palette[1]);
-        light.set_position(vec3(0.0, 10.0, 0.0));
+        light.set_position(vec3(0.0, 0.0, -10.0));
         let lights = vec![light];
         // debug
         // let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
@@ -148,6 +148,89 @@ impl Scene {
         }
     }
 
+    pub fn update_bicycle(&mut self, device: &Device, surface_config: &SurfaceConfiguration) {
+        let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> = HashMap::new();
+        let (bicycle, objects) = bicycle_generator::generate_bicycle_objects();
+        for object_data in objects {
+            let material_type: Material;
+            let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
+            {
+                material_type = Material::DiffuseColor;
+                Box::new(DiffuseColorMaterial::new(device, surface_config))
+            } else if object_data.material == "EqualizerMaterial" {
+                material_type = Material::Equalizer;
+                Box::new(EqualizerMaterial::new(device, surface_config))
+            } else if object_data.material == "UnlitColorMaterial" {
+                material_type = Material::UnlitColor;
+                Box::new(UnlitColorMaterial::new(device, surface_config))
+            } else if object_data.material == "WaveMaterial" {
+                material_type = Material::Wave;
+                Box::new(WaveMaterial::new(device, surface_config))
+            } else if object_data.material == "Texture" {
+                material_type = Material::Texture;
+                // Box::new(TextureMaterial::new(device, queue, surface_config))
+                Box::new(WaveMaterial::new(device, surface_config))
+            } else if object_data.material == "DiffuseTexture" {
+                todo!()
+            } else {
+                material_type = Material::DiffuseColor;
+                Box::new(DiffuseColorMaterial::new(device, surface_config))
+            };
+            let mut object: Box<dyn Primitive> = if object_data.mesh == "cube" {
+                Box::new(Cube::new(device, material))
+            } else if object_data.mesh == "sphere" {
+                Box::new(Sphere::new(device, material))
+            } else if object_data.mesh == "triangle" {
+                Box::new(Triangle::new(device, material))
+            } else if object_data.mesh == "circle" {
+                Box::new(Circle::new(device, material))
+            } else if object_data.mesh == "cylinder" {
+                Box::new(Cylinder::new(device, material, 30))
+            } else {
+                Box::new(Quad::new(device, material))
+            };
+            object.transform().set_position(object_data.position.into());
+            object.transform().set_rotation(object_data.rotation.into());
+            object.transform().set_scale(object_data.scale.into());
+
+            if material_object_map.contains_key(&material_type) {
+                material_object_map
+                    .get_mut(&material_type)
+                    .unwrap()
+                    .push(object);
+            } else {
+                material_object_map.insert(material_type, vec![object]);
+            }
+        }
+
+        let mut debug_objects: Vec<Box<dyn Primitive>> = vec![];
+
+        let circles = vec![
+            bicycle.main_circle,
+            bicycle.front_point,
+            bicycle.back_point,
+            bicycle.down_point,
+            bicycle.front_circle,
+            bicycle.front_wheel_point,
+            bicycle.back_circle,
+            bicycle.back_wheel_point,
+        ];
+        for circle in circles {
+            let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
+            let mut object = Box::new(DebugCircle::new(device, debug_material));
+            object
+                .transform()
+                .set_position(vec3(circle.pos.x, circle.pos.y, 0.0));
+            object
+                .transform()
+                .set_scale(vec3(circle.r, circle.r, circle.r));
+            debug_objects.push(object);
+        }
+
+        self.material_object_map = material_object_map;
+        self.debug_objects = debug_objects;
+    }
+
     pub fn update(
         &mut self,
         queue: &Queue,
@@ -159,7 +242,7 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
+        // self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
 
         // self.camera.set_position(vec3(
         //     8.0 * self.elapsed.cos(),
