@@ -40,8 +40,8 @@ pub fn generate_bicycle() -> Bicycle {
     let back_circle =
         find_circle_two_points_and_radius(back_point, down_point, radius, pos).unwrap();
 
-    let point_on_front = find_point_on_circle(pos, &front_circle);
-    let point_on_back = find_point_on_circle(pos, &back_circle);
+    let front_wheel_point = find_point_on_circle(pos, &front_circle);
+    let back_wheel_point = find_point_on_circle(pos, &back_circle);
 
     Bicycle {
         main_circle,
@@ -49,9 +49,9 @@ pub fn generate_bicycle() -> Bicycle {
         back_point: Circle::new(back_point, 1.0),
         down_point: Circle::new(down_point, 1.0),
         front_circle,
-        front_wheel_point: point_on_front,
+        front_wheel_point,
         back_circle,
-        back_wheel_point: point_on_back,
+        back_wheel_point,
     }
 }
 
@@ -159,17 +159,26 @@ fn find_circle_two_points_and_radius(
     let circle_pos1 = midpoint + perpendicular * h;
     let circle_pos2 = midpoint - perpendicular * h;
 
-    let main_to_midpoint = (midpoint - main_pos).normalize();
-    let dir1 = (circle_pos1 - main_pos).normalize();
-    let dir2 = (circle_pos2 - main_pos).normalize();
+    // let main_to_midpoint = (midpoint - main_pos).normalize();
+    // let dir1 = (circle_pos1 - main_pos).normalize();
+    // let dir2 = (circle_pos2 - main_pos).normalize();
 
-    let dot1 = main_to_midpoint.dot(dir1);
-    let dot2 = main_to_midpoint.dot(dir2);
+    // let dot1 = main_to_midpoint.dot(dir1);
+    // let dot2 = main_to_midpoint.dot(dir2);
 
-    if dot1 > dot2 {
-        return Some(Circle::new(circle_pos1, radius));
+    // if dot1 > dot2 {
+    //     return Some(Circle::new(circle_pos1, radius));
+    // } else {
+    //     return Some(Circle::new(circle_pos2, radius));
+    // }
+
+    let dist1 = (circle_pos1 - main_pos).length();
+    let dist2 = (circle_pos2 - main_pos).length();
+
+    if dist1 > dist2 {
+        Some(Circle::new(circle_pos1, radius))
     } else {
-        return Some(Circle::new(circle_pos2, radius));
+        Some(Circle::new(circle_pos2, radius))
     }
 }
 
