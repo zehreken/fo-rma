@@ -114,6 +114,9 @@ impl PostProcessor {
             Effect::Step => {
                 wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/step.comp.wgsl").into())
             }
+            Effect::Watercolor => wgpu::ShaderSource::Wgsl(
+                include_str!("../shaders/compute/watercolor.comp.wgsl").into(),
+            ),
         };
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
@@ -235,4 +238,5 @@ pub enum Effect {
     FlipAxis,
     Grayscale,
     Step,
+    Watercolor,
 }
