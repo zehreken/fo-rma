@@ -2,25 +2,25 @@ use crate::basics::uniforms::ColorUniform;
 use std::{mem, time::Instant};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, TextureView};
 
-pub struct PostProcessor {
+struct EffectCon {
     compute_pipeline: ComputePipeline,
-    pub bind_group: BindGroup,
-    pub control_uniform_buffer: Buffer,
-    pub control_bg: BindGroup,
-    pub instant: Instant,
-    pub effect: Effect,
+    bind_group: BindGroup,
 }
 
-impl PostProcessor {
-    pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
+impl EffectCon {
+    fn new(
+        device: &Device,
+        write_view: &TextureView,
+        read_view: &TextureView,
+        control_bgl: &BindGroupLayout,
+    ) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("compute_shader"),
             source: wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/none.comp.wgsl").into(),
+                include_str!("../shaders/compute/pixelate.comp.wgsl").into(),
             ),
         });
         let (layout, bind_group) = create_bind_group(device, write_view, read_view);
-        let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("post_process_pipeline_layout"),
@@ -38,10 +38,56 @@ impl PostProcessor {
         Self {
             compute_pipeline,
             bind_group,
+        }
+    }
+}
+
+pub struct PostProcessor {
+    // compute_pipeline: ComputePipeline,
+    // pub bind_group: BindGroup,
+    pub control_uniform_buffer: Buffer,
+    pub control_bg: BindGroup,
+    pub instant: Instant,
+    pub effect: Effect,
+    effects: Vec<EffectCon>,
+}
+
+impl PostProcessor {
+    pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
+        // let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        //     label: Some("compute_shader"),
+        //     source: wgpu::ShaderSource::Wgsl(
+        //         include_str!("../shaders/compute/none.comp.wgsl").into(),
+        //     ),
+        // });
+        // let (layout, bind_group) = create_bind_group(device, write_view, read_view);
+        let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
+
+        // let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        //     label: Some("post_process_pipeline_layout"),
+        //     bind_group_layouts: &[&layout, &control_bgl],
+        //     push_constant_ranges: &[],
+        // });
+
+        // let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        //     label: Some("post_process_pipeline"),
+        //     layout: Some(&pipeline_layout),
+        //     module: &shader,
+        //     entry_point: "cs_main",
+        // });
+
+        let effect_1 = EffectCon::new(device, write_view, read_view, &control_bgl);
+
+        let effects = vec![effect_1];
+
+        Self {
+            // compute_pipeline,
+            // bind_group,
             control_uniform_buffer,
             control_bg,
             instant: Instant::now(),
             effect: Effect::None,
+            effects,
         }
     }
 
@@ -50,24 +96,49 @@ impl PostProcessor {
             label: Some("post_process_encoder"),
         });
 
+        // let mut compute_pass_1 = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+        //     label: Some("post_process_compute"),
+        //     timestamp_writes: None,
+        // });
+
+        // {
+        //     compute_pass_1.set_pipeline(&self.compute_pipeline);
+
+        //     compute_pass_1.set_bind_group(0, &self.bind_group, &[]);
+        //     let control_uniform = ColorUniform {
+        //         color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
+        //     };
+        //     queue.write_buffer(
+        //         &self.control_uniform_buffer,
+        //         0,
+        //         bytemuck::cast_slice(&[control_uniform]),
+        //     );
+        //     compute_pass_1.set_bind_group(1, &self.control_bg, &[]);
+        //     compute_pass_1.dispatch_workgroups((width + 7) / 8, (height + 7) / 8, 1);
+
+        //     drop(compute_pass_1); // Compute pass would drop without this line anyway
+        // }
+
         let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
             label: Some("post_process_compute"),
             timestamp_writes: None,
         });
 
-        compute_pass.set_pipeline(&self.compute_pipeline);
-
-        compute_pass.set_bind_group(0, &self.bind_group, &[]);
-        let control_uniform = ColorUniform {
-            color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
-        };
-        queue.write_buffer(
-            &self.control_uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[control_uniform]),
-        );
-        compute_pass.set_bind_group(1, &self.control_bg, &[]);
-        compute_pass.dispatch_workgroups((width + 7) / 8, (height + 7) / 8, 1);
+        for effect in &self.effects {
+            // check if active
+            compute_pass.set_pipeline(&self.effects[0].compute_pipeline);
+            compute_pass.set_bind_group(0, &self.effects[0].bind_group, &[]);
+            let control_uniform = ColorUniform {
+                color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
+            };
+            queue.write_buffer(
+                &self.control_uniform_buffer,
+                0,
+                bytemuck::cast_slice(&[control_uniform]),
+            );
+            compute_pass.set_bind_group(1, &self.control_bg, &[]);
+            compute_pass.dispatch_workgroups((width + 7) / 8, (height + 7) / 8, 1);
+        }
 
         drop(compute_pass);
 
@@ -75,7 +146,8 @@ impl PostProcessor {
     }
 
     pub fn resize(&mut self, device: &Device, write_view: &TextureView, read_view: &TextureView) {
-        self.bind_group = create_bind_group(device, write_view, read_view).1;
+        // self.bind_group = create_bind_group(device, write_view, read_view).1;
+        self.effects[0].bind_group = create_bind_group(device, write_view, read_view).1;
     }
 
     pub fn set_effect(
@@ -131,12 +203,12 @@ impl PostProcessor {
             push_constant_ranges: &[],
         });
 
-        self.compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-            label: Some("post_process_pipeline"),
-            layout: Some(&pipeline_layout),
-            module: &shader,
-            entry_point: "cs_main",
-        });
+        // self.compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        //     label: Some("post_process_pipeline"),
+        //     layout: Some(&pipeline_layout),
+        //     module: &shader,
+        //     entry_point: "cs_main",
+        // });
     }
 }
 
