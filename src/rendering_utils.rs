@@ -148,7 +148,7 @@ pub fn create_render_texture(
         depth_or_array_layers: 1,
     };
     let texture = device.create_texture(&wgpu::TextureDescriptor {
-        label: Some("test_texture"),
+        label: Some("render_texture"),
         size,
         mip_level_count: 1,
         sample_count: 1,

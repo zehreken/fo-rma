@@ -242,7 +242,7 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        // self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
+        self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
 
         // self.camera.set_position(vec3(
         //     8.0 * self.elapsed.cos(),

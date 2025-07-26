@@ -62,7 +62,7 @@ impl Settings {
 
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
-        let json = include_str!("../scenes/scene_07.json");
+        let json = include_str!("../scenes/scene_03.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
         // let scene_data = bicycle_generator::generate_bicycle_scene();
 
