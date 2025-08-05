@@ -47,7 +47,7 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
 
         let distance = length(pos - center);
         if (distance <= radius) {
-            color += vec4<f32>(circle_color, 1.0) * 0.1;
+            color += vec4<f32>(circle_color, 1.0) * 0.05;
         }
     }
 

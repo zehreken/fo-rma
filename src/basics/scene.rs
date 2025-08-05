@@ -53,9 +53,9 @@ impl Scene {
         );
 
         let mut material_object_map: HashMap<Material, Vec<Box<dyn Primitive>>> = HashMap::new();
-        // for object_data in &scene_data.objects {
-        let (bicycle, objects) = bicycle_generator::generate_bicycle_objects();
-        for object_data in objects {
+        for object_data in &scene_data.objects {
+            let (bicycle, objects) = bicycle_generator::generate_bicycle_objects();
+            // for object_data in objects {
             let material_type: Material;
             let material: Box<dyn MaterialTrait> = if object_data.material == "DiffuseColorMaterial"
             {
@@ -116,27 +116,27 @@ impl Scene {
         //     Box::new(DebugCircle::new(device, debug_material));
         let mut debug_objects: Vec<Box<dyn Primitive>> = vec![];
 
-        let circles = vec![
-            bicycle.main_circle,
-            bicycle.front_point,
-            bicycle.back_point,
-            bicycle.down_point,
-            bicycle.front_circle,
-            bicycle.front_wheel_point,
-            bicycle.back_circle,
-            bicycle.back_wheel_point,
-        ];
-        for circle in circles {
-            let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
-            let mut object = Box::new(DebugCircle::new(device, debug_material));
-            object
-                .transform()
-                .set_position(vec3(circle.pos.x, circle.pos.y, 0.0));
-            object
-                .transform()
-                .set_scale(vec3(circle.r, circle.r, circle.r));
-            debug_objects.push(object);
-        }
+        // let circles = vec![
+        //     bicycle.main_circle,
+        //     bicycle.front_point,
+        //     bicycle.back_point,
+        //     bicycle.down_point,
+        //     bicycle.front_circle,
+        //     bicycle.front_wheel_point,
+        //     bicycle.back_circle,
+        //     bicycle.back_wheel_point,
+        // ];
+        // for circle in circles {
+        //     let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));
+        //     let mut object = Box::new(DebugCircle::new(device, debug_material));
+        //     object
+        //         .transform()
+        //         .set_position(vec3(circle.pos.x, circle.pos.y, 0.0));
+        //     object
+        //         .transform()
+        //         .set_scale(vec3(circle.r, circle.r, circle.r));
+        //     debug_objects.push(object);
+        // }
         // debug
 
         Self {
@@ -242,12 +242,12 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        self.lights[0].set_position(vec3(20.0 * el.cos(), 5.0, 20.0 * el.sin()));
+        // self.lights[0].set_position(vec3(30.0 * el.cos(), 10.0, 30.0 * el.sin()));
 
         // self.camera.set_position(vec3(
-        //     8.0 * self.elapsed.cos(),
-        //     5.0,
-        //     8.0 * self.elapsed.sin(),
+        //     40.0 * self.elapsed.cos(),
+        //     10.0,
+        //     40.0 * self.elapsed.sin(),
         // ));
         for (material_id, objects) in &mut self.material_object_map {
             if *material_id == Material::Equalizer {
@@ -293,7 +293,7 @@ impl Scene {
                     };
                     let light = LightUniform {
                         position: self.lights[0].transform.position.extend(0.0).to_array(),
-                        color: self.lights[0].color.to_vec4(0.5 + signal * 0.5),
+                        color: self.lights[0].color.to_vec4(1.5 + signal * 0.5),
                     };
                     let data = DiffuseColorUniforms {
                         object,

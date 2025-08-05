@@ -1,29 +1,37 @@
-use crate::basics::uniforms::ColorUniform;
-use std::{mem, time::Instant};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, TextureView};
+use crate::{
+    basics::uniforms::ColorUniform,
+    rendering_utils::create_post_process_texture,
+    shader_utils::{self, effect_to_name, Effect},
+};
+use std::{collections::HashMap, mem, time::Instant};
+use wgpu::{
+    BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, ShaderModule, ShaderSource,
+    TextureView,
+};
+use winit::dpi::PhysicalSize;
 
-struct EffectCon {
+struct EffectConfig {
+    effect: Effect,
     compute_pipeline: ComputePipeline,
     bind_group: BindGroup,
 }
 
-impl EffectCon {
+impl EffectConfig {
     fn new(
         device: &Device,
         write_view: &TextureView,
         read_view: &TextureView,
         control_bgl: &BindGroupLayout,
+        effect: Effect,
+        shader: ShaderModule,
     ) -> Self {
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("compute_shader"),
-            source: wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/pixelate.comp.wgsl").into(),
-            ),
-        });
         let (layout, bind_group) = create_bind_group(device, write_view, read_view);
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("post_process_pipeline_layout"),
+            label: Some(&format!(
+                "post_process_pipeline_layout_{}",
+                effect_to_name(effect)
+            )),
             bind_group_layouts: &[&layout, &control_bgl],
             push_constant_ranges: &[],
         });
@@ -36,6 +44,7 @@ impl EffectCon {
         });
 
         Self {
+            effect,
             compute_pipeline,
             bind_group,
         }
@@ -43,51 +52,23 @@ impl EffectCon {
 }
 
 pub struct PostProcessor {
-    // compute_pipeline: ComputePipeline,
-    // pub bind_group: BindGroup,
     pub control_uniform_buffer: Buffer,
+    control_bgl: BindGroupLayout,
     pub control_bg: BindGroup,
     pub instant: Instant,
-    pub effect: Effect,
-    effects: Vec<EffectCon>,
+    effects: Vec<EffectConfig>,
 }
 
 impl PostProcessor {
     pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
-        // let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-        //     label: Some("compute_shader"),
-        //     source: wgpu::ShaderSource::Wgsl(
-        //         include_str!("../shaders/compute/none.comp.wgsl").into(),
-        //     ),
-        // });
-        // let (layout, bind_group) = create_bind_group(device, write_view, read_view);
         let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
 
-        // let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        //     label: Some("post_process_pipeline_layout"),
-        //     bind_group_layouts: &[&layout, &control_bgl],
-        //     push_constant_ranges: &[],
-        // });
-
-        // let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-        //     label: Some("post_process_pipeline"),
-        //     layout: Some(&pipeline_layout),
-        //     module: &shader,
-        //     entry_point: "cs_main",
-        // });
-
-        let effect_1 = EffectCon::new(device, write_view, read_view, &control_bgl);
-
-        let effects = vec![effect_1];
-
         Self {
-            // compute_pipeline,
-            // bind_group,
             control_uniform_buffer,
+            control_bgl,
             control_bg,
             instant: Instant::now(),
-            effect: Effect::None,
-            effects,
+            effects: vec![],
         }
     }
 
@@ -96,29 +77,6 @@ impl PostProcessor {
             label: Some("post_process_encoder"),
         });
 
-        // let mut compute_pass_1 = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
-        //     label: Some("post_process_compute"),
-        //     timestamp_writes: None,
-        // });
-
-        // {
-        //     compute_pass_1.set_pipeline(&self.compute_pipeline);
-
-        //     compute_pass_1.set_bind_group(0, &self.bind_group, &[]);
-        //     let control_uniform = ColorUniform {
-        //         color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
-        //     };
-        //     queue.write_buffer(
-        //         &self.control_uniform_buffer,
-        //         0,
-        //         bytemuck::cast_slice(&[control_uniform]),
-        //     );
-        //     compute_pass_1.set_bind_group(1, &self.control_bg, &[]);
-        //     compute_pass_1.dispatch_workgroups((width + 7) / 8, (height + 7) / 8, 1);
-
-        //     drop(compute_pass_1); // Compute pass would drop without this line anyway
-        // }
-
         let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
             label: Some("post_process_compute"),
             timestamp_writes: None,
@@ -126,8 +84,8 @@ impl PostProcessor {
 
         for effect in &self.effects {
             // check if active
-            compute_pass.set_pipeline(&self.effects[0].compute_pipeline);
-            compute_pass.set_bind_group(0, &self.effects[0].bind_group, &[]);
+            compute_pass.set_pipeline(&effect.compute_pipeline);
+            compute_pass.set_bind_group(0, &effect.bind_group, &[]);
             let control_uniform = ColorUniform {
                 color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
             };
@@ -145,70 +103,87 @@ impl PostProcessor {
         queue.submit(Some(encoder.finish()));
     }
 
-    pub fn resize(&mut self, device: &Device, write_view: &TextureView, read_view: &TextureView) {
-        // self.bind_group = create_bind_group(device, write_view, read_view).1;
-        self.effects[0].bind_group = create_bind_group(device, write_view, read_view).1;
-    }
-
-    pub fn set_effect(
+    pub fn resize(
         &mut self,
         device: &Device,
+        size: PhysicalSize<u32>,
         write_view: &TextureView,
         read_view: &TextureView,
-        effect: Effect,
+        effect_to_active: &HashMap<Effect, bool>,
     ) {
-        self.effect = effect;
-        let source = match effect {
-            Effect::None => {
-                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/none.comp.wgsl").into())
-            }
-            Effect::Noise => {
-                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/noise.comp.wgsl").into())
-            }
-            Effect::Pixelate => wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/pixelate.comp.wgsl").into(),
-            ),
-            Effect::InvertColor => wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/invert_color.comp.wgsl").into(),
-            ),
-            Effect::Wave => {
-                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/wave.comp.wgsl").into())
-            }
-            Effect::Interlace => wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/interlace.comp.wgsl").into(),
-            ),
-            Effect::FlipAxis => wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/flip_axis.comp.wgsl").into(),
-            ),
-            Effect::Grayscale => wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/grayscale.comp.wgsl").into(),
-            ),
-            Effect::Step => {
-                wgpu::ShaderSource::Wgsl(include_str!("../shaders/compute/step.comp.wgsl").into())
-            }
-            Effect::Watercolor => wgpu::ShaderSource::Wgsl(
-                include_str!("../shaders/compute/watercolor.comp.wgsl").into(),
-            ),
-        };
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("compute_shader"),
-            source,
-        });
-        let (layout, bind_group) = create_bind_group(device, write_view, read_view);
-        let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
+        let (_intermediate_texture_1, intermediate_texture_view_1) =
+            create_post_process_texture(device, size);
+        let (_intermediate_texture_2, intermediate_texture_view_2) =
+            create_post_process_texture(device, size);
 
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("post_process_pipeline_layout"),
-            bind_group_layouts: &[&layout, &control_bgl],
-            push_constant_ranges: &[],
-        });
+        let effects_to_process: Vec<(&Effect, &ShaderSource)> = shader_utils::EFFECTS
+            .iter()
+            .filter(|e| effect_to_active[e.0])
+            .collect();
+        let mut effects = vec![];
+        for (index, effect_data) in effects_to_process.iter().enumerate() {
+            let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some(effect_to_name(*effect_data.0)),
+                source: effect_data.1.to_owned(),
+            });
+            let effect = if index == 0 {
+                EffectConfig::new(
+                    device,
+                    if effects_to_process.len() == 1 {
+                        write_view
+                    } else {
+                        &intermediate_texture_view_1
+                    },
+                    read_view,
+                    &self.control_bgl,
+                    effect_data.0.to_owned(),
+                    shader,
+                )
+            } else if index == effects_to_process.len() - 1 {
+                if index % 2 == 1 {
+                    EffectConfig::new(
+                        device,
+                        write_view,
+                        &intermediate_texture_view_1,
+                        &self.control_bgl,
+                        effect_data.0.to_owned(),
+                        shader,
+                    )
+                } else {
+                    EffectConfig::new(
+                        device,
+                        write_view,
+                        &intermediate_texture_view_2,
+                        &self.control_bgl,
+                        effect_data.0.to_owned(),
+                        shader,
+                    )
+                }
+            } else {
+                if index % 2 == 1 {
+                    EffectConfig::new(
+                        device,
+                        &intermediate_texture_view_2,
+                        &intermediate_texture_view_1,
+                        &self.control_bgl,
+                        effect_data.0.to_owned(),
+                        shader,
+                    )
+                } else {
+                    EffectConfig::new(
+                        device,
+                        &intermediate_texture_view_1,
+                        &intermediate_texture_view_2,
+                        &self.control_bgl,
+                        effect_data.0.to_owned(),
+                        shader,
+                    )
+                }
+            };
+            effects.push(effect);
+        }
 
-        // self.compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-        //     label: Some("post_process_pipeline"),
-        //     layout: Some(&pipeline_layout),
-        //     module: &shader,
-        //     entry_point: "cs_main",
-        // });
+        self.effects = effects;
     }
 }
 
@@ -297,18 +272,4 @@ fn create_control_bind_group(device: &Device) -> (Buffer, BindGroupLayout, BindG
         control_uniform_bgl,
         control_uniform_bg,
     )
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Effect {
-    None,
-    Noise,
-    Pixelate,
-    InvertColor,
-    Wave,
-    Interlace,
-    FlipAxis,
-    Grayscale,
-    Step,
-    Watercolor,
 }

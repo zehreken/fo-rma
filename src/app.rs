@@ -2,11 +2,11 @@ use crate::{
     audio::{audio_model::AudioModel, song},
     basics::{scene::Scene, scene_loader},
     color_utils::{self, ColorPalette},
-    misc::bicycle_generator,
     renderer, save_image,
+    shader_utils::Effect,
 };
 use std::{
-    collections::VecDeque,
+    collections::{HashMap, VecDeque},
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -46,25 +46,38 @@ pub struct Settings {
     pub lock_camera: bool,
     pub color_palette: ColorPalette<f32, 4>,
     pub selected_color: usize,
+    pub effect_to_active: HashMap<Effect, bool>,
 }
 
 impl Settings {
     pub fn new() -> Self {
+        let mut effect_to_active: HashMap<Effect, bool> = HashMap::new();
+        effect_to_active.insert(Effect::None, true);
+        effect_to_active.insert(Effect::Noise, false);
+        effect_to_active.insert(Effect::Pixelate, false);
+        effect_to_active.insert(Effect::InvertColor, false);
+        effect_to_active.insert(Effect::Wave, false);
+        effect_to_active.insert(Effect::Interlace, false);
+        effect_to_active.insert(Effect::FlipAxis, false);
+        effect_to_active.insert(Effect::Grayscale, false);
+        effect_to_active.insert(Effect::Step, false);
+        effect_to_active.insert(Effect::Watercolor, false);
+
         Settings {
             draw_debug_lines: false,
             draw_ui: true,
             lock_camera: false,
             color_palette: color_utils::CP0,
             selected_color: 0,
+            effect_to_active,
         }
     }
 }
 
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
-        let json = include_str!("../scenes/scene_03.json");
+        let json = include_str!("../scenes/scene_08.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
-        // let scene_data = bicycle_generator::generate_bicycle_scene();
 
         let size = window.inner_size();
         let renderer = renderer::Renderer::new(window).await;
@@ -97,7 +110,11 @@ impl<'a> App<'a> {
     fn resize(&mut self, size: PhysicalSize<u32>) {
         if size.width > 0 && size.height > 0 {
             self.size = size;
-            self.renderer.resize(size, self.window.scale_factor());
+            self.renderer.resize(
+                size,
+                self.window.scale_factor(),
+                &self.settings.effect_to_active,
+            );
             self.scene.camera.resize(size);
         }
     }
@@ -150,6 +167,11 @@ impl<'a> App<'a> {
                 UiEvent::ClearSong => {
                     song::clear_song(sequencers);
                 }
+                UiEvent::UpdateEffects => self.renderer.resize(
+                    self.size,
+                    self.window.scale_factor(),
+                    &self.settings.effect_to_active,
+                ),
             }
         }
         self.ui_events.clear();
@@ -286,4 +308,5 @@ pub enum UiEvent {
     SaveSong,
     LoadSong,
     ClearSong,
+    UpdateEffects,
 }

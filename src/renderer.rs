@@ -6,14 +6,13 @@ use crate::{
     gui::Gui,
     material::post_process_material::PostProcessMaterial,
     rendering::{
-        debug_renderer::DebugRenderer,
-        fill_renderer::FillRenderer,
-        line_renderer::LineRenderer,
-        post_processor::{Effect, PostProcessor},
-        screen_renderer::ScreenRenderer,
+        debug_renderer::DebugRenderer, fill_renderer::FillRenderer, line_renderer::LineRenderer,
+        post_processor::PostProcessor, screen_renderer::ScreenRenderer,
     },
     rendering_utils::{self},
+    shader_utils::Effect,
 };
+use std::collections::HashMap;
 use wgpu::{Device, Queue, Surface, SurfaceConfiguration, SurfaceError, TextureView};
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -136,12 +135,10 @@ impl<'a> Renderer<'a> {
                 sequencers,
                 fps,
                 ui_events,
+                &mut settings.effect_to_active,
             );
         }
 
-        if self.gui.settings.effect != self.post_processor.effect {
-            self.set_effect(self.gui.settings.effect);
-        }
         if self.gui.settings.selected_color != settings.selected_color {
             settings.selected_color = self.gui.settings.selected_color;
             settings.color_palette = color_utils::COLORS[settings.selected_color];
@@ -161,16 +158,12 @@ impl<'a> Renderer<'a> {
         Ok(())
     }
 
-    pub fn set_effect(&mut self, effect: Effect) {
-        self.post_processor.set_effect(
-            &self.device,
-            &self.render_texture_material.post_process_texture_view,
-            &self.render_texture_material.render_texture_view,
-            effect,
-        );
-    }
-
-    pub fn resize(&mut self, size: PhysicalSize<u32>, scale_factor: f64) {
+    pub fn resize(
+        &mut self,
+        size: PhysicalSize<u32>,
+        scale_factor: f64,
+        effect_to_active: &HashMap<Effect, bool>,
+    ) {
         self.size = size;
         self.surface_config.width = size.width;
         self.surface_config.height = size.height;
@@ -181,8 +174,10 @@ impl<'a> Renderer<'a> {
             .resize(&self.device, &self.surface_config, size);
         self.post_processor.resize(
             &self.device,
+            size,
             &self.render_texture_material.post_process_texture_view,
             &self.render_texture_material.render_texture_view,
+            effect_to_active,
         );
         self.gui.resize(size, scale_factor);
     }

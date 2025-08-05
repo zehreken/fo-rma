@@ -1,6 +1,6 @@
 use crate::app::UiEvent;
 use crate::audio::sequencer::Sequencer;
-use crate::rendering::post_processor::Effect;
+use crate::shader_utils::Effect;
 use egui::epaint::Shadow;
 use egui::ViewportId;
 use egui_wgpu::wgpu::TextureFormat;
@@ -9,6 +9,7 @@ use egui_winit::{
     egui::{self, ClippedPrimitive, Context, TexturesDelta},
     State,
 };
+use std::collections::HashMap;
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
@@ -34,7 +35,6 @@ pub struct Settings {
     pub show_oscillator_inspector: bool,
     pub show_vfx: bool,
     pub selected: usize,
-    pub effect: Effect,
     pub selected_color: usize,
 }
 
@@ -72,11 +72,10 @@ impl Gui {
             paint_jobs: vec![],
             textures,
             settings: Settings {
-                show_sequencers: true,
-                show_oscillator_inspector: true,
+                show_sequencers: false,
+                show_oscillator_inspector: false,
                 show_vfx: true,
                 selected: 0,
-                effect: Effect::None,
                 selected_color: 0,
             },
         }
@@ -104,6 +103,7 @@ impl Gui {
         sequencers: &mut Vec<Sequencer>,
         fps: f32,
         ui_events: &mut Vec<UiEvent>,
+        effect_to_active: &mut HashMap<Effect, bool>,
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {
@@ -119,8 +119,9 @@ impl Gui {
                 gui_post_process::draw(
                     egui_ctx,
                     &mut self.settings.show_vfx,
-                    &mut self.settings.effect,
+                    effect_to_active,
                     &mut self.settings.selected_color,
+                    ui_events,
                 );
             }
             if self.settings.show_sequencers {
