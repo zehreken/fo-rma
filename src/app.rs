@@ -233,10 +233,10 @@ fn run_event_loop(
                     app.scene.camera.move_x(true);
                 }
                 if input.key_held(KeyCode::KeyQ) {
-                    app.scene.camera.move_y(true);
+                    app.scene.camera.move_y(false);
                 }
                 if input.key_held(KeyCode::KeyE) {
-                    app.scene.camera.move_y(false);
+                    app.scene.camera.move_y(true);
                 }
                 app.scene
                     .camera
