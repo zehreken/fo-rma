@@ -12,8 +12,9 @@ use crate::{
     rendering_utils::{self},
     shader_utils::Effect,
 };
-use std::collections::HashMap;
-use wgpu::{Device, Queue, Surface, SurfaceConfiguration, SurfaceError, TextureView};
+use wgpu::{
+    naga::FastIndexMap, Device, Queue, Surface, SurfaceConfiguration, SurfaceError, TextureView,
+};
 use winit::{dpi::PhysicalSize, window::Window};
 
 pub struct Renderer<'a> {
@@ -162,7 +163,7 @@ impl<'a> Renderer<'a> {
         &mut self,
         size: PhysicalSize<u32>,
         scale_factor: f64,
-        effect_to_active: &HashMap<Effect, bool>,
+        effect_to_active: &FastIndexMap<Effect, bool>,
     ) {
         self.size = size;
         self.surface_config.width = size.width;

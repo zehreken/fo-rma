@@ -6,10 +6,11 @@ use crate::{
     shader_utils::Effect,
 };
 use std::{
-    collections::{HashMap, VecDeque},
+    collections::VecDeque,
     sync::Arc,
     time::{Duration, Instant},
 };
+use wgpu::naga::FastIndexMap;
 use winit::{
     dpi::{PhysicalSize, Size},
     error::EventLoopError,
@@ -46,22 +47,22 @@ pub struct Settings {
     pub lock_camera: bool,
     pub color_palette: ColorPalette<f32, 4>,
     pub selected_color: usize,
-    pub effect_to_active: HashMap<Effect, bool>,
+    pub effect_to_active: FastIndexMap<Effect, bool>,
 }
 
 impl Settings {
     pub fn new() -> Self {
-        let mut effect_to_active: HashMap<Effect, bool> = HashMap::new();
+        let mut effect_to_active: FastIndexMap<Effect, bool> = FastIndexMap::default();
         effect_to_active.insert(Effect::None, true);
         effect_to_active.insert(Effect::Noise, false);
+        effect_to_active.insert(Effect::Watercolor, false);
+        effect_to_active.insert(Effect::Interlace, false);
         effect_to_active.insert(Effect::Pixelate, false);
         effect_to_active.insert(Effect::InvertColor, false);
         effect_to_active.insert(Effect::Wave, false);
-        effect_to_active.insert(Effect::Interlace, false);
         effect_to_active.insert(Effect::FlipAxis, false);
         effect_to_active.insert(Effect::Grayscale, false);
         effect_to_active.insert(Effect::Step, false);
-        effect_to_active.insert(Effect::Watercolor, false);
 
         Settings {
             draw_debug_lines: false,
@@ -76,7 +77,7 @@ impl Settings {
 
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
-        let json = include_str!("../scenes/scene_03.json");
+        let json = include_str!("../scenes/scene_08.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let size = window.inner_size();

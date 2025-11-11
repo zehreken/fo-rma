@@ -9,7 +9,7 @@ use egui_winit::{
     egui::{self, ClippedPrimitive, Context, TexturesDelta},
     State,
 };
-use std::collections::HashMap;
+use wgpu::naga::FastIndexMap;
 use wgpu::{Device, Queue};
 use winit::dpi::PhysicalSize;
 use winit::window::Window;
@@ -103,7 +103,7 @@ impl Gui {
         sequencers: &mut Vec<Sequencer>,
         fps: f32,
         ui_events: &mut Vec<UiEvent>,
-        effect_to_active: &mut HashMap<Effect, bool>,
+        effect_to_active: &mut FastIndexMap<Effect, bool>,
     ) {
         let raw_input = self.state.take_egui_input(window);
         let output = self.ctx.run(raw_input, |egui_ctx| {

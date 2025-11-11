@@ -1,8 +1,8 @@
-use std::{collections::HashMap, sync::LazyLock};
-use wgpu::ShaderSource;
+use std::sync::LazyLock;
+use wgpu::{naga::FastIndexMap, ShaderSource};
 
-pub static EFFECTS: LazyLock<HashMap<Effect, ShaderSource>> = LazyLock::new(|| {
-    let mut map = HashMap::new();
+pub static EFFECTS: LazyLock<FastIndexMap<Effect, ShaderSource>> = LazyLock::new(|| {
+    let mut map = FastIndexMap::default();
     map.insert(
         Effect::None,
         wgpu::ShaderSource::Wgsl(include_str!("shaders/compute/none.comp.wgsl").into()),

@@ -3,7 +3,7 @@ use super::{
     primitive::{Primitive, PrimitiveState},
 };
 use crate::material::MaterialTrait;
-use glam::{Mat3, Mat4};
+use glam::{vec3, Mat3, Mat4, Quat};
 use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]

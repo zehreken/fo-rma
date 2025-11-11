@@ -3,10 +3,10 @@ use crate::{
     rendering_utils::create_post_process_texture,
     shader_utils::{self, effect_to_name, Effect},
 };
-use std::{collections::HashMap, mem, time::Instant};
+use std::{mem, time::Instant};
 use wgpu::{
-    BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue, ShaderModule, ShaderSource,
-    TextureView,
+    naga::FastIndexMap, BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue,
+    ShaderModule, ShaderSource, TextureView,
 };
 use winit::dpi::PhysicalSize;
 
@@ -109,19 +109,22 @@ impl PostProcessor {
         size: PhysicalSize<u32>,
         write_view: &TextureView,
         read_view: &TextureView,
-        effect_to_active: &HashMap<Effect, bool>,
+        effect_to_active: &FastIndexMap<Effect, bool>,
     ) {
         let (_intermediate_texture_1, intermediate_texture_view_1) =
             create_post_process_texture(device, size);
         let (_intermediate_texture_2, intermediate_texture_view_2) =
             create_post_process_texture(device, size);
 
-        let effects_to_process: Vec<(&Effect, &ShaderSource)> = shader_utils::EFFECTS
-            .iter()
-            .filter(|e| effect_to_active[e.0])
-            .collect();
-        let mut effects = vec![];
-        for (index, effect_data) in effects_to_process.iter().enumerate() {
+        let mut active_effects: Vec<(&Effect, &ShaderSource)> = vec![];
+        for (effect, active) in effect_to_active {
+            if *active {
+                active_effects.push((effect, &shader_utils::EFFECTS[effect]));
+            }
+        }
+
+        let mut effects_final = vec![];
+        for (index, effect_data) in active_effects.iter().enumerate() {
             let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
                 label: Some(effect_to_name(*effect_data.0)),
                 source: effect_data.1.to_owned(),
@@ -129,7 +132,7 @@ impl PostProcessor {
             let effect = if index == 0 {
                 EffectConfig::new(
                     device,
-                    if effects_to_process.len() == 1 {
+                    if active_effects.len() == 1 {
                         write_view
                     } else {
                         &intermediate_texture_view_1
@@ -139,7 +142,7 @@ impl PostProcessor {
                     effect_data.0.to_owned(),
                     shader,
                 )
-            } else if index == effects_to_process.len() - 1 {
+            } else if index == active_effects.len() - 1 {
                 if index % 2 == 1 {
                     EffectConfig::new(
                         device,
@@ -180,10 +183,10 @@ impl PostProcessor {
                     )
                 }
             };
-            effects.push(effect);
+            effects_final.push(effect);
         }
 
-        self.effects = effects;
+        self.effects = effects_final;
     }
 }
 
