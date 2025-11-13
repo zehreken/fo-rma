@@ -1,8 +1,8 @@
 {
   "sequencers": [
     {
-      "vco_wave_type": 1,
-      "lfo_wave_type": 4,
+      "vco_wave_type": 4,
+      "lfo_wave_type": 0,
       "noise_type": 0
     },
     {
@@ -11,8 +11,8 @@
       "noise_type": 1
     },
     {
-      "vco_wave_type": 4,
-      "lfo_wave_type": 2,
+      "vco_wave_type": 2,
+      "lfo_wave_type": 0,
       "noise_type": 0
     }
   ],
@@ -24,83 +24,83 @@
       "release": 0.03
     },
     {
-      "attack": 0.01,
+      "attack": 0.0,
       "decay": 0.0,
       "sustain": 0.0,
-      "release": 0.235
+      "release": 0.32
     },
     {
-      "attack": 0.02,
-      "decay": 0.03,
-      "sustain": 0.02,
-      "release": 0.165
+      "attack": 0.0,
+      "decay": 0.01,
+      "sustain": 0.01,
+      "release": 0.05
     }
   ],
   "sequences": [
     [
       {
-        "octave": 4,
+        "octave": 1,
         "key": 4
       },
       {
-        "octave": 4,
+        "octave": 1,
         "key": 4
       },
       {
-        "octave": 4,
+        "octave": 1,
         "key": 12
       },
       {
-        "octave": 4,
+        "octave": 3,
         "key": 4
       },
       {
-        "octave": 4,
+        "octave": 3,
+        "key": 7
+      },
+      {
+        "octave": 2,
         "key": 4
       },
       {
-        "octave": 4,
-        "key": 4
-      },
-      {
-        "octave": 4,
+        "octave": 2,
         "key": 12
       },
       {
-        "octave": 4,
+        "octave": 2,
+        "key": 0
+      },
+      {
+        "octave": 2,
+        "key": 7
+      },
+      {
+        "octave": 3,
+        "key": 0
+      },
+      {
+        "octave": 3,
         "key": 4
       },
       {
-        "octave": 4,
-        "key": 4
-      },
-      {
-        "octave": 4,
-        "key": 4
-      },
-      {
-        "octave": 4,
-        "key": 4
-      },
-      {
-        "octave": 4,
+        "octave": 3,
         "key": 12
       },
       {
-        "octave": 4,
+        "octave": 3,
         "key": 4
       },
       {
-        "octave": 4,
-        "key": 4
+        "octave": 3,
+        "key": 2
       },
       {
-        "octave": 4,
-        "key": 4
+        "octave": 2,
+        "key": 2
       },
       {
-        "octave": 4,
-        "key": 4
+        "octave": 2,
+        "key": 7
       }
     ],
     [
@@ -126,10 +126,6 @@
       },
       {
         "octave": 2,
-        "key": 12
-      },
-      {
-        "octave": 2,
         "key": 0
       },
       {
@@ -138,11 +134,15 @@
       },
       {
         "octave": 2,
+        "key": 12
+      },
+      {
+        "octave": 2,
         "key": 0
       },
       {
         "octave": 2,
-        "key": 12
+        "key": 0
       },
       {
         "octave": 2,
@@ -171,24 +171,16 @@
     ],
     [
       {
-        "octave": 3,
-        "key": 0
+        "octave": 4,
+        "key": 7
       },
       {
-        "octave": 3,
-        "key": 12
+        "octave": 4,
+        "key": 7
       },
       {
-        "octave": 3,
-        "key": 0
-      },
-      {
-        "octave": 3,
-        "key": 0
-      },
-      {
-        "octave": 3,
-        "key": 3
+        "octave": 4,
+        "key": 7
       },
       {
         "octave": 3,
@@ -204,23 +196,15 @@
       },
       {
         "octave": 3,
-        "key": 0
+        "key": 12
+      },
+      {
+        "octave": 4,
+        "key": 9
       },
       {
         "octave": 3,
-        "key": 3
-      },
-      {
-        "octave": 3,
-        "key": 0
-      },
-      {
-        "octave": 3,
-        "key": 0
-      },
-      {
-        "octave": 3,
-        "key": 3
+        "key": 9
       },
       {
         "octave": 3,
@@ -231,7 +215,23 @@
         "key": 12
       },
       {
+        "octave": 4,
+        "key": 4
+      },
+      {
+        "octave": 4,
+        "key": 4
+      },
+      {
         "octave": 3,
+        "key": 12
+      },
+      {
+        "octave": 4,
+        "key": 2
+      },
+      {
+        "octave": 4,
         "key": 12
       }
     ]

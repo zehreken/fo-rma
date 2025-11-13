@@ -63,7 +63,7 @@
         },
         {
             "mesh": "cube",
-            "material": "DiffuseColorMaterial",
+            "material": "EqualizerMaterial",
             "position": {
                 "x": -3.7799999713897707,
                 "y": -0.6899999976158142,
@@ -83,7 +83,7 @@
         },
         {
             "mesh": "cube",
-            "material": "DiffuseColorMaterial",
+            "material": "UnlitColorMaterial",
             "position": {
                 "x": -0.15000000596046449,
                 "y": -3.9100000858306886,
@@ -103,7 +103,7 @@
         },
         {
             "mesh": "cube",
-            "material": "DiffuseColorMaterial",
+            "material": "WaveMaterial",
             "position": {
                 "x": 0.07000000029802323,
                 "y": -4.489999771118164,
@@ -123,7 +123,7 @@
         },
         {
             "mesh": "cube",
-            "material": "DiffuseColorMaterial",
+            "material": "Texture",
             "position": {
                 "x": 0.8299999833106995,
                 "y": -7.179999828338623,
