@@ -6,7 +6,7 @@ use crate::{
 use std::{mem, time::Instant};
 use wgpu::{
     naga::FastIndexMap, BindGroup, BindGroupLayout, Buffer, ComputePipeline, Device, Queue,
-    ShaderModule, ShaderSource, TextureView,
+    ShaderModule, TextureView,
 };
 use winit::dpi::PhysicalSize;
 
@@ -23,7 +23,7 @@ impl EffectConfig {
         read_view: &TextureView,
         control_bgl: &BindGroupLayout,
         effect: Effect,
-        shader: ShaderModule,
+        shader: &ShaderModule,
     ) -> Self {
         let (layout, bind_group) = create_bind_group(device, write_view, read_view);
 
@@ -57,11 +57,22 @@ pub struct PostProcessor {
     pub control_bg: BindGroup,
     pub instant: Instant,
     effects: Vec<EffectConfig>,
+    compiled_shaders: FastIndexMap<Effect, ShaderModule>,
 }
 
 impl PostProcessor {
-    pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
+    pub fn new(device: &Device, _write_view: &TextureView, _read_view: &TextureView) -> Self {
         let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
+
+        // Compiling shaders at start
+        let mut compiled_shaders = FastIndexMap::default();
+        for (effect, source) in shader_utils::EFFECTS.iter() {
+            let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some(effect_to_name(*effect)),
+                source: source.clone(),
+            });
+            compiled_shaders.insert(*effect, shader);
+        }
 
         Self {
             control_uniform_buffer,
@@ -69,6 +80,7 @@ impl PostProcessor {
             control_bg,
             instant: Instant::now(),
             effects: vec![],
+            compiled_shaders,
         }
     }
 
@@ -83,7 +95,6 @@ impl PostProcessor {
         });
 
         for effect in &self.effects {
-            // check if active
             compute_pass.set_pipeline(&effect.compute_pipeline);
             compute_pass.set_bind_group(0, &effect.bind_group, &[]);
             let control_uniform = ColorUniform {
@@ -116,19 +127,15 @@ impl PostProcessor {
         let (_intermediate_texture_2, intermediate_texture_view_2) =
             create_post_process_texture(device, size);
 
-        let mut active_effects: Vec<(&Effect, &ShaderSource)> = vec![];
+        let mut active_effects: Vec<(&Effect, &ShaderModule)> = vec![];
         for (effect, active) in effect_to_active {
             if *active {
-                active_effects.push((effect, &shader_utils::EFFECTS[effect]));
+                active_effects.push((effect, &self.compiled_shaders[effect]));
             }
         }
 
         let mut effects_final = vec![];
         for (index, effect_data) in active_effects.iter().enumerate() {
-            let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-                label: Some(effect_to_name(*effect_data.0)),
-                source: effect_data.1.to_owned(),
-            });
             let effect = if index == 0 {
                 EffectConfig::new(
                     device,
@@ -140,7 +147,7 @@ impl PostProcessor {
                     read_view,
                     &self.control_bgl,
                     effect_data.0.to_owned(),
-                    shader,
+                    effect_data.1,
                 )
             } else if index == active_effects.len() - 1 {
                 if index % 2 == 1 {
@@ -150,7 +157,7 @@ impl PostProcessor {
                         &intermediate_texture_view_1,
                         &self.control_bgl,
                         effect_data.0.to_owned(),
-                        shader,
+                        effect_data.1,
                     )
                 } else {
                     EffectConfig::new(
@@ -159,7 +166,7 @@ impl PostProcessor {
                         &intermediate_texture_view_2,
                         &self.control_bgl,
                         effect_data.0.to_owned(),
-                        shader,
+                        effect_data.1,
                     )
                 }
             } else {
@@ -170,7 +177,7 @@ impl PostProcessor {
                         &intermediate_texture_view_1,
                         &self.control_bgl,
                         effect_data.0.to_owned(),
-                        shader,
+                        effect_data.1,
                     )
                 } else {
                     EffectConfig::new(
@@ -179,7 +186,7 @@ impl PostProcessor {
                         &intermediate_texture_view_2,
                         &self.control_bgl,
                         effect_data.0.to_owned(),
-                        shader,
+                        effect_data.1,
                     )
                 }
             };
