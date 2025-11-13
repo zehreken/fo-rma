@@ -12,7 +12,6 @@ use winit::dpi::PhysicalSize;
 
 struct EffectConfig {
     effect: Effect,
-    compute_pipeline: ComputePipeline,
     bind_group: BindGroup,
 }
 
@@ -21,47 +20,25 @@ impl EffectConfig {
         device: &Device,
         write_view: &TextureView,
         read_view: &TextureView,
-        control_bgl: &BindGroupLayout,
         effect: Effect,
-        shader: &ShaderModule,
     ) -> Self {
-        let (layout, bind_group) = create_bind_group(device, write_view, read_view);
+        let (_layout, bind_group) = create_bind_group(device, write_view, read_view);
 
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some(&format!(
-                "post_process_pipeline_layout_{}",
-                effect_to_name(effect)
-            )),
-            bind_group_layouts: &[&layout, &control_bgl],
-            push_constant_ranges: &[],
-        });
-
-        let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-            label: Some("post_process_pipeline"),
-            layout: Some(&pipeline_layout),
-            module: &shader,
-            entry_point: "cs_main",
-        });
-
-        Self {
-            effect,
-            compute_pipeline,
-            bind_group,
-        }
+        Self { effect, bind_group }
     }
 }
 
 pub struct PostProcessor {
     pub control_uniform_buffer: Buffer,
-    control_bgl: BindGroupLayout,
     pub control_bg: BindGroup,
     pub instant: Instant,
     effects: Vec<EffectConfig>,
     compiled_shaders: FastIndexMap<Effect, ShaderModule>,
+    compiled_pipelines: FastIndexMap<Effect, (BindGroupLayout, ComputePipeline)>,
 }
 
 impl PostProcessor {
-    pub fn new(device: &Device, _write_view: &TextureView, _read_view: &TextureView) -> Self {
+    pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
         let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
 
         // Compiling shaders at start
@@ -74,13 +51,36 @@ impl PostProcessor {
             compiled_shaders.insert(*effect, shader);
         }
 
+        let mut compiled_pipelines = FastIndexMap::default();
+        for (effect, shader) in compiled_shaders.iter() {
+            let (layout, _bind_group) = create_bind_group(device, write_view, read_view);
+
+            let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some(&format!(
+                    "post_process_pipeline_layout_{}",
+                    effect_to_name(*effect)
+                )),
+                bind_group_layouts: &[&layout, &control_bgl],
+                push_constant_ranges: &[],
+            });
+
+            let compute_pipeline =
+                device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+                    label: Some("post_process_pipeline"),
+                    layout: Some(&pipeline_layout),
+                    module: &shader,
+                    entry_point: "cs_main",
+                });
+            compiled_pipelines.insert(*effect, (layout, compute_pipeline));
+        }
+
         Self {
             control_uniform_buffer,
-            control_bgl,
             control_bg,
             instant: Instant::now(),
             effects: vec![],
             compiled_shaders,
+            compiled_pipelines,
         }
     }
 
@@ -95,7 +95,7 @@ impl PostProcessor {
         });
 
         for effect in &self.effects {
-            compute_pass.set_pipeline(&effect.compute_pipeline);
+            compute_pass.set_pipeline(&self.compiled_pipelines[&effect.effect].1);
             compute_pass.set_bind_group(0, &effect.bind_group, &[]);
             let control_uniform = ColorUniform {
                 color: [self.instant.elapsed().as_secs_f32(), 0.0, 0.0, 0.0],
@@ -145,9 +145,7 @@ impl PostProcessor {
                         &intermediate_texture_view_1
                     },
                     read_view,
-                    &self.control_bgl,
                     effect_data.0.to_owned(),
-                    effect_data.1,
                 )
             } else if index == active_effects.len() - 1 {
                 if index % 2 == 1 {
@@ -155,18 +153,14 @@ impl PostProcessor {
                         device,
                         write_view,
                         &intermediate_texture_view_1,
-                        &self.control_bgl,
                         effect_data.0.to_owned(),
-                        effect_data.1,
                     )
                 } else {
                     EffectConfig::new(
                         device,
                         write_view,
                         &intermediate_texture_view_2,
-                        &self.control_bgl,
                         effect_data.0.to_owned(),
-                        effect_data.1,
                     )
                 }
             } else {
@@ -175,18 +169,14 @@ impl PostProcessor {
                         device,
                         &intermediate_texture_view_2,
                         &intermediate_texture_view_1,
-                        &self.control_bgl,
                         effect_data.0.to_owned(),
-                        effect_data.1,
                     )
                 } else {
                     EffectConfig::new(
                         device,
                         &intermediate_texture_view_1,
                         &intermediate_texture_view_2,
-                        &self.control_bgl,
                         effect_data.0.to_owned(),
-                        effect_data.1,
                     )
                 }
             };
