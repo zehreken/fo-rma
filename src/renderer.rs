@@ -28,7 +28,7 @@ pub struct Renderer<'a> {
     fill_renderer: FillRenderer,
     line_renderer: LineRenderer,
     debug_renderer: DebugRenderer,
-    post_processor: PostProcessor,
+    pub post_processor: PostProcessor,
     screen_renderer: ScreenRenderer,
     size: PhysicalSize<u32>,
 }
@@ -61,6 +61,7 @@ impl<'a> Renderer<'a> {
         let debug_renderer = DebugRenderer::new(&device, &surface_config);
         let post_processor = PostProcessor::new(
             &device,
+            size,
             &render_texture_material.post_process_texture_view,
             &render_texture_material.render_texture_view,
         );

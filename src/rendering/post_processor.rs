@@ -33,12 +33,19 @@ pub struct PostProcessor {
     pub control_bg: BindGroup,
     pub instant: Instant,
     effects: Vec<EffectConfig>,
+    intermediate_texture_view_1: TextureView,
+    intermediate_texture_view_2: TextureView,
     compiled_shaders: FastIndexMap<Effect, ShaderModule>,
     compiled_pipelines: FastIndexMap<Effect, (BindGroupLayout, ComputePipeline)>,
 }
 
 impl PostProcessor {
-    pub fn new(device: &Device, write_view: &TextureView, read_view: &TextureView) -> Self {
+    pub fn new(
+        device: &Device,
+        size: PhysicalSize<u32>,
+        write_view: &TextureView,
+        read_view: &TextureView,
+    ) -> Self {
         let (control_uniform_buffer, control_bgl, control_bg) = create_control_bind_group(device);
 
         // Compiling shaders at start
@@ -50,6 +57,11 @@ impl PostProcessor {
             });
             compiled_shaders.insert(*effect, shader);
         }
+
+        let (_intermediate_texture_1, intermediate_texture_view_1) =
+            create_post_process_texture(device, size);
+        let (_intermediate_texture_2, intermediate_texture_view_2) =
+            create_post_process_texture(device, size);
 
         let mut compiled_pipelines = FastIndexMap::default();
         for (effect, shader) in compiled_shaders.iter() {
@@ -79,6 +91,8 @@ impl PostProcessor {
             control_bg,
             instant: Instant::now(),
             effects: vec![],
+            intermediate_texture_view_1,
+            intermediate_texture_view_2,
             compiled_shaders,
             compiled_pipelines,
         }
@@ -114,6 +128,72 @@ impl PostProcessor {
         queue.submit(Some(encoder.finish()));
     }
 
+    pub fn update_effects(
+        &mut self,
+        device: &Device,
+        write_view: &TextureView,
+        read_view: &TextureView,
+        effect_to_active: &FastIndexMap<Effect, bool>,
+    ) {
+        let mut active_effects: Vec<(&Effect, &ShaderModule)> = vec![];
+        for (effect, active) in effect_to_active {
+            if *active {
+                active_effects.push((effect, &self.compiled_shaders[effect]));
+            }
+        }
+
+        let mut effects_final = vec![];
+        for (index, effect_data) in active_effects.iter().enumerate() {
+            let effect = if index == 0 {
+                EffectConfig::new(
+                    device,
+                    if active_effects.len() == 1 {
+                        write_view
+                    } else {
+                        &self.intermediate_texture_view_1
+                    },
+                    read_view,
+                    effect_data.0.to_owned(),
+                )
+            } else if index == active_effects.len() - 1 {
+                if index % 2 == 1 {
+                    EffectConfig::new(
+                        device,
+                        write_view,
+                        &self.intermediate_texture_view_1,
+                        effect_data.0.to_owned(),
+                    )
+                } else {
+                    EffectConfig::new(
+                        device,
+                        write_view,
+                        &self.intermediate_texture_view_2,
+                        effect_data.0.to_owned(),
+                    )
+                }
+            } else {
+                if index % 2 == 1 {
+                    EffectConfig::new(
+                        device,
+                        &self.intermediate_texture_view_2,
+                        &self.intermediate_texture_view_1,
+                        effect_data.0.to_owned(),
+                    )
+                } else {
+                    EffectConfig::new(
+                        device,
+                        &self.intermediate_texture_view_1,
+                        &self.intermediate_texture_view_2,
+                        effect_data.0.to_owned(),
+                    )
+                }
+            };
+            effects_final.push(effect);
+        }
+
+        self.effects = effects_final;
+    }
+
     pub fn resize(
         &mut self,
         device: &Device,
@@ -122,10 +202,8 @@ impl PostProcessor {
         read_view: &TextureView,
         effect_to_active: &FastIndexMap<Effect, bool>,
     ) {
-        let (_intermediate_texture_1, intermediate_texture_view_1) =
-            create_post_process_texture(device, size);
-        let (_intermediate_texture_2, intermediate_texture_view_2) =
-            create_post_process_texture(device, size);
+        (_, self.intermediate_texture_view_1) = create_post_process_texture(device, size);
+        (_, self.intermediate_texture_view_2) = create_post_process_texture(device, size);
 
         let mut active_effects: Vec<(&Effect, &ShaderModule)> = vec![];
         for (effect, active) in effect_to_active {
@@ -142,7 +220,7 @@ impl PostProcessor {
                     if active_effects.len() == 1 {
                         write_view
                     } else {
-                        &intermediate_texture_view_1
+                        &self.intermediate_texture_view_1
                     },
                     read_view,
                     effect_data.0.to_owned(),
@@ -152,14 +230,14 @@ impl PostProcessor {
                     EffectConfig::new(
                         device,
                         write_view,
-                        &intermediate_texture_view_1,
+                        &self.intermediate_texture_view_1,
                         effect_data.0.to_owned(),
                     )
                 } else {
                     EffectConfig::new(
                         device,
                         write_view,
-                        &intermediate_texture_view_2,
+                        &self.intermediate_texture_view_2,
                         effect_data.0.to_owned(),
                     )
                 }
@@ -167,15 +245,15 @@ impl PostProcessor {
                 if index % 2 == 1 {
                     EffectConfig::new(
                         device,
-                        &intermediate_texture_view_2,
-                        &intermediate_texture_view_1,
+                        &self.intermediate_texture_view_2,
+                        &self.intermediate_texture_view_1,
                         effect_data.0.to_owned(),
                     )
                 } else {
                     EffectConfig::new(
                         device,
-                        &intermediate_texture_view_1,
-                        &intermediate_texture_view_2,
+                        &self.intermediate_texture_view_1,
+                        &self.intermediate_texture_view_2,
                         effect_data.0.to_owned(),
                     )
                 }

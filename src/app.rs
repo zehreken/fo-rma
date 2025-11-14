@@ -168,9 +168,13 @@ impl<'a> App<'a> {
                 UiEvent::ClearSong => {
                     song::clear_song(sequencers);
                 }
-                UiEvent::UpdateEffects => self.renderer.resize(
-                    self.size,
-                    self.window.scale_factor(),
+                UiEvent::UpdateEffects => self.renderer.post_processor.update_effects(
+                    &self.renderer.device,
+                    &self
+                        .renderer
+                        .render_texture_material
+                        .post_process_texture_view,
+                    &self.renderer.render_texture_material.render_texture_view,
                     &self.settings.effect_to_active,
                 ),
             }
