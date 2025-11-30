@@ -56,13 +56,13 @@ impl Settings {
         effect_to_active.insert(Effect::None, true);
         effect_to_active.insert(Effect::Noise, false);
         effect_to_active.insert(Effect::Watercolor, false);
-        effect_to_active.insert(Effect::Interlace, false);
         effect_to_active.insert(Effect::Pixelate, false);
-        effect_to_active.insert(Effect::InvertColor, false);
         effect_to_active.insert(Effect::Wave, false);
-        effect_to_active.insert(Effect::FlipAxis, false);
+        effect_to_active.insert(Effect::InvertColor, false);
+        effect_to_active.insert(Effect::Interlace, false);
         effect_to_active.insert(Effect::Grayscale, false);
         effect_to_active.insert(Effect::Step, false);
+        effect_to_active.insert(Effect::FlipAxis, false);
 
         Settings {
             draw_debug_lines: false,
@@ -193,7 +193,7 @@ impl<'a> App<'a> {
             self.last_frame_time = Instant::now();
         }
 
-        self.scene.camera.update();
+        self.scene.camera.update(self.elapsed);
 
         self.window.request_redraw();
     }
@@ -245,7 +245,7 @@ fn run_event_loop(
                 }
                 app.scene
                     .camera
-                    .rotate(input.mouse_diff().0, input.mouse_diff().1);
+                    .look(input.mouse_diff().0, input.mouse_diff().1);
             }
             if input.key_pressed(KeyCode::KeyU) {
                 app.settings.draw_ui = !app.settings.draw_ui;

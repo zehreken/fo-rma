@@ -1,5 +1,5 @@
 use crate::{
-    basics::screen_quad::ScreenQuad, material::post_process_material::PostProcessMaterial,
+    material::post_process_material::PostProcessMaterial, primitives::screen_quad::ScreenQuad,
 };
 use wgpu::{Color, Device, Operations, Queue, RenderPassColorAttachment, TextureView};
 

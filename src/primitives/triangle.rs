@@ -1,8 +1,5 @@
-use super::{
-    core::Vertex,
-    primitive::{Primitive, PrimitiveState},
-};
-use crate::{color_utils, material::MaterialTrait};
+use super::primitive::{Primitive, PrimitiveState};
+use crate::{basics::core::Vertex, color_utils, material::MaterialTrait};
 use wgpu::{Device, RenderPass};
 
 #[rustfmt::skip]
@@ -46,7 +43,7 @@ impl Primitive for Triangle {
         self.state.normal_matrix
     }
 
-    fn transform(&mut self) -> &mut super::core::Transform {
+    fn transform(&mut self) -> &mut crate::basics::core::Transform {
         &mut self.state.transform
     }
 

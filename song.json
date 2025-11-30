@@ -1,7 +1,7 @@
 {
   "sequencers": [
     {
-      "vco_wave_type": 4,
+      "vco_wave_type": 2,
       "lfo_wave_type": 0,
       "noise_type": 0
     },
@@ -11,7 +11,7 @@
       "noise_type": 1
     },
     {
-      "vco_wave_type": 2,
+      "vco_wave_type": 4,
       "lfo_wave_type": 0,
       "noise_type": 0
     }

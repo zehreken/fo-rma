@@ -64,11 +64,11 @@ impl Camera {
         self.eye = position;
     }
 
-    pub fn update(&mut self) {}
+    pub fn update(&mut self, elapsed: f32) {}
 
     pub fn reset(&mut self) {}
 
-    pub fn rotate(&mut self, diff_x: f32, diff_y: f32) {
+    pub fn look(&mut self, diff_x: f32, diff_y: f32) {
         let sensitivity = 0.0014;
         self.yaw -= diff_x * sensitivity;
         self.pitch -= diff_y * sensitivity;

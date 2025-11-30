@@ -1,5 +1,6 @@
-use super::core::Vertex;
 use wgpu::{util::DeviceExt, Device, RenderPass};
+
+use crate::basics::core::Vertex;
 
 #[rustfmt::skip]
 const VERTICES: &[Vertex] = &[

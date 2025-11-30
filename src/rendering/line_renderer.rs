@@ -1,10 +1,10 @@
 use crate::{
     basics::{
-        primitive::Primitive,
         scene::Scene,
         uniforms::{ColorUniform, ObjectUniform},
     },
     material::{debug_material::DebugMaterial, MaterialTrait},
+    primitives::primitive::Primitive,
 };
 use wgpu::{
     CommandEncoderDescriptor, Device, LoadOp, Operations, Queue, RenderPassColorAttachment,

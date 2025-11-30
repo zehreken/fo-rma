@@ -1,9 +1,7 @@
 use crate::{
-    basics::{
-        core::Vertex,
-        primitive::{Primitive, PrimitiveState},
-    },
+    basics::core::Vertex,
     material::MaterialTrait,
+    primitives::primitive::{Primitive, PrimitiveState},
 };
 use glam::{Mat3, Mat4};
 use std::f32::consts::PI;
@@ -51,7 +49,7 @@ impl Primitive for DebugCircle {
         self.state.normal_matrix
     }
 
-    fn transform(&mut self) -> &mut super::core::Transform {
+    fn transform(&mut self) -> &mut crate::basics::core::Transform {
         &mut self.state.transform
     }
 

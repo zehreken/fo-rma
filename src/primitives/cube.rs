@@ -1,8 +1,5 @@
-use super::{
-    core::Vertex,
-    primitive::{Primitive, PrimitiveState},
-};
-use crate::material::MaterialTrait;
+use super::primitive::{Primitive, PrimitiveState};
+use crate::{basics::core::Vertex, material::MaterialTrait};
 use glam::{vec3, Mat3, Mat4, Quat};
 use wgpu::{Device, RenderPass};
 
@@ -95,7 +92,7 @@ impl Primitive for Cube {
         self.state.normal_matrix
     }
 
-    fn transform(&mut self) -> &mut super::core::Transform {
+    fn transform(&mut self) -> &mut crate::basics::core::Transform {
         &mut self.state.transform
     }
 

@@ -102,21 +102,21 @@ impl AudioModel {
         output_stream.play().expect("Can't play output stream");
 
         let sequencer = Sequencer::new(
-            280,
+            480,
             sample_rate,
             output_config.channels.into(),
             songs::TEMPLATE_16.to_vec(),
         );
 
         let sequencer_2 = Sequencer::new(
-            280,
+            480,
             sample_rate,
             output_config.channels.into(),
             songs::TEMPLATE_16.to_vec(),
         );
 
         let sequencer_3 = Sequencer::new(
-            280,
+            480,
             sample_rate,
             output_config.channels.into(),
             songs::TEMPLATE_16.to_vec(),

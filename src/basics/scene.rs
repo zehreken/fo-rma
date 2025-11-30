@@ -1,16 +1,10 @@
 use super::{
     camera::{self, Camera},
-    cube::Cube,
     light::Light,
-    primitive::Primitive,
-    quad::Quad,
     scene_loader::SceneData,
-    sphere::Sphere,
-    triangle::Triangle,
     uniforms::{ColorUniform, EqualizerUniform, LightUniform, ObjectUniform},
 };
 use crate::{
-    basics::{circle::Circle, cylinder::Cylinder, debug_circle::DebugCircle},
     color_utils::{self, ColorPalette, ToVec4},
     material::{
         diffuse_color_material::{DiffuseColorMaterial, DiffuseColorUniforms},
@@ -21,6 +15,10 @@ use crate::{
         Material, MaterialTrait,
     },
     misc::bicycle_generator,
+    primitives::{
+        circle::Circle, cube::Cube, cylinder::Cylinder, debug_circle::DebugCircle,
+        primitive::Primitive, quad::Quad, sphere::Sphere, triangle::Triangle,
+    },
 };
 use glam::vec3;
 use std::{collections::HashMap, sync::Arc};
@@ -108,7 +106,7 @@ impl Scene {
         // material_object_map.insert(MaterialType::WaveMaterial, objects);
 
         let mut light = Light::new(color_utils::CP0.palette[1]);
-        light.set_position(vec3(0.0, 0.0, -10.0));
+        light.set_position(vec3(10.0, 0.0, 0.0));
         let lights = vec![light];
         // debug
         // let debug_material = Box::new(DiffuseColorMaterial::new(device, surface_config));

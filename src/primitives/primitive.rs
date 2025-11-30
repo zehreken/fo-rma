@@ -1,4 +1,4 @@
-use super::core::{Transform, Vertex};
+use crate::basics::core::{Transform, Vertex};
 use crate::material::MaterialTrait;
 use glam::{Mat3, Mat4, Quat, Vec3};
 use wgpu::{util::DeviceExt, Device, RenderPass};

@@ -1,15 +1,6 @@
 pub mod camera;
-pub mod circle;
 pub mod core;
-pub mod cube;
-pub mod cylinder;
-pub mod debug_circle;
 pub mod light;
-pub mod primitive;
-pub mod quad;
 pub mod scene;
 pub mod scene_loader;
-pub mod screen_quad;
-pub mod sphere;
-pub mod triangle;
 pub mod uniforms;
