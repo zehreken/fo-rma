@@ -6,4 +6,5 @@ pub mod primitive;
 pub mod quad;
 pub mod screen_quad;
 pub mod sphere;
+pub mod tetrahedron;
 pub mod triangle;

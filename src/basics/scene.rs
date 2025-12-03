@@ -17,7 +17,8 @@ use crate::{
     misc::bicycle_generator,
     primitives::{
         circle::Circle, cube::Cube, cylinder::Cylinder, debug_circle::DebugCircle,
-        primitive::Primitive, quad::Quad, sphere::Sphere, triangle::Triangle,
+        primitive::Primitive, quad::Quad, sphere::Sphere, tetrahedron::Tetrahedron,
+        triangle::Triangle,
     },
 };
 use glam::vec3;
@@ -87,6 +88,8 @@ impl Scene {
                 Box::new(Circle::new(device, material))
             } else if object_data.mesh == "cylinder" {
                 Box::new(Cylinder::new(device, material, 30))
+            } else if object_data.mesh == "tetrahedron" {
+                Box::new(Tetrahedron::new(device, material))
             } else {
                 Box::new(Quad::new(device, material))
             };
