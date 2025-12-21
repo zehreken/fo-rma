@@ -63,6 +63,8 @@ impl Settings {
         effect_to_active.insert(Effect::Grayscale, false);
         effect_to_active.insert(Effect::Step, false);
         effect_to_active.insert(Effect::FlipAxis, false);
+        effect_to_active.insert(Effect::Chromostereopsis, false);
+        effect_to_active.insert(Effect::Anaglyph, false);
 
         Settings {
             draw_debug_lines: false,
@@ -77,7 +79,7 @@ impl Settings {
 
 impl<'a> App<'a> {
     async fn new(window: &'a Window) -> App<'a> {
-        let json = include_str!("../scenes/scene_09.json");
+        let json = include_str!("../scenes/scene_03.json");
         let scene_data = scene_loader::construct_scene_from_json(json);
 
         let size = window.inner_size();

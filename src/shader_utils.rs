@@ -43,6 +43,14 @@ pub static EFFECTS: LazyLock<FastIndexMap<Effect, ShaderSource>> = LazyLock::new
         Effect::Watercolor,
         wgpu::ShaderSource::Wgsl(include_str!("shaders/compute/watercolor.comp.wgsl").into()),
     );
+    map.insert(
+        Effect::Chromostereopsis,
+        wgpu::ShaderSource::Wgsl(include_str!("shaders/compute/chromostereopsis.comp.wgsl").into()),
+    );
+    map.insert(
+        Effect::Anaglyph,
+        wgpu::ShaderSource::Wgsl(include_str!("shaders/compute/anaglyph.comp.wgsl").into()),
+    );
     map
 });
 
@@ -58,6 +66,8 @@ pub enum Effect {
     Grayscale,
     Step,
     Watercolor,
+    Chromostereopsis,
+    Anaglyph,
 }
 
 pub fn effect_to_name(effect: Effect) -> &'static str {
@@ -72,5 +82,7 @@ pub fn effect_to_name(effect: Effect) -> &'static str {
         Effect::Grayscale => "grayscale",
         Effect::Step => "step",
         Effect::Watercolor => "watercolor",
+        Effect::Chromostereopsis => "chromostereopsis",
+        Effect::Anaglyph => "anaglyph",
     }
 }
