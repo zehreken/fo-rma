@@ -42,7 +42,7 @@
     ],
     "objects": [
         {
-            "mesh": "tetrahedron",
+            "mesh": "mesh",
             "material": "DiffuseColor",
             "position": {
                 "x": 10.0,

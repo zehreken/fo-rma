@@ -56,11 +56,11 @@ impl PrimitiveState {
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        let rotation_x = Quat::from_rotation_x(delta_time * 0.3);
-        let rotation_y = Quat::from_rotation_y(delta_time * 0.2);
-        let rotation_z = Quat::from_rotation_z(delta_time * 0.1);
+        // let rotation_x = Quat::from_rotation_x(delta_time * 0.3);
+        // let rotation_y = Quat::from_rotation_y(delta_time * 0.2);
+        // let rotation_z = Quat::from_rotation_z(delta_time * 0.1);
 
-        self.transform.rotation = self.transform.rotation * rotation_x * rotation_y * rotation_z;
+        // self.transform.rotation = self.transform.rotation * rotation_x * rotation_y * rotation_z;
 
         self.model_matrix = Mat4::from_scale_rotation_translation(
             self.transform.scale,

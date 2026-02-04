@@ -14,9 +14,9 @@ use crate::{
         wave_material::{WaveMaterial, WaveUniforms},
         Material, MaterialTrait,
     },
-    misc::bicycle_generator,
+    misc::{bicycle_generator, gltf_helper},
     primitives::{
-        circle::Circle, cube::Cube, cylinder::Cylinder, debug_circle::DebugCircle,
+        circle::Circle, cube::Cube, cylinder::Cylinder, debug_circle::DebugCircle, mesh::Mesh,
         primitive::Primitive, quad::Quad, sphere::Sphere, tetrahedron::Tetrahedron,
         triangle::Triangle,
     },
@@ -90,6 +90,14 @@ impl Scene {
                 Box::new(Cylinder::new(device, material, 30))
             } else if object_data.mesh == "tetrahedron" {
                 Box::new(Tetrahedron::new(device, material))
+            } else if object_data.mesh == "mesh" {
+                // later this will be the gltf file
+                if let Some((vertices, indices)) = gltf_helper::get_model_data() {
+                    Box::new(Mesh::new(device, material, &vertices, &indices))
+                } else {
+                    println!("Failed to load model!!!");
+                    Box::new(Sphere::new(device, material))
+                }
             } else {
                 Box::new(Quad::new(device, material))
             };
@@ -243,7 +251,7 @@ impl Scene {
     ) {
         self.elapsed += delta_time;
         let el = self.elapsed * 0.5;
-        // self.lights[0].set_position(vec3(30.0 * el.cos(), 10.0, 30.0 * el.sin()));
+        self.lights[0].set_position(vec3(30.0 * el.cos(), 10.0, 30.0 * el.sin()));
 
         // self.camera.set_position(vec3(
         //     40.0 * self.elapsed.cos(),
